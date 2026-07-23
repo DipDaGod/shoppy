@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Maison Verso — Handcrafted Envelope Clutches</title>
+<title>Maison Verso — Handmade Shagun Envelopes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Marcellus&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -193,27 +193,29 @@
   .hero-visual{position:relative; display:flex; align-items:center; justify-content:center; perspective:1200px;}
   .tilt-wrap{transition: transform 0.2s ease-out; transform-style:preserve-3d; width:100%; display:flex; justify-content:center;}
   .hero-card{
-    width:100%; max-width:440px; aspect-ratio:4/3.1; border-radius:28px; position:relative;
-    background:
-      linear-gradient(135deg, #7c93a8 0%, #93a9bc 45%, #b7c6d3 100%);
+    width:100%; max-width:440px; aspect-ratio:4/3.1; border-radius:14px; position:relative;
+    background: linear-gradient(160deg, #f7f1e6 0%, #efe6d3 55%, #e9dcc6 100%);
     box-shadow:var(--shadow-lift);
+    border:1px solid rgba(184,151,95,0.35);
     overflow:hidden;
     animation: floatSlow 6s ease-in-out infinite;
   }
   @keyframes floatSlow{0%,100%{transform:translateY(0) rotate(-1.2deg);} 50%{transform:translateY(-14px) rotate(0.4deg);}}
   .hero-card::before{
     content:''; position:absolute; inset:0;
-    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.06) 0 2px, transparent 2px 5px);
+    background-image: radial-gradient(rgba(51,44,36,0.035) 1px, transparent 1px);
+    background-size: 6px 6px;
+    opacity:0.5;
   }
   .hero-card .flap{
     position:absolute; top:0; left:0; right:0; height:58%;
-    background:linear-gradient(160deg, #eecfc6, #e3c2be);
+    background:linear-gradient(160deg, #d8c6a5, #c9a876);
     clip-path: polygon(0 0, 100% 0, 100% 40%, 50% 100%, 0 40%);
     box-shadow: inset 0 -20px 30px rgba(0,0,0,0.06);
   }
   .hero-card .stitch-line{
     position:absolute; left:8%; right:8%; top:8%; height:1px;
-    background-image: repeating-linear-gradient(90deg, rgba(184,151,95,0.7) 0 8px, transparent 8px 16px);
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.55) 0 8px, transparent 8px 16px);
   }
   .hero-card .bloom{
     position:absolute; border-radius:50%; filter:blur(0.2px);
@@ -221,10 +223,15 @@
   .hero-card .bloom.b1{width:70px; height:70px; background:radial-gradient(circle,#e79fa3,#d97e88); bottom:14%; right:16%;}
   .hero-card .bloom.b2{width:44px; height:44px; background:radial-gradient(circle,#f0c4c8,#e79fa3); bottom:26%; right:32%;}
   .hero-card .bloom.b3{width:30px; height:30px; background:radial-gradient(circle,#c9d8a6,#b3c98a); bottom:10%; right:34%;}
-  .hero-card .clasp{
+  .hero-card .wax-seal{
     position:absolute; top:52%; left:50%; transform:translate(-50%,-50%);
-    width:34px; height:14px; background:linear-gradient(180deg,var(--gold-light),var(--gold)); border-radius:4px;
-    box-shadow:0 3px 6px rgba(0,0,0,0.2);
+    width:52px; height:52px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #d8a355, #a9762f 70%, #8a5f24 100%);
+    box-shadow:0 4px 10px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.3);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .hero-card .wax-seal::before{
+    content: attr(data-initials); font-family:var(--display); font-size:15px; color:rgba(255,255,255,0.85); letter-spacing:0.04em;
   }
   .float-shape{
     position:absolute; border-radius:50%; opacity:0.5; filter:blur(1px);
@@ -321,9 +328,11 @@
   .stars{display:flex; gap:2px; margin-bottom:10px;}
   .stars svg{width:13px; height:13px; fill:var(--gold);}
   .card-desc{font-size:13.5px; color:var(--ink-soft); margin-bottom:14px; line-height:1.55;}
-  .card-bottom{display:flex; align-items:center; justify-content:space-between;}
+  .card-bottom{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
+  .price-group{display:flex; align-items:baseline; gap:7px;}
   .price{font-family:var(--display); font-size:20px; color:var(--ink); transition:color 0.3s ease;}
   .product-card:hover .price{color:var(--gold);}
+  .price-original{font-size:12.5px; color:var(--ink-soft); text-decoration:line-through;}
   .add-btn{
     font-size:11.5px; letter-spacing:0.05em; text-transform:uppercase; padding:11px 18px; border-radius:100px;
     background:var(--ink); color:var(--white); transition: all 0.35s ease; position:relative; overflow:hidden;
@@ -331,17 +340,33 @@
   .add-btn:hover{background:var(--gold);}
   .add-btn.added{background:#6b8a5f;}
 
+  .card-control{display:flex; align-items:center; gap:8px;}
+  .card-stepper{
+    display:flex; align-items:center; gap:8px; background:var(--ivory); border-radius:100px; padding:5px 12px;
+  }
+  .card-stepper .qty-btn{width:22px; height:22px; font-size:13px; border:none; background:var(--white);}
+  .card-stepper span{font-size:13px; font-weight:600; min-width:14px; text-align:center;}
+  .card-remove-btn{
+    width:34px; height:34px; border-radius:50%; border:1px solid rgba(51,44,36,0.15); display:flex; align-items:center;
+    justify-content:center; transition:all 0.3s ease; background:var(--white); flex-shrink:0;
+  }
+  .card-remove-btn svg{width:13px; height:13px; stroke:#b3564f; fill:none; stroke-width:1.6;}
+  .card-remove-btn:hover{background:#f6dede; border-color:#c96b72; transform:scale(1.06);}
+
+  .product-img{width:100%; height:100%; object-fit:cover; display:block; position:relative;}
+
   /* swatch color variants */
-  .sw-1{background:linear-gradient(135deg,#7c93a8,#a9bccb);}
-  .sw-2{background:linear-gradient(135deg,#e6c9c1,#efdcd6);}
-  .sw-3{background:linear-gradient(135deg,#5c7086,#8296ab);}
-  .sw-4{background:linear-gradient(135deg,#d8c6a5,#ecdec0);}
-  .sw-5{background:linear-gradient(135deg,#9fae8e,#c3d0af);}
-  .sw-6{background:linear-gradient(135deg,#b7a0a8,#dcc7cd);}
+  .sw-1{background:linear-gradient(135deg,#efe6d3,#5c7a68);}
+  .sw-2{background:linear-gradient(135deg,#d8a355,#e08a4b);}
+  .sw-3{background:linear-gradient(135deg,#f4ede1,#d9a9a0);}
+  .sw-4{background:linear-gradient(135deg,#aac2d4,#e6c9c1);}
+  .sw-5{background:linear-gradient(135deg,#7a2f30,#d8a355);}
+  .sw-6{background:linear-gradient(135deg,#f4ede1,#dcc7cd);}
   .sw-icon{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
   }
   .sw-icon svg{width:46%; height:46%; opacity:0.85;}
+
 
   /* ---------- SHOP CONTROLS ---------- */
   .shop-controls{
@@ -487,21 +512,62 @@
   .close-btn{width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--white); transition:transform 0.3s ease;}
   .close-btn:hover{transform:rotate(90deg);}
   .close-btn svg{width:14px; height:14px; stroke:var(--ink); stroke-width:2;}
-  .cart-items{flex:1; overflow-y:auto; padding:20px 28px;}
-  .cart-item{display:flex; gap:14px; padding:16px 0; border-bottom:1px solid rgba(51,44,36,0.06); align-items:center;}
-  .cart-item .mini-media{width:64px; height:64px; border-radius:12px; flex-shrink:0; position:relative; overflow:hidden;}
-  .ci-info{flex:1;}
-  .ci-info h5{font-size:14px; margin-bottom:4px;}
-  .ci-info .ci-price{font-size:13px; color:var(--gold); font-family:var(--display);}
-  .qty-row{display:flex; align-items:center; gap:10px; margin-top:8px;}
-  .qty-btn{width:22px; height:22px; border-radius:50%; border:1px solid rgba(51,44,36,0.2); font-size:13px; display:flex; align-items:center; justify-content:center;}
-  .remove-btn{font-size:11px; color:#b3564f; text-decoration:underline; margin-left:auto;}
+  .cart-items{flex:1; overflow-y:auto; padding:16px 24px;}
+  .cart-item{display:flex; gap:14px; padding:16px 0; border-bottom:1px solid rgba(51,44,36,0.06);}
+  .cart-item .mini-media{
+    width:74px; height:74px; border-radius:14px; flex-shrink:0; position:relative; overflow:hidden;
+    background:var(--ivory); display:flex; align-items:center; justify-content:center;
+  }
+  .cart-item .mini-media .product-img{width:100%; height:100%; object-fit:cover;}
+  .cart-item .mini-media .swatch{position:relative;}
+  .cart-item .mini-media .sw-icon svg{width:22px; height:22px;}
+  .ci-info{flex:1; min-width:0;}
+  .ci-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .ci-info h5{font-size:14px; margin-bottom:3px;}
+  .ci-desc{font-size:11.5px; color:var(--ink-soft); margin-bottom:4px;}
+  .ci-variant{font-size:11px; color:var(--ink-soft);}
+  .ci-variant strong{color:var(--ink); font-weight:600;}
+  .ci-actions{display:flex; gap:6px; flex-shrink:0;}
+  .ci-icon-btn{
+    width:28px; height:28px; border-radius:8px; border:1px solid rgba(51,44,36,0.15);
+    display:flex; align-items:center; justify-content:center; transition:all 0.3s ease; background:var(--white);
+  }
+  .ci-icon-btn svg{width:12px; height:12px; stroke:var(--ink); fill:none; stroke-width:1.6;}
+  .ci-icon-btn:hover{background:var(--ivory); border-color:var(--gold); transform:translateY(-1px);}
+  .ci-bottom{display:flex; align-items:center; justify-content:space-between; margin-top:12px;}
+  .ci-price-group{display:flex; align-items:baseline; gap:6px;}
+  .ci-price{font-size:14.5px; color:var(--ink); font-family:var(--display); font-weight:600;}
+  .ci-original{font-size:11.5px; color:var(--ink-soft); text-decoration:line-through;}
+  .qty-row{display:flex; align-items:center; gap:10px;}
+  .qty-btn{width:24px; height:24px; border-radius:50%; border:1px solid rgba(51,44,36,0.2); font-size:13px; display:flex; align-items:center; justify-content:center; transition:all 0.25s ease; background:var(--white);}
+  .qty-btn:hover{border-color:var(--gold); color:var(--gold);}
   .cart-empty{text-align:center; padding:60px 20px; color:var(--ink-soft); font-size:14px;}
-  .cart-foot{padding:24px 28px; border-top:1px solid rgba(51,44,36,0.08);}
-  .cart-total{display:flex; justify-content:space-between; margin-bottom:18px; font-size:16px;}
-  .cart-total .amt{font-family:var(--display); font-size:22px; color:var(--gold);}
+
+  .cart-foot{padding:20px 24px 26px; border-top:1px solid rgba(51,44,36,0.08);}
+  .summary-rows{margin-bottom:16px;}
+  .summary-row{display:flex; justify-content:space-between; font-size:13.5px; color:var(--ink-soft); padding:5px 0;}
+  .summary-row .free{color:#6b8a5f; font-weight:600;}
+  .summary-row.total{
+    font-size:16px; color:var(--ink); font-weight:600; border-top:1px dashed rgba(51,44,36,0.15);
+    margin-top:8px; padding-top:14px;
+  }
+  .summary-row.total span:last-child{font-family:var(--display); font-size:20px; color:var(--gold);}
   .checkout-btn{width:100%; padding:16px; border-radius:100px; background:var(--ink); color:var(--white); text-transform:uppercase; letter-spacing:0.06em; font-size:13px; transition:background 0.3s ease;}
   .checkout-btn:hover{background:var(--gold);}
+  .delivery-note{text-align:center; font-size:11.5px; color:var(--ink-soft); margin-top:14px;}
+  .coupon-box{margin-top:20px; padding-top:18px; border-top:1px solid rgba(51,44,36,0.08);}
+  .coupon-label{display:block; font-size:12.5px; font-weight:600; color:var(--ink); margin-bottom:10px;}
+  .coupon-row{display:flex; gap:8px;}
+  .coupon-row input{
+    flex:1; padding:12px 16px; border-radius:100px; border:1px solid rgba(51,44,36,0.15); background:var(--white);
+    font-size:12.5px; outline:none; min-width:0;
+  }
+  .coupon-row input:focus{border-color:var(--gold);}
+  .coupon-row button{
+    padding:12px 18px; border-radius:100px; background:var(--ink); color:var(--white); font-size:11px;
+    text-transform:uppercase; letter-spacing:0.05em; transition:background 0.3s ease; white-space:nowrap;
+  }
+  .coupon-row button:hover{background:var(--gold);}
 
   /* ---------- QUICK VIEW MODAL ---------- */
   .qv-modal{
@@ -520,7 +586,9 @@
   .qv-close svg{width:15px; height:15px; stroke-width:2;}
   .qv-info{padding:40px 40px 40px 34px;}
   .qv-info h3{font-size:28px; margin-bottom:10px;}
-  .qv-price{font-family:var(--display); font-size:24px; color:var(--gold); margin-bottom:16px;}
+  .qv-price-group{display:flex; align-items:baseline; gap:10px; margin-bottom:16px;}
+  .qv-price{font-family:var(--display); font-size:24px; color:var(--gold);}
+  .qv-original{font-size:15px; color:var(--ink-soft); text-decoration:line-through;}
   .qv-desc{font-size:14px; color:var(--ink-soft); margin-bottom:22px; line-height:1.6;}
   .qv-meta{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; font-size:13px;}
   .qv-meta div span{display:block; color:var(--ink-soft); font-size:11px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;}
@@ -592,7 +660,7 @@
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
-    <a href="#home" class="logo">Maison <span>Verso</span></a>
+    <a href="#home" class="logo" data-store-logo>Maison <span>Verso</span></a>
     <ul class="nav-links">
       <li><a href="#home">Home</a></li>
       <li><a href="#shop">Shop</a></li>
@@ -632,9 +700,9 @@
 <section class="hero" id="home">
   <div class="hero-inner">
     <div class="hero-text">
-      <span class="eyebrow">Handcrafted in small batches</span>
-      <h1>Envelopes cut from<br><em>fabric, not paper.</em></h1>
-      <p>Each Maison Verso clutch begins as raw denim, hand-embroidered with heirloom florals and finished with solid brass hardware — made to be carried for decades, not seasons.</p>
+      <span class="eyebrow">Hand-painted in small batches</span>
+      <h1>An envelope worth<br><em>keeping the memory in.</em></h1>
+      <p>Each <span data-store-name>Maison Verso</span> piece begins as thick handmade paper, hand-painted or hand-foiled with traditional motifs — made for the shagun, the gift, the blessing that deserves better than a plain white envelope.</p>
       <div class="hero-btns">
         <a href="#shop" class="btn-primary ripple">Shop Collection</a>
         <a href="#about" class="btn-secondary">Our Story</a>
@@ -651,7 +719,7 @@
           <div class="bloom b1"></div>
           <div class="bloom b2"></div>
           <div class="bloom b3"></div>
-          <div class="clasp"></div>
+          <div class="wax-seal" id="waxSeal" data-initials="MV"></div>
         </div>
       </div>
     </div>
@@ -665,7 +733,7 @@
     <div class="section-head">
       <span class="eyebrow">Featured</span>
       <h2>This season's edit</h2>
-      <p>Six signature pieces, each hand-embroidered and finished in our Kolkata atelier.</p>
+      <p>Six signature designs, each hand-painted or hand-foiled in our Kolkata studio.</p>
     </div>
     <div class="products-grid" id="featuredGrid"></div>
   </div>
@@ -679,7 +747,7 @@
     <div class="section-head">
       <span class="eyebrow">The shop</span>
       <h2>Full collection</h2>
-      <p>Filter by story, sort by what matters to you, or search for a piece by name.</p>
+      <p>Filter by occasion, sort by what matters to you, or search for a design by name.</p>
     </div>
     <div class="shop-controls">
       <div class="filter-chips" id="filterChips"></div>
@@ -703,7 +771,7 @@
 <section class="pad reveal" id="collections">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">Why Maison Verso</span>
+      <span class="eyebrow">Why <span data-store-name>Maison Verso</span></span>
       <h2>Made to last, made by hand</h2>
     </div>
     <div class="why-grid" id="whyGrid"></div>
@@ -720,9 +788,9 @@
       </div>
       <div class="about-text">
         <span class="eyebrow">Our story</span>
-        <h2>Every clutch is signed by the hand that stitched it.</h2>
-        <p>Maison Verso began at a single embroidery table, reworking discarded denim into something worth keeping. Today the atelier is still small on purpose — every panel is hand-painted with floral motifs, every seam top-stitched in brass-toned thread, and every clasp set by hand before a bag ever leaves the workshop.</p>
-        <p>We believe a good object should show its making. That's why we leave the stitching visible, the fabric a little imperfect, and the story on a little brass plate stamped into every piece.</p>
+        <h2>Every envelope is signed by the hand that painted it.</h2>
+        <p><span data-store-name>Maison Verso</span> began at a single worktable, hand-painting motifs onto sheets of thick handmade paper because the shagun envelopes we could find never matched the gift going inside them. Today the studio is still small on purpose — every design is hand-painted or hand-foiled, every fold is scored and creased by hand, and every envelope is checked before it ever leaves the workshop.</p>
+        <p>We believe a good gift deserves a good envelope. That's why we keep the brushwork visible, the foil a little imperfect, and a small maker's mark stamped inside the flap of every piece.</p>
         <a href="#contact" class="btn-secondary" style="display:inline-block; margin-top:10px;">Meet the makers</a>
       </div>
     </div>
@@ -736,7 +804,7 @@
   <div class="container">
     <div class="section-head">
       <span class="eyebrow">Kind words</span>
-      <h2>From the ones who carry them</h2>
+      <h2>From the ones who gifted them</h2>
     </div>
     <div class="testimonial-track" id="testimonialTrack"></div>
   </div>
@@ -746,8 +814,8 @@
 <section class="pad reveal">
   <div class="container">
     <div class="section-head">
-      <span class="eyebrow">@maisonverso</span>
-      <h2>From the atelier floor</h2>
+      <span class="eyebrow" data-store-handle>@maisonverso</span>
+      <h2>From the studio floor</h2>
     </div>
     <div class="masonry" id="masonryGrid"></div>
   </div>
@@ -758,7 +826,7 @@
   <div class="container">
     <div class="newsletter">
       <h2>Be first to new arrivals</h2>
-      <p>One email a month. New embroidery patterns, restocks, and a peek into the atelier.</p>
+      <p>One email a month. New hand-painted designs, restocks, and a peek into the studio.</p>
       <form class="newsletter-form" id="newsletterForm">
         <input type="email" placeholder="you@email.com" required>
         <button type="submit">Subscribe</button>
@@ -772,8 +840,8 @@
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href="#home" class="logo">Maison <span style="color:var(--gold);">Verso</span></a>
-        <p>Hand-embroidered envelope clutches, cut from denim and finished by hand in small batches.</p>
+        <a href="#home" class="logo" data-store-logo>Maison <span style="color:var(--gold);">Verso</span></a>
+        <p>Hand-painted and hand-foiled shagun envelopes, made on thick handmade paper in small batches.</p>
         <div class="social-row">
           <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6"/></svg></a>
           <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24"><path d="M9 21l3-9m0 0l3 9m-3-9a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></a>
@@ -782,7 +850,7 @@
       </div>
       <div class="footer-col">
         <h4>Shop</h4>
-        <a href="#shop">All Clutches</a>
+        <a href="#shop">All Envelopes</a>
         <a href="#shop">New Arrivals</a>
         <a href="#shop">Limited Edition</a>
         <a href="#collections">Collections</a>
@@ -796,13 +864,13 @@
       </div>
       <div class="footer-col">
         <h4>Get in touch</h4>
-        <a href="mailto:hello@maisonverso.com">hello@maisonverso.com</a>
+        <a href="mailto:hello@maisonverso.com" id="contactEmail">hello@maisonverso.com</a>
         <a href="tel:+911234567890">+91 12345 67890</a>
         <a href="#">Kolkata, India — by appointment</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 Maison Verso. All rights reserved.</span>
+      <span>© 2026 <span data-store-name>Maison Verso</span>. All rights reserved.</span>
       <span>Handmade with care in Kolkata.</span>
     </div>
   </div>
@@ -812,13 +880,21 @@
 <div class="overlay-bg" id="overlayBg"></div>
 <div class="cart-drawer" id="cartDrawer">
   <div class="cart-head">
-    <h3>Your bag</h3>
+    <h3>Your Bag</h3>
     <button class="close-btn" id="closeCart"><svg viewBox="0 0 24 24"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
   </div>
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-foot">
-    <div class="cart-total"><span>Subtotal</span><span class="amt" id="cartTotal">₹0</span></div>
-    <button class="checkout-btn" id="checkoutBtn">Checkout</button>
+    <div class="summary-rows" id="summaryRows"></div>
+    <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
+    <div class="delivery-note">Estimated delivery in <strong>5–8 working days</strong></div>
+    <div class="coupon-box">
+      <span class="coupon-label">Have a Coupon?</span>
+      <div class="coupon-row">
+        <input type="text" id="couponInput" placeholder="Coupon Code">
+        <button id="applyCoupon">Apply</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -830,6 +906,48 @@
 <div class="toast" id="toast"></div>
 
 <script>
+/* ============================================================
+   STORE NAME — edit this one line and the whole site updates:
+   navbar logo, footer logo, page title, "Why ___" heading,
+   about-section mentions, copyright line, the @handle in the
+   gallery section, the contact email, and the wax-seal
+   monogram in the hero all update automatically.
+   ============================================================ */
+const STORE_NAME = "Maison Verso";
+
+function storeSlug(){
+  return STORE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+function storeInitials(){
+  const letters = STORE_NAME.trim().split(/\s+/).filter(w => /^[A-Za-z]/.test(w));
+  return letters.map(w => w[0].toUpperCase()).slice(0, 2).join('');
+}
+function applyStoreName(){
+  document.title = `${STORE_NAME} — Handmade Shagun Envelopes`;
+
+  // Logo: last word shown in gold (matches the two-tone logo style), rest in ink.
+  const words = STORE_NAME.trim().split(/\s+/);
+  let logoHTML = STORE_NAME;
+  if(words.length > 1){
+    const last = words.pop();
+    logoHTML = `${words.join(' ')} <span>${last}</span>`;
+  }
+  document.querySelectorAll('[data-store-logo]').forEach(el => el.innerHTML = logoHTML);
+
+  document.querySelectorAll('[data-store-name]').forEach(el => el.textContent = STORE_NAME);
+  document.querySelectorAll('[data-store-handle]').forEach(el => el.textContent = '@' + storeSlug());
+
+  const emailEl = document.getElementById('contactEmail');
+  if(emailEl){
+    const email = `hello@${storeSlug()}.com`;
+    emailEl.textContent = email;
+    emailEl.href = `mailto:${email}`;
+  }
+
+  const waxSeal = document.getElementById('waxSeal');
+  if(waxSeal) waxSeal.setAttribute('data-initials', storeInitials());
+}
+
 /* ============================================================
    BACKEND API SCAFFOLD — not wired to a real server yet.
    ------------------------------------------------------------
@@ -875,130 +993,131 @@ const API = {
 
   // Newsletter + checkout
   subscribeNewsletter(email){ return this.request('/newsletter/subscribe', 'POST', { email }); },
-  checkout(cart){ return this.request('/checkout', 'POST', { cart }); }
+  checkout(cart){ return this.request('/checkout', 'POST', { cart }); },
+  applyCoupon(code){ return this.request('/coupon/apply', 'POST', { code }); }
 };
 
 /* ============================================================
    SITE DATA — everything editable lives here in one place.
    ------------------------------------------------------------
    Each product supports an "image" field: paste a real photo
-   URL there (e.g. "https://yoursite.com/images/rosewood.jpg")
+   URL there (e.g. "https://yoursite.com/images/peacock-zari.jpg")
    and the card will show that photo instead of the built-in
-   fabric-swatch illustration. Leave image: "" to keep the
+   paper-envelope illustration. Leave image: "" to keep the
    illustration. originalPrice is optional — set it equal to
    price if there's no discount, or higher to show a strikethrough.
    ============================================================ */
 const SITE_DATA = {
 
-  categories: ["All", "Clutches", "Minis", "Slings"],
+  categories: ["All", "Wedding", "Festive", "Baby Shower"],
 
   products: [
     {
-      id: 1, name: "Rosewood Envelope Clutch", category: "Clutches",
-      price: 4200, originalPrice: 4800,
+      id: 1, name: "Peacock Zari Shagun Envelope", category: "Wedding",
+      price: 129, originalPrice: 149,
       image: "", swatch: "sw-1",
       rating: 5, popularity: 98, limited: true,
-      desc: "A deep indigo denim base hand-embroidered with a spray of rosewood pink blooms, finished with a brass clasp and detachable chain.",
-      materials: "Raw denim, cotton embroidery thread, solid brass hardware",
-      dimensions: "28 × 17 × 4 cm",
+      desc: "Hand-painted peacock motif finished with real zari (metallic) threadwork on handmade cotton paper, edged in gold foil.",
+      materials: "Handmade cotton paper, zari thread, gold foil",
+      dimensions: "20 × 9 cm",
       colors: [
-        { name: "Denim Blue", hex: "#7c93a8" },
-        { name: "Deep Indigo", hex: "#5c7086" },
+        { name: "Ivory Gold", hex: "#efe6d3" },
+        { name: "Emerald Zari", hex: "#5c7a68" },
         { name: "Rosewood Blush", hex: "#e6c9c1" }
       ],
-      delivery: "5–7 working days"
+      delivery: "3–5 working days"
     },
     {
-      id: 2, name: "Blush Bow Mini", category: "Minis",
-      price: 2950, originalPrice: 2950,
+      id: 2, name: "Marigold Foil Envelope", category: "Festive",
+      price: 89, originalPrice: 89,
       image: "", swatch: "sw-2",
       rating: 4, popularity: 80, limited: false,
-      desc: "Our most-loved mini, topped with a hand-folded denim bow charm and a trail of blush florals across the flap.",
-      materials: "Washed denim, blush cotton lining, brass ring",
-      dimensions: "20 × 13 × 3 cm",
+      desc: "A festive favourite — hand-stamped marigold pattern in warm gold foil on saffron-toned handmade paper, perfect for Diwali gifting.",
+      materials: "Handmade paper, gold foil stamping",
+      dimensions: "18 × 8.5 cm",
       colors: [
-        { name: "Blush Pink", hex: "#e6c9c1" },
-        { name: "Dusty Mauve", hex: "#b7a0a8" },
+        { name: "Saffron Gold", hex: "#d8a355" },
+        { name: "Marigold Orange", hex: "#e08a4b" },
         { name: "Antique Gold", hex: "#d8c6a5" }
       ],
-      delivery: "4–6 working days"
+      delivery: "2–4 working days"
     },
     {
-      id: 3, name: "Chambray Bloom Clutch", category: "Clutches",
-      price: 3600, originalPrice: 4100,
+      id: 3, name: "Rose Gold Bandhani Envelope", category: "Wedding",
+      price: 109, originalPrice: 129,
       image: "", swatch: "sw-3",
       rating: 5, popularity: 91, limited: false,
-      desc: "Lighter chambray denim with a scattered floral motif and a slim gold-tone frame closure — an everyday piece that still feels special.",
-      materials: "Chambray denim, silk-blend thread, gold-tone frame",
-      dimensions: "26 × 16 × 4 cm",
+      desc: "Bandhani-inspired dot pattern hand-foiled in rose gold across ivory handmade paper — a modern take on a traditional motif.",
+      materials: "Handmade paper, rose-gold foil, cotton thread tie",
+      dimensions: "20 × 9 cm",
       colors: [
-        { name: "Deep Indigo", hex: "#5c7086" },
-        { name: "Denim Blue", hex: "#7c93a8" },
-        { name: "Sage Green", hex: "#9fae8e" }
-      ],
-      delivery: "5–7 working days"
-    },
-    {
-      id: 4, name: "Antique Gold Sling", category: "Slings",
-      price: 5200, originalPrice: 5900,
-      image: "", swatch: "sw-4",
-      rating: 5, popularity: 75, limited: true,
-      desc: "A structured sling silhouette in aged-gold denim, embroidered by hand with a single climbing rose vine along the seam.",
-      materials: "Waxed denim, antique-gold hardware, adjustable strap",
-      dimensions: "24 × 15 × 6 cm",
-      colors: [
-        { name: "Antique Gold", hex: "#d8c6a5" },
-        { name: "Brass", hex: "#b8975f" },
-        { name: "Ink Black", hex: "#332c24" }
-      ],
-      delivery: "6–8 working days"
-    },
-    {
-      id: 5, name: "Sage Meadow Pouch", category: "Minis",
-      price: 2400, originalPrice: 2400,
-      image: "", swatch: "sw-5",
-      rating: 4, popularity: 64, limited: false,
-      desc: "A soft sage-toned pouch embroidered with a meadow of wildflowers — small enough for evenings, sturdy enough for every day.",
-      materials: "Cotton-denim blend, brass zip pull",
-      dimensions: "18 × 11 × 3 cm",
-      colors: [
-        { name: "Sage Green", hex: "#9fae8e" },
-        { name: "Meadow Mint", hex: "#c3d0af" },
+        { name: "Ivory", hex: "#f4ede1" },
+        { name: "Rose Gold", hex: "#d9a9a0" },
         { name: "Blush Pink", hex: "#e6c9c1" }
       ],
       delivery: "3–5 working days"
     },
     {
-      id: 6, name: "Dusk Rose Oversized", category: "Slings",
-      price: 6100, originalPrice: 6900,
-      image: "", swatch: "sw-6",
-      rating: 5, popularity: 87, limited: true,
-      desc: "Our largest silhouette — deep dusk-pink denim, dense floral embroidery, and a substantial brass chain built for everyday carry.",
-      materials: "Heavyweight denim, brass chain, suede lining",
-      dimensions: "30 × 20 × 7 cm",
+      id: 4, name: "Little Stork Baby Shower Envelope", category: "Baby Shower",
+      price: 79, originalPrice: 79,
+      image: "", swatch: "sw-4",
+      rating: 4, popularity: 64, limited: false,
+      desc: "A soft hand-painted stork-and-clouds design in pastel tones — sized for baby shower and naming-ceremony gifting.",
+      materials: "Handmade paper, watercolour pigment, silver foil accent",
+      dimensions: "18 × 8.5 cm",
       colors: [
-        { name: "Dusk Mauve", hex: "#b7a0a8" },
-        { name: "Dusty Rose", hex: "#dcc7cd" },
-        { name: "Ink Black", hex: "#332c24" }
+        { name: "Powder Blue", hex: "#aac2d4" },
+        { name: "Blush Pink", hex: "#e6c9c1" },
+        { name: "Soft Sage", hex: "#c3d0af" }
       ],
-      delivery: "6–8 working days"
+      delivery: "3–5 working days"
+    },
+    {
+      id: 5, name: "Diya Glow Festive Envelope", category: "Festive",
+      price: 99, originalPrice: 99,
+      image: "", swatch: "sw-5",
+      rating: 5, popularity: 87, limited: false,
+      desc: "A hand-painted diya (lamp) illustration with radiating gold-foil rays on deep maroon handmade paper — made for Diwali and festive gifting.",
+      materials: "Handmade paper, gold foil, hand-painted pigment",
+      dimensions: "18 × 8.5 cm",
+      colors: [
+        { name: "Deep Maroon", hex: "#7a2f30" },
+        { name: "Antique Gold", hex: "#d8c6a5" },
+        { name: "Saffron Gold", hex: "#d8a355" }
+      ],
+      delivery: "2–4 working days"
+    },
+    {
+      id: 6, name: "Lotus Mandala Envelope", category: "Wedding",
+      price: 149, originalPrice: 169,
+      image: "", swatch: "sw-6",
+      rating: 5, popularity: 93, limited: true,
+      desc: "Our most detailed piece — an intricate hand-block-printed lotus mandala with a gold-foil centre, on our thickest handmade paper stock.",
+      materials: "Heavyweight handmade paper, hand-block print, gold foil",
+      dimensions: "20 × 9 cm",
+      colors: [
+        { name: "Ivory", hex: "#f4ede1" },
+        { name: "Dusty Rose", hex: "#dcc7cd" },
+        { name: "Antique Gold", hex: "#d8c6a5" }
+      ],
+      delivery: "4–6 working days"
     }
   ],
 
   why: [
-    { title:"Handmade with Care", desc:"Every panel is embroidered by hand, one bag at a time.", icon:'<path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/>' },
-    { title:"Premium Materials", desc:"Raw denim, solid brass, and cotton threads chosen to age well.", icon:'<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>' },
+    { title:"Handmade with Care", desc:"Every envelope is hand-painted or hand-foiled, one piece at a time.", icon:'<path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/>' },
+    { title:"Premium Materials", desc:"Thick handmade paper, real gold foil, and pigments chosen to hold their colour.", icon:'<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>' },
     { title:"Secure Payments", desc:"Encrypted checkout, every time, on every device.", icon:'<rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>' },
     { title:"Fast Shipping", desc:"Dispatched within 48 hours, tracked door to door.", icon:'<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="1.6"/><circle cx="18" cy="19" r="1.6"/>' },
-    { title:"Custom Designs", desc:"Request a bespoke embroidery pattern or monogram.", icon:'<path d="M3 21l4-1 11-11-3-3L4 17z"/><path d="M13 5l3 3"/>' },
-    { title:"Quality Guaranteed", desc:"Free repairs on stitching and hardware, always.", icon:'<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/>' }
+    { title:"Custom Designs", desc:"Request a bespoke motif, monogram, or name to be hand-painted on.", icon:'<path d="M3 21l4-1 11-11-3-3L4 17z"/><path d="M13 5l3 3"/>' },
+    { title:"Quality Guaranteed", desc:"Replacement guarantee on any envelope that arrives damaged.", icon:'<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/>' }
   ],
 
   testimonials: [
-    { name:"Ananya R.", loc:"Mumbai", quote:"The stitching detail is unreal in person — it doesn't look mass-made at all, it looks like it has a story.", initial:"A", color:"#8296ab" },
-    { name:"Priya K.", loc:"Bengaluru", quote:"Bought the Blush Bow Mini for my sister and she hasn't put it down since. The bow charm is adorable.", initial:"P", color:"#e6c9c1" },
-    { name:"Meera S.", loc:"Delhi", quote:"Feels like an heirloom already. The brass hardware has that satisfying weight to it.", initial:"M", color:"#b8975f" },
-    { name:"Ishita D.", loc:"Kolkata", quote:"I've had mine for two years and the embroidery hasn't faded a bit. Worth every rupee.", initial:"I", color:"#9fae8e" }
+    { name:"Ananya R.", loc:"Mumbai", quote:"Used the Peacock Zari envelope for my cousin's wedding shagun — guests kept asking where I got it.", initial:"A", color:"#8296ab" },
+    { name:"Priya K.", loc:"Bengaluru", quote:"Bought a stack of the Marigold Foil ones for Diwali. They look far more expensive than what I paid.", initial:"P", color:"#e6c9c1" },
+    { name:"Meera S.", loc:"Delhi", quote:"The Lotus Mandala envelope was so pretty my mother-in-law kept it instead of throwing it away.", initial:"M", color:"#b8975f" },
+    { name:"Ishita D.", loc:"Kolkata", quote:"Ordered the Little Stork ones for a baby shower — the pastel colours and stork print were perfect.", initial:"I", color:"#9fae8e" }
   ]
 };
 
@@ -1012,11 +1131,11 @@ let searchTerm = "";
 /* ============ RENDER HELPERS ============ */
 function iconFor(cat){
   const icons = {
-    Clutches:'<svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="1.3"><path d="M3 11l9-7 9 7v9H3z"/><path d="M3 11h18"/></svg>',
-    Minis:'<svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="1.3"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg>',
-    Slings:'<svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="1.3"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M7 9V7a5 5 0 0 1 10 0v2"/></svg>'
+    Wedding:'<svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="1.3"><circle cx="9" cy="15" r="5"/><circle cx="15" cy="15" r="5"/><path d="M12 4v4"/></svg>',
+    Festive:'<svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="1.3"><path d="M4 18c0-4 3-6 8-6s8 2 8 6"/><path d="M12 12V4"/><path d="M9 4c0 2 1.5 3 3 3s3-1 3-3"/></svg>',
+    "Baby Shower":'<svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="1.3"><circle cx="12" cy="9" r="5"/><path d="M9 14l-2 6M15 14l2 6M7 9a5 5 0 0 1 10 0"/></svg>'
   };
-  return icons[cat] || icons.Clutches;
+  return icons[cat] || icons.Wedding;
 }
 
 function starSVG(){
@@ -1190,10 +1309,10 @@ function flyToCart(sourceEl){
 }
 
 function addToCart(id, btn, sourceEl){
-  const p = PRODUCTS.find(x=>x.id===id);
+  const p = SITE_DATA.products.find(x=>x.id===id);
   const existing = cart.find(x=>x.id===id);
   if(existing) existing.qty++;
-  else cart.push({...p, qty:1});
+  else cart.push({...p, qty:1, selectedColor: p.colors[0].name});
   updateCartUI();
 
   flyToCart(sourceEl);
@@ -1230,29 +1349,68 @@ function updateCartUI(){
   const count = cart.reduce((s,i)=>s+i.qty,0);
   document.getElementById('cartCount').textContent = count;
   const itemsEl = document.getElementById('cartItems');
+
   if(cart.length===0){
     itemsEl.innerHTML = `<div class="cart-empty">Your bag is empty.<br>Time to find a favorite.</div>`;
   } else {
-    itemsEl.innerHTML = cart.map(i => `
+    itemsEl.innerHTML = cart.map(i => {
+      const hasDiscount = i.originalPrice && i.originalPrice > i.price;
+      return `
       <div class="cart-item">
-        <div class="mini-media ${i.swatch}"></div>
+        <div class="mini-media ${i.swatch}">${mediaMarkup(i)}</div>
         <div class="ci-info">
-          <h5>${i.name}</h5>
-          <div class="ci-price">₹${(i.price*i.qty).toLocaleString('en-IN')}</div>
-          <div class="qty-row">
-            <button class="qty-btn" data-qty-minus="${i.id}">−</button>
-            <span>${i.qty}</span>
-            <button class="qty-btn" data-qty-plus="${i.id}">+</button>
-            <button class="remove-btn" data-remove="${i.id}">Remove</button>
+          <div class="ci-top">
+            <div>
+              <h5>${i.name}</h5>
+              <p class="ci-desc">${i.desc.slice(0,42)}...</p>
+              <div class="ci-variant">Paper <strong>${i.selectedColor || i.colors[0].name}</strong></div>
+            </div>
+            <div class="ci-actions">
+              <button class="ci-icon-btn" data-remove="${i.id}" aria-label="Remove item">
+                <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg>
+              </button>
+              <button class="ci-icon-btn" data-edit="${i.id}" aria-label="Edit item">
+                <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="ci-bottom">
+            <div class="qty-row">
+              <button class="qty-btn" data-qty-minus="${i.id}">−</button>
+              <span>${i.qty}</span>
+              <button class="qty-btn" data-qty-plus="${i.id}">+</button>
+            </div>
+            <div class="ci-price-group">
+              <span class="ci-price">₹${(i.price*i.qty).toLocaleString('en-IN')}</span>
+              ${hasDiscount ? `<span class="ci-original">₹${(i.originalPrice*i.qty).toLocaleString('en-IN')}</span>` : ''}
+            </div>
           </div>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }
-  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
-  document.getElementById('cartTotal').textContent = `₹${total.toLocaleString('en-IN')}`;
+
+  // order summary — subtotal / discount / tax / shipping / total, like the reference cart page
+  const subtotal = cart.reduce((s,i)=>s + (i.originalPrice||i.price) * i.qty, 0);
+  const total = cart.reduce((s,i)=>s + i.price * i.qty, 0);
+  const discount = Math.max(0, subtotal - total);
+  const tax = 0;
+  const grandTotal = total + tax;
+
+  document.getElementById('summaryRows').innerHTML = `
+    <div class="summary-row"><span>Sub Total</span><span>₹${subtotal.toLocaleString('en-IN')}</span></div>
+    <div class="summary-row"><span>Discount</span><span>−₹${discount.toLocaleString('en-IN')}</span></div>
+    <div class="summary-row"><span>Tax</span><span>₹${tax.toLocaleString('en-IN')}</span></div>
+    <div class="summary-row"><span>Shipping</span><span class="free">Free</span></div>
+    <div class="summary-row total"><span>Total</span><span>₹${grandTotal.toLocaleString('en-IN')}</span></div>
+  `;
+
   itemsEl.querySelectorAll('[data-qty-minus]').forEach(b=>b.onclick=()=>changeQty(+b.dataset.qtyMinus,-1));
   itemsEl.querySelectorAll('[data-qty-plus]').forEach(b=>b.onclick=()=>changeQty(+b.dataset.qtyPlus,1));
   itemsEl.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>removeFromCart(+b.dataset.remove));
+  itemsEl.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{ closeCartFn(); openQuickView(+b.dataset.edit); });
+
+  refreshCardControls();
 }
 
 function toggleWish(id, btn){
@@ -1264,26 +1422,30 @@ function toggleWish(id, btn){
 
 /* ============ QUICK VIEW ============ */
 function openQuickView(id){
-  const p = PRODUCTS.find(x=>x.id===id);
+  const p = SITE_DATA.products.find(x=>x.id===id);
   const box = document.getElementById('qvBox');
+  const hasDiscount = p.originalPrice && p.originalPrice > p.price;
   box.innerHTML = `
     <div class="qv-media ${p.swatch}">
-      <div class="sw-icon">${iconFor(p.category)}</div>
+      ${mediaMarkup(p)}
       <button class="qv-close" id="qvCloseBtn"><svg viewBox="0 0 24 24" stroke="#332c24" fill="none"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
     </div>
     <div class="qv-info">
       <span class="eyebrow">${p.category}</span>
       <h3>${p.name}</h3>
-      <div class="qv-price">₹${p.price.toLocaleString('en-IN')}</div>
+      <div class="qv-price-group">
+        <div class="qv-price">₹${p.price.toLocaleString('en-IN')}</div>
+        ${hasDiscount ? `<div class="qv-original">₹${p.originalPrice.toLocaleString('en-IN')}</div>` : ''}
+      </div>
       <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
       <p class="qv-desc" style="margin-top:14px;">${p.desc}</p>
       <div class="qv-meta">
         <div><span>Materials</span>${p.materials}</div>
         <div><span>Dimensions</span>${p.dimensions}</div>
       </div>
-      <div><span style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-bottom:8px;">Colorway</span>
+      <div><span style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-bottom:8px;">Paper Colour — <span id="qvColorName">${p.colors[0].name}</span></span>
         <div class="color-dots">
-          ${p.colors.map((c,i)=>`<div class="color-dot ${i===0?'active':''}" style="background:${c}" data-color></div>`).join('')}
+          ${p.colors.map((c,i)=>`<div class="color-dot ${i===0?'active':''}" style="background:${c.hex}" data-color="${c.name}" title="${c.name}"></div>`).join('')}
         </div>
       </div>
       <div class="qty-selector">
@@ -1295,26 +1457,35 @@ function openQuickView(id){
         <button class="btn-primary ripple" id="qvAddCart">Add to Cart</button>
         <button class="btn-secondary" id="qvBuyNow">Buy Now</button>
       </div>
-      <div class="qv-note">Estimated delivery: ${p.delivery}. Handmade piece — natural variation in embroidery and fabric grain is part of the charm.</div>
+      <div class="qv-note">Estimated delivery: ${p.delivery}. Handmade piece — slight variation in paint, foil, and paper grain is part of the charm.</div>
     </div>`;
   document.getElementById('qvModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 
   let qty = 1;
+  let selectedColor = p.colors[0].name;
   box.querySelectorAll('[data-color]').forEach(d=>d.onclick=()=>{
     box.querySelectorAll('[data-color]').forEach(x=>x.classList.remove('active'));
     d.classList.add('active');
+    selectedColor = d.dataset.color;
+    document.getElementById('qvColorName').textContent = selectedColor;
   });
   document.getElementById('qvMinus').onclick = ()=>{ if(qty>1) qty--; document.getElementById('qvQty').textContent = qty; };
   document.getElementById('qvPlus').onclick = ()=>{ qty++; document.getElementById('qvQty').textContent = qty; };
   document.getElementById('qvAddCart').onclick = ()=>{
     const media = box.querySelector('.qv-media');
     for(let i=0;i<qty;i++) addToCart(p.id, null, i===0 ? media : null);
+    const item = cart.find(c=>c.id===p.id);
+    if(item) item.selectedColor = selectedColor;
+    updateCartUI();
     closeQuickView();
   };
   document.getElementById('qvBuyNow').onclick = ()=>{
     const media = box.querySelector('.qv-media');
     for(let i=0;i<qty;i++) addToCart(p.id, null, i===0 ? media : null);
+    const item = cart.find(c=>c.id===p.id);
+    if(item) item.selectedColor = selectedColor;
+    updateCartUI();
     closeQuickView(); openCart();
   };
   document.getElementById('qvCloseBtn').onclick = closeQuickView;
@@ -1345,19 +1516,29 @@ function showToast(msg){
 }
 
 /* ============ EVENT WIRING ============ */
-function attachCardEvents(){
-  document.querySelectorAll('[data-add]').forEach(b=>{
-    b.onclick = (e)=>{
+function attachGlobalCardDelegation(){
+  document.body.addEventListener('click', (e)=>{
+    const addBtn = e.target.closest('[data-add]');
+    if(addBtn){
       e.stopPropagation();
-      const media = b.closest('.product-card')?.querySelector('.card-media');
-      addToCart(+b.dataset.add, b, media);
-    };
-  });
-  document.querySelectorAll('[data-fav]').forEach(b=>{
-    b.onclick = (e)=>{ e.stopPropagation(); toggleWish(+b.dataset.fav, b); };
-  });
-  document.querySelectorAll('[data-quickview]').forEach(b=>{
-    b.onclick = (e)=>{ e.stopPropagation(); openQuickView(+b.dataset.quickview); };
+      const media = addBtn.closest('.product-card')?.querySelector('.card-media');
+      addToCart(+addBtn.dataset.add, addBtn, media);
+      return;
+    }
+    const favBtn = e.target.closest('[data-fav]');
+    if(favBtn){ e.stopPropagation(); toggleWish(+favBtn.dataset.fav, favBtn); return; }
+
+    const qvBtn = e.target.closest('[data-quickview]');
+    if(qvBtn){ e.stopPropagation(); openQuickView(+qvBtn.dataset.quickview); return; }
+
+    const cardMinus = e.target.closest('[data-card-minus]');
+    if(cardMinus){ e.stopPropagation(); changeQty(+cardMinus.dataset.cardMinus, -1); return; }
+
+    const cardPlus = e.target.closest('[data-card-plus]');
+    if(cardPlus){ e.stopPropagation(); changeQty(+cardPlus.dataset.cardPlus, 1); return; }
+
+    const cardRemove = e.target.closest('[data-card-remove]');
+    if(cardRemove){ e.stopPropagation(); removeFromCart(+cardRemove.dataset.cardRemove); return; }
   });
 }
 
@@ -1374,6 +1555,7 @@ function ripple(e){
 }
 
 document.addEventListener('DOMContentLoaded', ()=>{
+  applyStoreName();
   renderFeatured();
   renderChips();
   renderShop();
@@ -1381,13 +1563,56 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderTestimonials();
   renderGallery();
   updateCartUI();
-  attachCardEvents();
+  attachGlobalCardDelegation();
 
   // navbar scroll
   const navbar = document.getElementById('navbar');
+  function syncNavHeight(){
+    document.documentElement.style.setProperty('--nav-h', navbar.offsetHeight + 'px');
+  }
+  syncNavHeight();
+  window.addEventListener('resize', syncNavHeight);
   window.addEventListener('scroll', ()=>{
     navbar.classList.toggle('scrolled', window.scrollY > 40);
+    syncNavHeight();
   });
+
+  // mobile hamburger menu
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const navLinksEl = document.querySelector('.nav-links');
+  hamburgerBtn.onclick = (e)=>{
+    e.stopPropagation();
+    hamburgerBtn.classList.toggle('active');
+    navLinksEl.classList.toggle('open');
+    hamburgerBtn.setAttribute('aria-expanded', navLinksEl.classList.contains('open'));
+  };
+  navLinksEl.querySelectorAll('a').forEach(a=>a.addEventListener('click', ()=>{
+    hamburgerBtn.classList.remove('active');
+    navLinksEl.classList.remove('open');
+  }));
+  document.addEventListener('click', (e)=>{
+    if(navLinksEl.classList.contains('open') && !navLinksEl.contains(e.target) && !hamburgerBtn.contains(e.target)){
+      hamburgerBtn.classList.remove('active');
+      navLinksEl.classList.remove('open');
+    }
+  });
+
+  // hero envelope tilts toward the cursor
+  const heroSection = document.querySelector('.hero');
+  const tiltWrap = document.getElementById('tiltWrap');
+  if(heroSection && tiltWrap && window.matchMedia('(hover: hover)').matches){
+    heroSection.addEventListener('mousemove', (e)=>{
+      const rect = heroSection.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const rotY = x * 16;
+      const rotX = -y * 12;
+      tiltWrap.style.transform = `perspective(1200px) rotateX(${rotX}deg) rotateY(${rotY}deg) translate(${x*12}px, ${y*8}px)`;
+    });
+    heroSection.addEventListener('mouseleave', ()=>{
+      tiltWrap.style.transform = 'perspective(1200px) rotateX(0) rotateY(0) translate(0,0)';
+    });
+  }
 
   // reveal on scroll
   const revealEls = document.querySelectorAll('.reveal');
@@ -1463,6 +1688,12 @@ document.addEventListener('DOMContentLoaded', ()=>{
     API.checkout(cart);
     showToast('Checkout stub fired — wire this up to your server.');
   };
+  document.getElementById('applyCoupon').onclick = ()=>{
+    const code = document.getElementById('couponInput').value.trim();
+    if(!code) return;
+    API.applyCoupon(code);
+    showToast(`Coupon "${code}" sent — wire this up to your server to apply it.`);
+  };
   document.getElementById('overlayBg').onclick = ()=>{ closeCartFn(); closeQuickView(); };
 
   // quickview modal close on backdrop
@@ -1478,7 +1709,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     e.preventDefault();
     const email = e.target.querySelector('input').value;
     API.subscribeNewsletter(email);
-    showToast("You're on the list — welcome to Maison Verso.");
+    showToast(`You're on the list — welcome to ${STORE_NAME}.`);
     e.target.reset();
   });
 
