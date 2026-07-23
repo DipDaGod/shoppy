@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maison Verso — Handcrafted Envelope Clutches</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Marcellus&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#faf6ef;
+    --ivory:#f4ede1;
+    --beige:#e9dcc6;
+    --white:#ffffff;
+    --gold:#b8975f;
+    --gold-light:#d9c39a;
+    --blush:#e3c2be;
+    --denim:#8296ab;
+    --denim-deep:#5c7086;
+    --ink:#332c24;
+    --ink-soft:#6b6154;
+    --shadow-soft: 0 10px 30px rgba(51,44,36,0.08);
+    --shadow-lift: 0 24px 48px rgba(51,44,36,0.16);
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --serif: 'Cormorant Garamond', serif;
+    --display: 'Marcellus', serif;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:var(--sans);
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  img{max-width:100%; display:block;}
+  a{text-decoration:none; color:inherit;}
+  button{font-family:inherit; border:none; cursor:pointer; background:none;}
+  ::selection{background:var(--gold-light); color:var(--ink);}
+
+  .container{max-width:1240px; margin:0 auto; padding:0 32px;}
+  section{position:relative;}
+
+  h1,h2,h3,h4{font-family:var(--display); font-weight:400; letter-spacing:0.01em;}
+  .eyebrow{
+    font-family:var(--sans); text-transform:uppercase; letter-spacing:0.22em;
+    font-size:11px; color:var(--gold); font-weight:600;
+  }
+
+  /* ---------- Stitch divider (signature element) ---------- */
+  .stitch-divider{
+    width:100%; height:14px;
+    background-image: repeating-linear-gradient(90deg, var(--gold) 0 10px, transparent 10px 20px);
+    background-size: 20px 2px;
+    background-repeat: repeat-x;
+    background-position: center;
+    opacity:0.5;
+  }
+  .stitch-divider.tight{height:8px;}
+
+  /* ---------- NAVBAR ---------- */
+  .navbar{
+    position:fixed; top:0; left:0; right:0; z-index:1000;
+    padding:22px 0;
+    transition: all 0.45s cubic-bezier(.22,.61,.36,1);
+  }
+  .navbar.scrolled{
+    background:rgba(255,255,255,0.75);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    box-shadow:0 4px 24px rgba(51,44,36,0.06);
+    padding:14px 0;
+  }
+  .nav-inner{display:flex; align-items:center; justify-content:space-between; max-width:1240px; margin:0 auto; padding:0 32px;}
+  .logo{font-family:var(--display); font-size:24px; letter-spacing:0.06em; color:var(--ink);}
+  .logo span{color:var(--gold);}
+  .nav-links{display:flex; gap:40px; list-style:none;}
+  .nav-links a{
+    font-size:14px; letter-spacing:0.03em; color:var(--ink); position:relative; padding-bottom:4px;
+  }
+  .nav-links a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px; background:var(--gold);
+    transition:width 0.35s ease;
+  }
+  .nav-links a:hover::after{width:100%;}
+  .nav-icons{display:flex; align-items:center; gap:22px;}
+  .icon-btn{position:relative; width:20px; height:20px; color:var(--ink); transition:color 0.3s ease, transform 0.3s ease;}
+  .icon-btn:hover{color:var(--gold); transform:translateY(-2px);}
+  .icon-btn svg{width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:1.5;}
+  .cart-count{
+    position:absolute; top:-8px; right:-10px; background:var(--gold); color:var(--white);
+    font-size:10px; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-family:var(--sans); font-weight:600;
+  }
+  .search-box{
+    display:flex; align-items:center; gap:8px; background:var(--white); border-radius:20px;
+    padding:6px 14px; box-shadow:var(--shadow-soft); max-width:0; overflow:hidden; transition:max-width 0.4s ease, padding 0.4s ease;
+  }
+  .search-box.open{max-width:220px; padding:6px 14px;}
+  .search-box input{border:none; outline:none; font-size:13px; background:transparent; width:170px; font-family:var(--sans);}
+
+  @media (max-width:920px){
+    .nav-links{display:none;}
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    min-height:100vh; display:flex; align-items:center; padding:140px 0 80px;
+    background:
+      radial-gradient(circle at 85% 20%, rgba(184,151,95,0.10), transparent 45%),
+      radial-gradient(circle at 10% 85%, rgba(227,194,190,0.25), transparent 40%),
+      var(--cream);
+  }
+  .hero-inner{
+    display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; max-width:1240px; margin:0 auto; padding:0 32px;
+  }
+  .hero-text .eyebrow{margin-bottom:18px; display:block;}
+  .hero-text h1{
+    font-size:clamp(40px,5.2vw,68px); line-height:1.05; color:var(--ink); margin-bottom:22px;
+    opacity:0; transform:translateY(24px); animation: heroUp 0.9s 0.15s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .hero-text h1 em{font-style:italic; color:var(--gold);}
+  .hero-text p{
+    font-size:17px; color:var(--ink-soft); max-width:420px; margin-bottom:36px;
+    opacity:0; transform:translateY(20px); animation: heroUp 0.9s 0.3s cubic-bezier(.22,.61,.36,1) forwards;
+  }
+  .hero-btns{display:flex; gap:16px; opacity:0; transform:translateY(20px); animation: heroUp 0.9s 0.45s cubic-bezier(.22,.61,.36,1) forwards;}
+  @keyframes heroUp{to{opacity:1; transform:translateY(0);}}
+
+  .btn-primary{
+    background:var(--ink); color:var(--white); padding:15px 32px; border-radius:100px; font-size:13px;
+    letter-spacing:0.06em; text-transform:uppercase; font-weight:500; position:relative; overflow:hidden;
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  .btn-primary:hover{transform:translateY(-3px); box-shadow:var(--shadow-lift);}
+  .btn-secondary{
+    background:transparent; color:var(--ink); padding:15px 30px; border-radius:100px; font-size:13px;
+    letter-spacing:0.06em; text-transform:uppercase; font-weight:500; border:1px solid rgba(51,44,36,0.25);
+    transition: all 0.35s ease;
+  }
+  .btn-secondary:hover{border-color:var(--gold); color:var(--gold); background:var(--white);}
+
+  .ripple{position:relative; overflow:hidden;}
+  .ripple-circle{
+    position:absolute; border-radius:50%; background:rgba(255,255,255,0.5); transform:scale(0);
+    animation: rippleAnim 0.6s ease-out; pointer-events:none;
+  }
+  @keyframes rippleAnim{to{transform:scale(3); opacity:0;}}
+
+  .hero-visual{position:relative; display:flex; align-items:center; justify-content:center;}
+  .hero-card{
+    width:100%; max-width:440px; aspect-ratio:4/3.1; border-radius:28px; position:relative;
+    background:
+      linear-gradient(135deg, #7c93a8 0%, #93a9bc 45%, #b7c6d3 100%);
+    box-shadow:var(--shadow-lift);
+    overflow:hidden;
+    animation: floatSlow 6s ease-in-out infinite;
+  }
+  @keyframes floatSlow{0%,100%{transform:translateY(0) rotate(-1.2deg);} 50%{transform:translateY(-14px) rotate(0.4deg);}}
+  .hero-card::before{
+    content:''; position:absolute; inset:0;
+    background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.06) 0 2px, transparent 2px 5px);
+  }
+  .hero-card .flap{
+    position:absolute; top:0; left:0; right:0; height:58%;
+    background:linear-gradient(160deg, #eecfc6, #e3c2be);
+    clip-path: polygon(0 0, 100% 0, 100% 40%, 50% 100%, 0 40%);
+    box-shadow: inset 0 -20px 30px rgba(0,0,0,0.06);
+  }
+  .hero-card .stitch-line{
+    position:absolute; left:8%; right:8%; top:8%; height:1px;
+    background-image: repeating-linear-gradient(90deg, rgba(184,151,95,0.7) 0 8px, transparent 8px 16px);
+  }
+  .hero-card .bloom{
+    position:absolute; border-radius:50%; filter:blur(0.2px);
+  }
+  .hero-card .bloom.b1{width:70px; height:70px; background:radial-gradient(circle,#e79fa3,#d97e88); bottom:14%; right:16%;}
+  .hero-card .bloom.b2{width:44px; height:44px; background:radial-gradient(circle,#f0c4c8,#e79fa3); bottom:26%; right:32%;}
+  .hero-card .bloom.b3{width:30px; height:30px; background:radial-gradient(circle,#c9d8a6,#b3c98a); bottom:10%; right:34%;}
+  .hero-card .clasp{
+    position:absolute; top:52%; left:50%; transform:translate(-50%,-50%);
+    width:34px; height:14px; background:linear-gradient(180deg,var(--gold-light),var(--gold)); border-radius:4px;
+    box-shadow:0 3px 6px rgba(0,0,0,0.2);
+  }
+  .float-shape{
+    position:absolute; border-radius:50%; opacity:0.5; filter:blur(1px);
+    animation: driftShape 9s ease-in-out infinite;
+  }
+  .float-shape.s1{width:16px; height:16px; background:var(--gold); top:8%; left:4%; animation-delay:0s;}
+  .float-shape.s2{width:10px; height:10px; background:var(--blush); bottom:6%; left:12%; animation-delay:1.4s;}
+  .float-shape.s3{width:12px; height:12px; background:var(--denim); top:70%; right:2%; animation-delay:2.6s;}
+  @keyframes driftShape{0%,100%{transform:translateY(0);} 50%{transform:translateY(-18px);}}
+
+  .scroll-cue{
+    position:absolute; bottom:28px; left:50%; transform:translateX(-50%); font-size:11px; letter-spacing:0.15em;
+    text-transform:uppercase; color:var(--ink-soft); display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+  .scroll-cue .line{width:1px; height:34px; background:linear-gradient(var(--gold), transparent); animation:scrollLine 1.8s ease-in-out infinite;}
+  @keyframes scrollLine{0%{transform:scaleY(0); transform-origin:top;} 50%{transform:scaleY(1); transform-origin:top;} 51%{transform-origin:bottom;} 100%{transform:scaleY(0); transform-origin:bottom;}}
+
+  @media(max-width:860px){
+    .hero-inner{grid-template-columns:1fr; text-align:center;}
+    .hero-text p{margin-left:auto; margin-right:auto;}
+    .hero-btns{justify-content:center;}
+  }
+
+  /* ---------- fade up on scroll ---------- */
+  .reveal{opacity:0; transform:translateY(36px); transition:opacity 0.8s ease, transform 0.8s cubic-bezier(.22,.61,.36,1);}
+  .reveal.in{opacity:1; transform:translateY(0);}
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section-head{text-align:center; max-width:600px; margin:0 auto 56px;}
+  .section-head .eyebrow{display:block; margin-bottom:14px;}
+  .section-head h2{font-size:clamp(30px,4vw,44px); color:var(--ink); margin-bottom:14px;}
+  .section-head p{color:var(--ink-soft); font-size:15.5px;}
+
+  section.pad{padding:110px 0;}
+
+  /* ---------- PRODUCT CARD ---------- */
+  .products-grid{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:32px;
+  }
+  .product-card{
+    position:relative; background:var(--white); border-radius:20px; overflow:hidden;
+    box-shadow:var(--shadow-soft); border:1px solid transparent;
+    transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease, border-color 0.5s ease;
+  }
+  .product-card:hover{
+    transform:translateY(-10px);
+    box-shadow:var(--shadow-lift);
+    border-color: rgba(184,151,95,0.45);
+  }
+  .card-media{
+    position:relative; aspect-ratio:1/1; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .card-media::after{
+    content:''; position:absolute; inset:0; opacity:0; background:radial-gradient(circle at 50% 40%, rgba(184,151,95,0.25), transparent 65%);
+    transition:opacity 0.5s ease;
+  }
+  .product-card:hover .card-media::after{opacity:1;}
+  .swatch{width:100%; height:100%; position:relative; transition:transform 0.6s cubic-bezier(.22,.61,.36,1);}
+  .product-card:hover .swatch{transform:scale(1.06);}
+  .swatch::before{content:''; position:absolute; inset:0; background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 6px);}
+  .stitch-frame{
+    position:absolute; inset:14px; border-radius:12px; border:1px dashed rgba(255,255,255,0.5); pointer-events:none;
+  }
+
+  .badges{position:absolute; top:14px; left:14px; display:flex; flex-direction:column; gap:6px; z-index:3;}
+  .badge{
+    font-size:10px; letter-spacing:0.05em; text-transform:uppercase; padding:5px 10px; border-radius:100px; font-weight:600;
+    backdrop-filter:blur(6px);
+  }
+  .badge.handmade{background:rgba(255,255,255,0.85); color:var(--gold); border:1px solid var(--gold-light);}
+  .badge.limited{background:rgba(51,44,36,0.85); color:var(--white);}
+
+  .fav-btn{
+    position:absolute; top:14px; right:14px; z-index:3; width:36px; height:36px; border-radius:50%;
+    background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center;
+    transition: transform 0.3s ease, background 0.3s ease;
+  }
+  .fav-btn svg{width:17px; height:17px; stroke:var(--ink); fill:none; stroke-width:1.6; transition: fill 0.3s ease, stroke 0.3s ease;}
+  .fav-btn:hover{transform:scale(1.12);}
+  .fav-btn.active svg{fill:var(--blush); stroke:#c96b72;}
+
+  .quickview-btn{
+    position:absolute; left:50%; bottom:14px; transform:translate(-50%,14px); z-index:3;
+    background:var(--white); color:var(--ink); font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
+    padding:10px 18px; border-radius:100px; opacity:0; transition: all 0.4s ease; box-shadow:var(--shadow-soft);
+    white-space:nowrap;
+  }
+  .product-card:hover .quickview-btn{opacity:1; transform:translate(-50%,0);}
+
+  .card-body{padding:22px 22px 24px;}
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px;}
+  .card-top h3{font-size:19px; color:var(--ink);}
+  .stars{display:flex; gap:2px; margin-bottom:10px;}
+  .stars svg{width:13px; height:13px; fill:var(--gold);}
+  .card-desc{font-size:13.5px; color:var(--ink-soft); margin-bottom:14px; line-height:1.55;}
+  .card-bottom{display:flex; align-items:center; justify-content:space-between;}
+  .price{font-family:var(--display); font-size:20px; color:var(--ink); transition:color 0.3s ease;}
+  .product-card:hover .price{color:var(--gold);}
+  .add-btn{
+    font-size:11.5px; letter-spacing:0.05em; text-transform:uppercase; padding:11px 18px; border-radius:100px;
+    background:var(--ink); color:var(--white); transition: all 0.35s ease; position:relative; overflow:hidden;
+  }
+  .add-btn:hover{background:var(--gold);}
+  .add-btn.added{background:#6b8a5f;}
+
+  /* swatch color variants */
+  .sw-1{background:linear-gradient(135deg,#7c93a8,#a9bccb);}
+  .sw-2{background:linear-gradient(135deg,#e6c9c1,#efdcd6);}
+  .sw-3{background:linear-gradient(135deg,#5c7086,#8296ab);}
+  .sw-4{background:linear-gradient(135deg,#d8c6a5,#ecdec0);}
+  .sw-5{background:linear-gradient(135deg,#9fae8e,#c3d0af);}
+  .sw-6{background:linear-gradient(135deg,#b7a0a8,#dcc7cd);}
+  .sw-icon{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  }
+  .sw-icon svg{width:46%; height:46%; opacity:0.85;}
+
+  /* ---------- SHOP CONTROLS ---------- */
+  .shop-controls{
+    display:flex; flex-wrap:wrap; gap:16px; align-items:center; justify-content:space-between; margin-bottom:44px;
+  }
+  .filter-chips{display:flex; gap:10px; flex-wrap:wrap;}
+  .chip{
+    padding:9px 20px; border-radius:100px; font-size:13px; border:1px solid rgba(51,44,36,0.18); color:var(--ink-soft);
+    transition: all 0.3s ease;
+  }
+  .chip.active, .chip:hover{background:var(--ink); color:var(--white); border-color:var(--ink);}
+  .shop-right{display:flex; gap:14px; align-items:center;}
+  .sort-select, .shop-search{
+    padding:10px 18px; border-radius:100px; border:1px solid rgba(51,44,36,0.18); background:var(--white);
+    font-size:13px; color:var(--ink); outline:none;
+  }
+  .shop-search{width:200px;}
+
+  /* ---------- WHY CHOOSE US ---------- */
+  .why-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:26px;}
+  .why-card{
+    background:var(--white); border-radius:20px; padding:36px 28px; text-align:center; box-shadow:var(--shadow-soft);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+  .why-card:hover{transform:translateY(-8px); box-shadow:var(--shadow-lift);}
+  .why-icon{
+    width:56px; height:56px; margin:0 auto 20px; border-radius:50%; background:var(--ivory);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .why-icon svg{width:24px; height:24px; stroke:var(--gold); fill:none; stroke-width:1.5;}
+  .why-card h4{font-size:18px; margin-bottom:8px; color:var(--ink);}
+  .why-card p{font-size:13.5px; color:var(--ink-soft);}
+
+  /* ---------- ABOUT ---------- */
+  .about-grid{display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center;}
+  .about-media{position:relative;}
+  .about-frame{
+    aspect-ratio:4/5; border-radius:24px; background:linear-gradient(160deg,#e9dcc6,#f4ede1);
+    box-shadow:var(--shadow-lift); position:relative; overflow:hidden;
+  }
+  .about-frame::before{content:''; position:absolute; inset:0; background-image:repeating-linear-gradient(45deg, rgba(184,151,95,0.06) 0 3px, transparent 3px 8px);}
+  .about-stitch{position:absolute; inset:20px; border:1px dashed var(--gold); border-radius:16px; opacity:0.5;}
+  .about-badge{
+    position:absolute; bottom:-22px; left:-22px; background:var(--white); border-radius:18px; padding:18px 22px;
+    box-shadow:var(--shadow-lift); text-align:center;
+  }
+  .about-badge .num{font-family:var(--display); font-size:28px; color:var(--gold);}
+  .about-badge .lbl{font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--ink-soft);}
+  .about-text h2{font-size:clamp(28px,3.6vw,40px); margin-bottom:20px;}
+  .about-text p{color:var(--ink-soft); margin-bottom:16px; font-size:15px;}
+  @media(max-width:860px){.about-grid{grid-template-columns:1fr; gap:80px;}}
+
+  /* ---------- TESTIMONIALS ---------- */
+  .testimonial-track{display:flex; gap:26px; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:10px;}
+  .testimonial-track::-webkit-scrollbar{height:4px;}
+  .testimonial-track::-webkit-scrollbar-thumb{background:var(--gold-light); border-radius:10px;}
+  .t-card{
+    min-width:320px; scroll-snap-align:start; background:var(--white); border-radius:20px; padding:32px;
+    box-shadow:var(--shadow-soft);
+  }
+  .t-head{display:flex; align-items:center; gap:14px; margin-bottom:16px;}
+  .t-avatar{width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--white); font-family:var(--display); font-size:17px;}
+  .t-name{font-size:14.5px; font-weight:600;}
+  .t-loc{font-size:12px; color:var(--ink-soft);}
+  .t-stars{display:flex; gap:2px; margin-bottom:12px;}
+  .t-stars svg{width:12px; height:12px; fill:var(--gold);}
+  .t-quote{font-size:14px; color:var(--ink-soft); font-style:italic; line-height:1.6;}
+
+  /* ---------- GALLERY ---------- */
+  .masonry{columns:4 220px; column-gap:20px;}
+  .masonry-item{
+    break-inside:avoid; margin-bottom:20px; border-radius:16px; overflow:hidden; position:relative; cursor:pointer;
+  }
+  .masonry-item .mimg{width:100%; display:block; transition:transform 0.6s ease;}
+  .masonry-item .overlay{
+    position:absolute; inset:0; background:rgba(51,44,36,0.35); opacity:0; display:flex; align-items:center; justify-content:center;
+    transition:opacity 0.4s ease;
+  }
+  .masonry-item .overlay svg{width:28px; height:28px; stroke:var(--white); fill:none; stroke-width:1.5; transform:scale(0.7); transition:transform 0.4s ease;}
+  .masonry-item:hover .overlay{opacity:1;}
+  .masonry-item:hover .overlay svg{transform:scale(1);}
+  .masonry-item:hover .mimg{transform:scale(1.08);}
+
+  /* ---------- NEWSLETTER ---------- */
+  .newsletter{
+    background:linear-gradient(135deg, var(--ink) 0%, #46392c 100%); border-radius:32px; padding:70px 40px; text-align:center;
+    color:var(--white); position:relative; overflow:hidden;
+  }
+  .newsletter::before{
+    content:''; position:absolute; inset:0; background-image:repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 10px, transparent 10px 20px);
+  }
+  .newsletter h2{color:var(--white); font-size:clamp(26px,3.4vw,38px); margin-bottom:14px;}
+  .newsletter p{color:rgba(255,255,255,0.65); margin-bottom:32px; font-size:14.5px;}
+  .newsletter-form{display:flex; gap:12px; max-width:440px; margin:0 auto; position:relative;}
+  .newsletter-form input{
+    flex:1; padding:16px 22px; border-radius:100px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08);
+    color:var(--white); font-size:14px; outline:none;
+  }
+  .newsletter-form input::placeholder{color:rgba(255,255,255,0.5);}
+  .newsletter-form button{
+    background:var(--gold); color:var(--ink); padding:16px 28px; border-radius:100px; font-size:13px; letter-spacing:0.05em;
+    text-transform:uppercase; font-weight:600; transition:all 0.3s ease; white-space:nowrap;
+  }
+  .newsletter-form button:hover{background:var(--gold-light);}
+  @media(max-width:520px){.newsletter-form{flex-direction:column;}}
+
+  /* ---------- FOOTER ---------- */
+  footer{background:var(--ivory); padding:70px 0 30px;}
+  .footer-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1.2fr; gap:40px; margin-bottom:50px;}
+  .footer-brand .logo{margin-bottom:14px; display:block;}
+  .footer-brand p{font-size:13.5px; color:var(--ink-soft); max-width:260px;}
+  .footer-col h4{font-size:13px; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:18px; color:var(--ink);}
+  .footer-col a{display:block; font-size:13.5px; color:var(--ink-soft); margin-bottom:12px; transition:color 0.3s ease;}
+  .footer-col a:hover{color:var(--gold);}
+  .social-row{display:flex; gap:12px; margin-top:6px;}
+  .social-row a{
+    width:36px; height:36px; border-radius:50%; background:var(--white); display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--shadow-soft); transition:all 0.3s ease;
+  }
+  .social-row a:hover{background:var(--gold); transform:translateY(-3px);}
+  .social-row svg{width:15px; height:15px; stroke:var(--ink); fill:none; stroke-width:1.5;}
+  .social-row a:hover svg{stroke:var(--white);}
+  .footer-bottom{
+    border-top:1px solid rgba(51,44,36,0.1); padding-top:26px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
+    font-size:12.5px; color:var(--ink-soft);
+  }
+  @media(max-width:760px){.footer-grid{grid-template-columns:1fr 1fr;}}
+
+  /* ---------- CART DRAWER ---------- */
+  .overlay-bg{
+    position:fixed; inset:0; background:rgba(51,44,36,0.35); z-index:1200; opacity:0; pointer-events:none; transition:opacity 0.4s ease;
+    backdrop-filter:blur(2px);
+  }
+  .overlay-bg.show{opacity:1; pointer-events:auto;}
+  .cart-drawer{
+    position:fixed; top:0; right:0; height:100%; width:400px; max-width:92vw; background:var(--cream); z-index:1300;
+    transform:translateX(100%); transition:transform 0.5s cubic-bezier(.22,.61,.36,1); display:flex; flex-direction:column;
+    box-shadow:-20px 0 50px rgba(0,0,0,0.15);
+  }
+  .cart-drawer.open{transform:translateX(0);}
+  .cart-head{display:flex; justify-content:space-between; align-items:center; padding:26px 28px; border-bottom:1px solid rgba(51,44,36,0.08);}
+  .cart-head h3{font-size:22px;}
+  .close-btn{width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--white); transition:transform 0.3s ease;}
+  .close-btn:hover{transform:rotate(90deg);}
+  .close-btn svg{width:14px; height:14px; stroke:var(--ink); stroke-width:2;}
+  .cart-items{flex:1; overflow-y:auto; padding:20px 28px;}
+  .cart-item{display:flex; gap:14px; padding:16px 0; border-bottom:1px solid rgba(51,44,36,0.06); align-items:center;}
+  .cart-item .mini-media{width:64px; height:64px; border-radius:12px; flex-shrink:0; position:relative; overflow:hidden;}
+  .ci-info{flex:1;}
+  .ci-info h5{font-size:14px; margin-bottom:4px;}
+  .ci-info .ci-price{font-size:13px; color:var(--gold); font-family:var(--display);}
+  .qty-row{display:flex; align-items:center; gap:10px; margin-top:8px;}
+  .qty-btn{width:22px; height:22px; border-radius:50%; border:1px solid rgba(51,44,36,0.2); font-size:13px; display:flex; align-items:center; justify-content:center;}
+  .remove-btn{font-size:11px; color:#b3564f; text-decoration:underline; margin-left:auto;}
+  .cart-empty{text-align:center; padding:60px 20px; color:var(--ink-soft); font-size:14px;}
+  .cart-foot{padding:24px 28px; border-top:1px solid rgba(51,44,36,0.08);}
+  .cart-total{display:flex; justify-content:space-between; margin-bottom:18px; font-size:16px;}
+  .cart-total .amt{font-family:var(--display); font-size:22px; color:var(--gold);}
+  .checkout-btn{width:100%; padding:16px; border-radius:100px; background:var(--ink); color:var(--white); text-transform:uppercase; letter-spacing:0.06em; font-size:13px; transition:background 0.3s ease;}
+  .checkout-btn:hover{background:var(--gold);}
+
+  /* ---------- QUICK VIEW MODAL ---------- */
+  .qv-modal{
+    position:fixed; inset:0; z-index:1400; display:flex; align-items:center; justify-content:center; padding:24px;
+    opacity:0; pointer-events:none; transition:opacity 0.4s ease;
+  }
+  .qv-modal.open{opacity:1; pointer-events:auto;}
+  .qv-box{
+    background:var(--white); border-radius:26px; max-width:920px; width:100%; max-height:88vh; overflow-y:auto;
+    display:grid; grid-template-columns:1fr 1fr; box-shadow:var(--shadow-lift); transform:scale(0.94) translateY(20px);
+    transition:transform 0.45s cubic-bezier(.22,.61,.36,1);
+  }
+  .qv-modal.open .qv-box{transform:scale(1) translateY(0);}
+  .qv-media{position:relative; min-height:340px;}
+  .qv-close{position:absolute; top:18px; right:18px; z-index:5; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center;}
+  .qv-close svg{width:15px; height:15px; stroke-width:2;}
+  .qv-info{padding:40px 40px 40px 34px;}
+  .qv-info h3{font-size:28px; margin-bottom:10px;}
+  .qv-price{font-family:var(--display); font-size:24px; color:var(--gold); margin-bottom:16px;}
+  .qv-desc{font-size:14px; color:var(--ink-soft); margin-bottom:22px; line-height:1.6;}
+  .qv-meta{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; font-size:13px;}
+  .qv-meta div span{display:block; color:var(--ink-soft); font-size:11px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;}
+  .color-dots{display:flex; gap:10px; margin-bottom:22px;}
+  .color-dot{width:26px; height:26px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:border-color 0.3s ease;}
+  .color-dot.active{border-color:var(--ink);}
+  .qty-selector{display:flex; align-items:center; gap:16px; margin-bottom:24px;}
+  .qty-selector .qty-btn{width:32px; height:32px; font-size:15px;}
+  .qv-btns{display:flex; gap:12px; margin-bottom:20px;}
+  .qv-btns .btn-primary, .qv-btns .btn-secondary{flex:1; text-align:center; padding:15px;}
+  .qv-note{font-size:12px; color:var(--ink-soft); border-top:1px dashed rgba(51,44,36,0.15); padding-top:16px;}
+
+  @media(max-width:760px){.qv-box{grid-template-columns:1fr;} .qv-media{min-height:260px;}}
+
+  /* ---------- Loader ---------- */
+  #loader{
+    position:fixed; inset:0; background:var(--cream); z-index:9999; display:flex; align-items:center; justify-content:center;
+    transition:opacity 0.6s ease, visibility 0.6s ease;
+  }
+  #loader.hide{opacity:0; visibility:hidden;}
+  .loader-mark{font-family:var(--display); font-size:26px; letter-spacing:0.1em; color:var(--ink); position:relative;}
+  .loader-mark::after{
+    content:''; position:absolute; left:0; bottom:-10px; height:1px; width:100%; background:var(--gold);
+    animation:loadBar 1.1s ease-in-out infinite;
+  }
+  @keyframes loadBar{0%{transform:scaleX(0); transform-origin:left;} 50%{transform:scaleX(1); transform-origin:left;} 51%{transform-origin:right;} 100%{transform:scaleX(0); transform-origin:right;}}
+
+  .toast{
+    position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--white);
+    padding:14px 26px; border-radius:100px; font-size:13px; z-index:1500; opacity:0; transition:all 0.4s ease; pointer-events:none;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="loader-mark">MAISON&nbsp;VERSO</div></div>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="#home" class="logo">Maison <span>Verso</span></a>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a href="#collections">Collections</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-icons">
+      <div class="search-box" id="searchBox">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5" width="15" height="15"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="shopSearchNav" placeholder="Search pieces...">
+      </div>
+      <button class="icon-btn" id="searchToggle" aria-label="Search">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+      <button class="icon-btn" id="wishlistBtn" aria-label="Wishlist">
+        <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        <span class="cart-count" id="wishCount">0</span>
+      </button>
+      <button class="icon-btn" id="cartBtn" aria-label="Cart">
+        <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <span class="eyebrow">Handcrafted in small batches</span>
+      <h1>Envelopes cut from<br><em>fabric, not paper.</em></h1>
+      <p>Each Maison Verso clutch begins as raw denim, hand-embroidered with heirloom florals and finished with solid brass hardware — made to be carried for decades, not seasons.</p>
+      <div class="hero-btns">
+        <a href="#shop" class="btn-primary ripple">Shop Collection</a>
+        <a href="#about" class="btn-secondary">Our Story</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="float-shape s1"></div>
+      <div class="float-shape s2"></div>
+      <div class="float-shape s3"></div>
+      <div class="hero-card">
+        <div class="flap"></div>
+        <div class="stitch-line"></div>
+        <div class="bloom b1"></div>
+        <div class="bloom b2"></div>
+        <div class="bloom b3"></div>
+        <div class="clasp"></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>Scroll</span><div class="line"></div></div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="pad reveal" id="featured">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Featured</span>
+      <h2>This season's edit</h2>
+      <p>Six signature pieces, each hand-embroidered and finished in our Kolkata atelier.</p>
+    </div>
+    <div class="products-grid" id="featuredGrid"></div>
+  </div>
+</section>
+
+<div class="container"><div class="stitch-divider"></div></div>
+
+<!-- SHOP -->
+<section class="pad reveal" id="shop">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">The shop</span>
+      <h2>Full collection</h2>
+      <p>Filter by story, sort by what matters to you, or search for a piece by name.</p>
+    </div>
+    <div class="shop-controls">
+      <div class="filter-chips" id="filterChips"></div>
+      <div class="shop-right">
+        <input type="text" class="shop-search" id="shopSearch" placeholder="Search...">
+        <select class="sort-select" id="sortSelect">
+          <option value="newest">Newest</option>
+          <option value="popular">Most popular</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+        </select>
+      </div>
+    </div>
+    <div class="products-grid" id="shopGrid"></div>
+  </div>
+</section>
+
+<div class="container"><div class="stitch-divider"></div></div>
+
+<!-- WHY CHOOSE US -->
+<section class="pad reveal" id="collections">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Why Maison Verso</span>
+      <h2>Made to last, made by hand</h2>
+    </div>
+    <div class="why-grid" id="whyGrid"></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="pad reveal" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-media">
+        <div class="about-frame"><div class="about-stitch"></div></div>
+        <div class="about-badge"><div class="num">7+</div><div class="lbl">Years of craft</div></div>
+      </div>
+      <div class="about-text">
+        <span class="eyebrow">Our story</span>
+        <h2>Every clutch is signed by the hand that stitched it.</h2>
+        <p>Maison Verso began at a single embroidery table, reworking discarded denim into something worth keeping. Today the atelier is still small on purpose — every panel is hand-painted with floral motifs, every seam top-stitched in brass-toned thread, and every clasp set by hand before a bag ever leaves the workshop.</p>
+        <p>We believe a good object should show its making. That's why we leave the stitching visible, the fabric a little imperfect, and the story on a little brass plate stamped into every piece.</p>
+        <a href="#contact" class="btn-secondary" style="display:inline-block; margin-top:10px;">Meet the makers</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container"><div class="stitch-divider"></div></div>
+
+<!-- TESTIMONIALS -->
+<section class="pad reveal">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Kind words</span>
+      <h2>From the ones who carry them</h2>
+    </div>
+    <div class="testimonial-track" id="testimonialTrack"></div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="pad reveal">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">@maisonverso</span>
+      <h2>From the atelier floor</h2>
+    </div>
+    <div class="masonry" id="masonryGrid"></div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="pad reveal">
+  <div class="container">
+    <div class="newsletter">
+      <h2>Be first to new arrivals</h2>
+      <p>One email a month. New embroidery patterns, restocks, and a peek into the atelier.</p>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" placeholder="you@email.com" required>
+        <button type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#home" class="logo">Maison <span style="color:var(--gold);">Verso</span></a>
+        <p>Hand-embroidered envelope clutches, cut from denim and finished by hand in small batches.</p>
+        <div class="social-row">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6"/></svg></a>
+          <a href="#" aria-label="Pinterest"><svg viewBox="0 0 24 24"><path d="M9 21l3-9m0 0l3 9m-3-9a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></a>
+          <a href="#" aria-label="Mail"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Shop</h4>
+        <a href="#shop">All Clutches</a>
+        <a href="#shop">New Arrivals</a>
+        <a href="#shop">Limited Edition</a>
+        <a href="#collections">Collections</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a href="#about">Our Story</a>
+        <a href="#">Craftsmanship</a>
+        <a href="#">Sustainability</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <div class="footer-col">
+        <h4>Get in touch</h4>
+        <a href="mailto:hello@maisonverso.com">hello@maisonverso.com</a>
+        <a href="tel:+911234567890">+91 12345 67890</a>
+        <a href="#">Kolkata, India — by appointment</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Maison Verso. All rights reserved.</span>
+      <span>Handmade with care in Kolkata.</span>
+    </div>
+  </div>
+</footer>
+
+<!-- CART DRAWER -->
+<div class="overlay-bg" id="overlayBg"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-head">
+    <h3>Your bag</h3>
+    <button class="close-btn" id="closeCart"><svg viewBox="0 0 24 24"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-foot">
+    <div class="cart-total"><span>Subtotal</span><span class="amt" id="cartTotal">₹0</span></div>
+    <button class="checkout-btn">Checkout</button>
+  </div>
+</div>
+
+<!-- QUICK VIEW MODAL -->
+<div class="qv-modal" id="qvModal">
+  <div class="qv-box" id="qvBox"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ PRODUCT DATA ============ */
+const PRODUCTS = [
+  {id:1, name:"Rosewood Envelope Clutch", price:4200, category:"Clutches", swatch:"sw-1", rating:5, popularity:98, limited:true,
+   desc:"A deep indigo denim base hand-embroidered with a spray of rosewood pink blooms, finished with a brass clasp and detachable chain.",
+   materials:"Raw denim, cotton embroidery thread, solid brass hardware", dimensions:"28 × 17 × 4 cm", colors:["#7c93a8","#5c7086","#e6c9c1"],
+   delivery:"5–7 working days"},
+  {id:2, name:"Blush Bow Mini", price:2950, category:"Minis", swatch:"sw-2", rating:4, popularity:80, limited:false,
+   desc:"Our most-loved mini, topped with a hand-folded denim bow charm and a trail of blush florals across the flap.",
+   materials:"Washed denim, blush cotton lining, brass ring", dimensions:"20 × 13 × 3 cm", colors:["#e6c9c1","#b7a0a8","#d8c6a5"],
+   delivery:"4–6 working days"},
+  {id:3, name:"Chambray Bloom Clutch", price:3600, category:"Clutches", swatch:"sw-3", rating:5, popularity:91, limited:false,
+   desc:"Lighter chambray denim with a scattered floral motif and a slim gold-tone frame closure — an everyday piece that still feels special.",
+   materials:"Chambray denim, silk-blend thread, gold-tone frame", dimensions:"26 × 16 × 4 cm", colors:["#5c7086","#7c93a8","#9fae8e"],
+   delivery:"5–7 working days"},
+  {id:4, name:"Antique Gold Sling", price:5200, category:"Slings", swatch:"sw-4", rating:5, popularity:75, limited:true,
+   desc:"A structured sling silhouette in aged-gold denim, embroidered by hand with a single climbing rose vine along the seam.",
+   materials:"Waxed denim, antique-gold hardware, adjustable strap", dimensions:"24 × 15 × 6 cm", colors:["#d8c6a5","#b8975f","#332c24"],
+   delivery:"6–8 working days"},
+  {id:5, name:"Sage Meadow Pouch", price:2400, category:"Minis", swatch:"sw-5", rating:4, popularity:64, limited:false,
+   desc:"A soft sage-toned pouch embroidered with a meadow of wildflowers — small enough for evenings, sturdy enough for every day.",
+   materials:"Cotton-denim blend, brass zip pull", dimensions:"18 × 11 × 3 cm", colors:["#9fae8e","#c3d0af","#e6c9c1"],
+   delivery:"3–5 working days"},
+  {id:6, name:"Dusk Rose Oversized", price:6100, category:"Slings", swatch:"sw-6", rating:5, popularity:87, limited:true,
+   desc:"Our largest silhouette — deep dusk-pink denim, dense floral embroidery, and a substantial brass chain built for everyday carry.",
+   materials:"Heavyweight denim, brass chain, suede lining", dimensions:"30 × 20 × 7 cm", colors:["#b7a0a8","#dcc7cd","#332c24"],
+   delivery:"6–8 working days"}
+];
+
+const CATEGORIES = ["All", "Clutches", "Minis", "Slings"];
+
+const WHY = [
+  {title:"Handmade with Care", desc:"Every panel is embroidered by hand, one bag at a time.", icon:'<path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/>'},
+  {title:"Premium Materials", desc:"Raw denim, solid brass, and cotton threads chosen to age well.", icon:'<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>'},
+  {title:"Secure Payments", desc:"Encrypted checkout, every time, on every device.", icon:'<rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'},
+  {title:"Fast Shipping", desc:"Dispatched within 48 hours, tracked door to door.", icon:'<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="1.6"/><circle cx="18" cy="19" r="1.6"/>'},
+  {title:"Custom Designs", desc:"Request a bespoke embroidery pattern or monogram.", icon:'<path d="M3 21l4-1 11-11-3-3L4 17z"/><path d="M13 5l3 3"/>'},
+  {title:"Quality Guaranteed", desc:"Free repairs on stitching and hardware, always.", icon:'<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/>'}
+];
+
+const TESTIMONIALS = [
+  {name:"Ananya R.", loc:"Mumbai", quote:"The stitching detail is unreal in person — it doesn't look mass-made at all, it looks like it has a story.", initial:"A", color:"#8296ab"},
+  {name:"Priya K.", loc:"Bengaluru", quote:"Bought the Blush Bow Mini for my sister and she hasn't put it down since. The bow charm is adorable.", initial:"P", color:"#e6c9c1"},
+  {name:"Meera S.", loc:"Delhi", quote:"Feels like an heirloom already. The brass hardware has that satisfying weight to it.", initial:"M", color:"#b8975f"},
+  {name:"Ishita D.", loc:"Kolkata", quote:"I've had mine for two years and the embroidery hasn't faded a bit. Worth every rupee.", initial:"I", color:"#9fae8e"}
+];
+
+/* ============ STATE (in-memory, no localStorage) ============ */
+let cart = [];
+let wishlist = new Set();
+let currentFilter = "All";
+let currentSort = "newest";
+let searchTerm = "";
+
+/* ============ RENDER HELPERS ============ */
+function iconFor(cat){
+  const icons = {
+    Clutches:'<svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="1.3"><path d="M3 11l9-7 9 7v9H3z"/><path d="M3 11h18"/></svg>',
+    Minis:'<svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="1.3"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/></svg>',
+    Slings:'<svg viewBox="0 0 24 24" stroke="#fff" fill="none" stroke-width="1.3"><rect x="3" y="9" width="18" height="12" rx="2"/><path d="M7 9V7a5 5 0 0 1 10 0v2"/></svg>'
+  };
+  return icons[cat] || icons.Clutches;
+}
+
+function starSVG(){
+  return '<svg viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/></svg>';
+}
+
+function productCard(p){
+  const isFav = wishlist.has(p.id);
+  return `
+  <div class="product-card" data-id="${p.id}">
+    <div class="card-media ${p.swatch}">
+      <div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>
+      <div class="stitch-frame"></div>
+      <div class="badges">
+        <span class="badge handmade">Handmade</span>
+        ${p.limited ? '<span class="badge limited">Limited Edition</span>' : ''}
+      </div>
+      <button class="fav-btn ${isFav ? 'active':''}" data-fav="${p.id}">
+        <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+      </button>
+      <button class="quickview-btn" data-quickview="${p.id}">Quick View</button>
+    </div>
+    <div class="card-body">
+      <div class="card-top"><h3>${p.name}</h3></div>
+      <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
+      <p class="card-desc">${p.desc.slice(0,72)}...</p>
+      <div class="card-bottom">
+        <span class="price">₹${p.price.toLocaleString('en-IN')}</span>
+        <button class="add-btn" data-add="${p.id}">Add to Cart</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderFeatured(){
+  document.getElementById('featuredGrid').innerHTML = PRODUCTS.slice(0,6).map(productCard).join('');
+}
+
+function getFilteredProducts(){
+  let list = PRODUCTS.slice();
+  if(currentFilter !== "All") list = list.filter(p => p.category === currentFilter);
+  if(searchTerm.trim()) list = list.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  if(currentSort === "price-asc") list.sort((a,b)=>a.price-b.price);
+  else if(currentSort === "price-desc") list.sort((a,b)=>b.price-a.price);
+  else if(currentSort === "popular") list.sort((a,b)=>b.popularity-a.popularity);
+  else list.sort((a,b)=>b.id-a.id);
+  return list;
+}
+
+function renderShop(){
+  const grid = document.getElementById('shopGrid');
+  const list = getFilteredProducts();
+  grid.style.opacity = 0;
+  setTimeout(()=>{
+    grid.innerHTML = list.length ? list.map(productCard).join('') : `<p style="grid-column:1/-1; text-align:center; color:var(--ink-soft); padding:40px 0;">No pieces match that search — try another name or filter.</p>`;
+    grid.style.transition = 'opacity 0.4s ease';
+    grid.style.opacity = 1;
+    attachCardEvents();
+  }, 180);
+}
+
+function renderChips(){
+  document.getElementById('filterChips').innerHTML = CATEGORIES.map(c =>
+    `<button class="chip ${c===currentFilter?'active':''}" data-chip="${c}">${c}</button>`
+  ).join('');
+}
+
+function renderWhy(){
+  document.getElementById('whyGrid').innerHTML = WHY.map(w => `
+    <div class="why-card">
+      <div class="why-icon">${w.icon.replace('stroke="#fff"','stroke="var(--gold)"')}</div>
+      <h4>${w.title}</h4>
+      <p>${w.desc}</p>
+    </div>`).join('');
+}
+
+function renderTestimonials(){
+  document.getElementById('testimonialTrack').innerHTML = TESTIMONIALS.map(t => `
+    <div class="t-card">
+      <div class="t-head">
+        <div class="t-avatar" style="background:${t.color}">${t.initial}</div>
+        <div><div class="t-name">${t.name}</div><div class="t-loc">${t.loc}</div></div>
+      </div>
+      <div class="t-stars">${Array(5).fill(starSVG()).join('')}</div>
+      <p class="t-quote">"${t.quote}"</p>
+    </div>`).join('');
+}
+
+function renderGallery(){
+  const swatches = ["sw-1","sw-2","sw-3","sw-4","sw-5","sw-6","sw-2","sw-4"];
+  const heights = [220,280,240,300,260,230,290,250];
+  document.getElementById('masonryGrid').innerHTML = swatches.map((s,i) => `
+    <div class="masonry-item">
+      <div class="mimg ${s}" style="height:${heights[i]}px;"></div>
+      <div class="overlay"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+    </div>`).join('');
+}
+
+/* ============ CART LOGIC ============ */
+function addToCart(id, btn){
+  const p = PRODUCTS.find(x=>x.id===id);
+  const existing = cart.find(x=>x.id===id);
+  if(existing) existing.qty++;
+  else cart.push({...p, qty:1});
+  updateCartUI();
+  showToast(`${p.name} added to your bag`);
+  if(btn){
+    btn.classList.add('added');
+    btn.textContent = 'Added ✓';
+    setTimeout(()=>{ btn.classList.remove('added'); btn.textContent = 'Add to Cart'; }, 1400);
+  }
+}
+
+function changeQty(id, delta){
+  const item = cart.find(x=>x.id===id);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0) cart = cart.filter(x=>x.id!==id);
+  updateCartUI();
+}
+
+function removeFromCart(id){
+  cart = cart.filter(x=>x.id!==id);
+  updateCartUI();
+}
+
+function updateCartUI(){
+  const count = cart.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('cartCount').textContent = count;
+  const itemsEl = document.getElementById('cartItems');
+  if(cart.length===0){
+    itemsEl.innerHTML = `<div class="cart-empty">Your bag is empty.<br>Time to find a favorite.</div>`;
+  } else {
+    itemsEl.innerHTML = cart.map(i => `
+      <div class="cart-item">
+        <div class="mini-media ${i.swatch}"></div>
+        <div class="ci-info">
+          <h5>${i.name}</h5>
+          <div class="ci-price">₹${(i.price*i.qty).toLocaleString('en-IN')}</div>
+          <div class="qty-row">
+            <button class="qty-btn" data-qty-minus="${i.id}">−</button>
+            <span>${i.qty}</span>
+            <button class="qty-btn" data-qty-plus="${i.id}">+</button>
+            <button class="remove-btn" data-remove="${i.id}">Remove</button>
+          </div>
+        </div>
+      </div>`).join('');
+  }
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  document.getElementById('cartTotal').textContent = `₹${total.toLocaleString('en-IN')}`;
+  itemsEl.querySelectorAll('[data-qty-minus]').forEach(b=>b.onclick=()=>changeQty(+b.dataset.qtyMinus,-1));
+  itemsEl.querySelectorAll('[data-qty-plus]').forEach(b=>b.onclick=()=>changeQty(+b.dataset.qtyPlus,1));
+  itemsEl.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>removeFromCart(+b.dataset.remove));
+}
+
+function toggleWish(id, btn){
+  if(wishlist.has(id)) wishlist.delete(id); else wishlist.add(id);
+  btn.classList.toggle('active');
+  document.getElementById('wishCount').textContent = wishlist.size;
+}
+
+/* ============ QUICK VIEW ============ */
+function openQuickView(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  const box = document.getElementById('qvBox');
+  box.innerHTML = `
+    <div class="qv-media ${p.swatch}">
+      <div class="sw-icon">${iconFor(p.category)}</div>
+      <button class="qv-close" id="qvCloseBtn"><svg viewBox="0 0 24 24" stroke="#332c24" fill="none"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
+    </div>
+    <div class="qv-info">
+      <span class="eyebrow">${p.category}</span>
+      <h3>${p.name}</h3>
+      <div class="qv-price">₹${p.price.toLocaleString('en-IN')}</div>
+      <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
+      <p class="qv-desc" style="margin-top:14px;">${p.desc}</p>
+      <div class="qv-meta">
+        <div><span>Materials</span>${p.materials}</div>
+        <div><span>Dimensions</span>${p.dimensions}</div>
+      </div>
+      <div><span style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-bottom:8px;">Colorway</span>
+        <div class="color-dots">
+          ${p.colors.map((c,i)=>`<div class="color-dot ${i===0?'active':''}" style="background:${c}" data-color></div>`).join('')}
+        </div>
+      </div>
+      <div class="qty-selector">
+        <button class="qty-btn" id="qvMinus">−</button>
+        <span id="qvQty">1</span>
+        <button class="qty-btn" id="qvPlus">+</button>
+      </div>
+      <div class="qv-btns">
+        <button class="btn-primary ripple" id="qvAddCart">Add to Cart</button>
+        <button class="btn-secondary" id="qvBuyNow">Buy Now</button>
+      </div>
+      <div class="qv-note">Estimated delivery: ${p.delivery}. Handmade piece — natural variation in embroidery and fabric grain is part of the charm.</div>
+    </div>`;
+  document.getElementById('qvModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  let qty = 1;
+  box.querySelectorAll('[data-color]').forEach(d=>d.onclick=()=>{
+    box.querySelectorAll('[data-color]').forEach(x=>x.classList.remove('active'));
+    d.classList.add('active');
+  });
+  document.getElementById('qvMinus').onclick = ()=>{ if(qty>1) qty--; document.getElementById('qvQty').textContent = qty; };
+  document.getElementById('qvPlus').onclick = ()=>{ qty++; document.getElementById('qvQty').textContent = qty; };
+  document.getElementById('qvAddCart').onclick = ()=>{ for(let i=0;i<qty;i++) addToCart(p.id); closeQuickView(); };
+  document.getElementById('qvBuyNow').onclick = ()=>{ for(let i=0;i<qty;i++) addToCart(p.id); closeQuickView(); openCart(); };
+  document.getElementById('qvCloseBtn').onclick = closeQuickView;
+}
+function closeQuickView(){
+  document.getElementById('qvModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ============ CART DRAWER ============ */
+function openCart(){
+  document.getElementById('cartDrawer').classList.add('open');
+  document.getElementById('overlayBg').classList.add('show');
+}
+function closeCartFn(){
+  document.getElementById('cartDrawer').classList.remove('open');
+  document.getElementById('overlayBg').classList.remove('show');
+}
+
+/* ============ TOAST ============ */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* ============ EVENT WIRING ============ */
+function attachCardEvents(){
+  document.querySelectorAll('[data-add]').forEach(b=>{
+    b.onclick = (e)=>{ e.stopPropagation(); addToCart(+b.dataset.add, b); };
+  });
+  document.querySelectorAll('[data-fav]').forEach(b=>{
+    b.onclick = (e)=>{ e.stopPropagation(); toggleWish(+b.dataset.fav, b); };
+  });
+  document.querySelectorAll('[data-quickview]').forEach(b=>{
+    b.onclick = (e)=>{ e.stopPropagation(); openQuickView(+b.dataset.quickview); };
+  });
+}
+
+function ripple(e){
+  const btn = e.currentTarget;
+  const circle = document.createElement('span');
+  const d = Math.max(btn.clientWidth, btn.clientHeight);
+  circle.style.width = circle.style.height = d+'px';
+  circle.style.left = (e.clientX - btn.getBoundingClientRect().left - d/2)+'px';
+  circle.style.top = (e.clientY - btn.getBoundingClientRect().top - d/2)+'px';
+  circle.classList.add('ripple-circle');
+  btn.appendChild(circle);
+  setTimeout(()=>circle.remove(), 650);
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderFeatured();
+  renderChips();
+  renderShop();
+  renderWhy();
+  renderTestimonials();
+  renderGallery();
+  updateCartUI();
+  attachCardEvents();
+
+  // navbar scroll
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', ()=>{
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // reveal on scroll
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); });
+  }, {threshold:0.12});
+  revealEls.forEach(el=>io.observe(el));
+
+  // search toggle
+  const searchToggle = document.getElementById('searchToggle');
+  const searchBox = document.getElementById('searchBox');
+  searchToggle.onclick = ()=>{
+    searchBox.classList.toggle('open');
+    if(searchBox.classList.contains('open')) document.getElementById('shopSearchNav').focus();
+  };
+  document.getElementById('shopSearchNav').addEventListener('input', (e)=>{
+    searchTerm = e.target.value;
+    document.getElementById('shopSearch').value = e.target.value;
+    document.getElementById('shop').scrollIntoView({behavior:'smooth'});
+    renderShop();
+  });
+
+  // shop filters/search/sort
+  document.getElementById('filterChips').addEventListener('click', (e)=>{
+    const chip = e.target.closest('[data-chip]');
+    if(!chip) return;
+    currentFilter = chip.dataset.chip;
+    renderChips();
+    renderShop();
+  });
+  document.getElementById('shopSearch').addEventListener('input', (e)=>{
+    searchTerm = e.target.value;
+    renderShop();
+  });
+  document.getElementById('sortSelect').addEventListener('change', (e)=>{
+    currentSort = e.target.value;
+    renderShop();
+  });
+
+  // cart drawer
+  document.getElementById('cartBtn').onclick = openCart;
+  document.getElementById('closeCart').onclick = closeCartFn;
+  document.getElementById('overlayBg').onclick = ()=>{ closeCartFn(); closeQuickView(); };
+
+  // quickview modal close on backdrop
+  document.getElementById('qvModal').addEventListener('click', (e)=>{
+    if(e.target.id === 'qvModal') closeQuickView();
+  });
+
+  // ripple buttons
+  document.querySelectorAll('.ripple').forEach(b=>b.addEventListener('click', ripple));
+
+  // newsletter
+  document.getElementById('newsletterForm').addEventListener('submit', (e)=>{
+    e.preventDefault();
+    showToast("You're on the list — welcome to Maison Verso.");
+    e.target.reset();
+  });
+
+  // wishlist icon click -> scroll to shop, just a nice touch
+  document.getElementById('wishlistBtn').onclick = ()=>{
+    document.getElementById('shop').scrollIntoView({behavior:'smooth'});
+  };
+
+  // loader
+  setTimeout(()=>{ document.getElementById('loader').classList.add('hide'); }, 700);
+});
+</script>
+</body>
+</html>
