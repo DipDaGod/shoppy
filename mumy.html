@@ -95,15 +95,55 @@
     font-size:10px; width:16px; height:16px; border-radius:50%; display:flex; align-items:center; justify-content:center;
     font-family:var(--sans); font-weight:600;
   }
+  .search-wrap{position:relative; display:flex; align-items:center;}
+  .search-icon-btn{position:relative; z-index:2; transition:opacity 0.25s ease, transform 0.25s ease;}
+  .search-wrap.open .search-icon-btn{opacity:0; transform:scale(0.7); pointer-events:none;}
   .search-box{
-    display:flex; align-items:center; gap:8px; background:var(--white); border-radius:20px;
-    padding:6px 14px; box-shadow:var(--shadow-soft); max-width:0; overflow:hidden; transition:max-width 0.4s ease, padding 0.4s ease;
+    position:absolute; top:50%; right:0; transform:translateY(-50%);
+    display:flex; align-items:center; gap:10px;
+    background:var(--white); border-radius:100px;
+    box-shadow:0 8px 28px rgba(51,44,36,0.14), 0 0 0 1px rgba(51,44,36,0.06);
+    width:0; padding:0; overflow:hidden; opacity:0; pointer-events:none;
+    transition: width 0.45s cubic-bezier(.22,.61,.36,1), opacity 0.25s ease, padding 0.45s cubic-bezier(.22,.61,.36,1);
+    z-index:1;
   }
-  .search-box.open{max-width:220px; padding:6px 14px;}
-  .search-box input{border:none; outline:none; font-size:13px; background:transparent; width:170px; font-family:var(--sans);}
+  .search-box.open{width:250px; padding:10px 8px 10px 18px; opacity:1; pointer-events:auto;}
+  .search-box svg{flex-shrink:0; color:var(--gold); transition:color 0.3s ease;}
+  .search-box input{border:none; outline:none; font-size:13.5px; background:transparent; width:100%; font-family:var(--sans); color:var(--ink);}
+  .search-box input::placeholder{color:var(--ink-soft);}
+  .search-close{
+    flex-shrink:0; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:var(--ivory); transition:background 0.3s ease, transform 0.3s ease;
+  }
+  .search-close:hover{background:var(--gold-light); transform:rotate(90deg);}
+  .search-close svg{width:11px; height:11px; stroke:var(--ink); stroke-width:2; color:var(--ink);}
+
+  .hamburger{
+    display:none; flex-direction:column; justify-content:center; gap:5px; width:26px; height:20px; margin-left:6px;
+  }
+  .hamburger span{display:block; height:2px; width:100%; background:var(--ink); border-radius:2px; transition:transform 0.3s ease, opacity 0.3s ease;}
+  .hamburger.active span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+  .hamburger.active span:nth-child(2){opacity:0;}
+  .hamburger.active span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
 
   @media (max-width:920px){
-    .nav-links{display:none;}
+    .nav-links{
+      display:flex; flex-direction:column; gap:0;
+      position:fixed; left:0; right:0; top:var(--nav-h, 78px); z-index:999;
+      background:rgba(255,255,255,0.98); backdrop-filter:blur(16px);
+      box-shadow:0 16px 30px rgba(51,44,36,0.1);
+      max-height:0; overflow:hidden; opacity:0; padding:0 32px;
+      transition:max-height 0.4s cubic-bezier(.22,.61,.36,1), opacity 0.3s ease, padding 0.4s ease;
+    }
+    .nav-links.open{max-height:360px; opacity:1; padding:18px 32px 26px;}
+    .nav-links li{width:100%;}
+    .nav-links a{display:block; padding:13px 0; font-size:15px; border-bottom:1px solid rgba(51,44,36,0.08);}
+    .nav-links a::after{display:none;}
+    .hamburger{display:flex;}
+  }
+  @media(max-width:480px){
+    .nav-inner{padding:0 18px;}
+    .nav-icons{gap:14px;}
   }
 
   /* ---------- HERO ---------- */
@@ -150,7 +190,8 @@
   }
   @keyframes rippleAnim{to{transform:scale(3); opacity:0;}}
 
-  .hero-visual{position:relative; display:flex; align-items:center; justify-content:center;}
+  .hero-visual{position:relative; display:flex; align-items:center; justify-content:center; perspective:1200px;}
+  .tilt-wrap{transition: transform 0.2s ease-out; transform-style:preserve-3d; width:100%; display:flex; justify-content:center;}
   .hero-card{
     width:100%; max-width:440px; aspect-ratio:4/3.1; border-radius:28px; position:relative;
     background:
@@ -507,6 +548,36 @@
   }
   @keyframes loadBar{0%{transform:scaleX(0); transform-origin:left;} 50%{transform:scaleX(1); transform-origin:left;} 51%{transform-origin:right;} 100%{transform:scaleX(0); transform-origin:right;}}
 
+  /* ---------- ADD TO CART MICRO-INTERACTION ---------- */
+  .fly-clone{
+    position:fixed; z-index:2000; pointer-events:none; overflow:hidden;
+    box-shadow:0 10px 26px rgba(51,44,36,0.3);
+    transition: left 0.7s cubic-bezier(.34,1.15,.4,1), top 0.7s cubic-bezier(.34,1.15,.4,1),
+                width 0.7s cubic-bezier(.34,1.15,.4,1), height 0.7s cubic-bezier(.34,1.15,.4,1),
+                border-radius 0.7s ease, opacity 0.7s ease 0.15s;
+  }
+  @keyframes cartBump{
+    0%{transform:scale(1) rotate(0);}
+    25%{transform:scale(1.3) rotate(-10deg);}
+    50%{transform:scale(0.92) rotate(6deg);}
+    75%{transform:scale(1.08) rotate(-2deg);}
+    100%{transform:scale(1) rotate(0);}
+  }
+  .icon-btn.cart-bump{animation:cartBump 0.55s cubic-bezier(.34,1.4,.44,1);}
+  @keyframes badgePop{
+    0%{transform:scale(1);}
+    40%{transform:scale(1.6); background:var(--ink);}
+    100%{transform:scale(1);}
+  }
+  .cart-count.badge-pop{animation:badgePop 0.45s ease;}
+  @keyframes btnPulse{
+    0%{transform:scale(1);}
+    35%{transform:scale(0.94);}
+    60%{transform:scale(1.04);}
+    100%{transform:scale(1);}
+  }
+  .add-btn.pulsing{animation:btnPulse 0.4s ease;}
+
   .toast{
     position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:var(--white);
     padding:14px 26px; border-radius:100px; font-size:13px; z-index:1500; opacity:0; transition:all 0.4s ease; pointer-events:none;
@@ -530,13 +601,18 @@
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-icons">
-      <div class="search-box" id="searchBox">
-        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5" width="15" height="15"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="shopSearchNav" placeholder="Search pieces...">
+      <div class="search-wrap" id="searchWrap">
+        <button class="icon-btn search-icon-btn" id="searchToggle" aria-label="Search" aria-expanded="false">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <div class="search-box" id="searchBox">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5" width="15" height="15"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="shopSearchNav" placeholder="Search pieces..." autocomplete="off">
+          <button class="search-close" id="searchClose" aria-label="Close search">
+            <svg viewBox="0 0 24 24"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+          </button>
+        </div>
       </div>
-      <button class="icon-btn" id="searchToggle" aria-label="Search">
-        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      </button>
       <button class="icon-btn" id="wishlistBtn" aria-label="Wishlist">
         <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
         <span class="cart-count" id="wishCount">0</span>
@@ -544,6 +620,9 @@
       <button class="icon-btn" id="cartBtn" aria-label="Cart">
         <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
         <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-expanded="false">
+        <span></span><span></span><span></span>
       </button>
     </div>
   </div>
@@ -565,13 +644,15 @@
       <div class="float-shape s1"></div>
       <div class="float-shape s2"></div>
       <div class="float-shape s3"></div>
-      <div class="hero-card">
-        <div class="flap"></div>
-        <div class="stitch-line"></div>
-        <div class="bloom b1"></div>
-        <div class="bloom b2"></div>
-        <div class="bloom b3"></div>
-        <div class="clasp"></div>
+      <div class="tilt-wrap" id="tiltWrap">
+        <div class="hero-card">
+          <div class="flap"></div>
+          <div class="stitch-line"></div>
+          <div class="bloom b1"></div>
+          <div class="bloom b2"></div>
+          <div class="bloom b3"></div>
+          <div class="clasp"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -737,7 +818,7 @@
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-foot">
     <div class="cart-total"><span>Subtotal</span><span class="amt" id="cartTotal">₹0</span></div>
-    <button class="checkout-btn">Checkout</button>
+    <button class="checkout-btn" id="checkoutBtn">Checkout</button>
   </div>
 </div>
 
@@ -749,51 +830,177 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* ============ PRODUCT DATA ============ */
-const PRODUCTS = [
-  {id:1, name:"Rosewood Envelope Clutch", price:4200, category:"Clutches", swatch:"sw-1", rating:5, popularity:98, limited:true,
-   desc:"A deep indigo denim base hand-embroidered with a spray of rosewood pink blooms, finished with a brass clasp and detachable chain.",
-   materials:"Raw denim, cotton embroidery thread, solid brass hardware", dimensions:"28 × 17 × 4 cm", colors:["#7c93a8","#5c7086","#e6c9c1"],
-   delivery:"5–7 working days"},
-  {id:2, name:"Blush Bow Mini", price:2950, category:"Minis", swatch:"sw-2", rating:4, popularity:80, limited:false,
-   desc:"Our most-loved mini, topped with a hand-folded denim bow charm and a trail of blush florals across the flap.",
-   materials:"Washed denim, blush cotton lining, brass ring", dimensions:"20 × 13 × 3 cm", colors:["#e6c9c1","#b7a0a8","#d8c6a5"],
-   delivery:"4–6 working days"},
-  {id:3, name:"Chambray Bloom Clutch", price:3600, category:"Clutches", swatch:"sw-3", rating:5, popularity:91, limited:false,
-   desc:"Lighter chambray denim with a scattered floral motif and a slim gold-tone frame closure — an everyday piece that still feels special.",
-   materials:"Chambray denim, silk-blend thread, gold-tone frame", dimensions:"26 × 16 × 4 cm", colors:["#5c7086","#7c93a8","#9fae8e"],
-   delivery:"5–7 working days"},
-  {id:4, name:"Antique Gold Sling", price:5200, category:"Slings", swatch:"sw-4", rating:5, popularity:75, limited:true,
-   desc:"A structured sling silhouette in aged-gold denim, embroidered by hand with a single climbing rose vine along the seam.",
-   materials:"Waxed denim, antique-gold hardware, adjustable strap", dimensions:"24 × 15 × 6 cm", colors:["#d8c6a5","#b8975f","#332c24"],
-   delivery:"6–8 working days"},
-  {id:5, name:"Sage Meadow Pouch", price:2400, category:"Minis", swatch:"sw-5", rating:4, popularity:64, limited:false,
-   desc:"A soft sage-toned pouch embroidered with a meadow of wildflowers — small enough for evenings, sturdy enough for every day.",
-   materials:"Cotton-denim blend, brass zip pull", dimensions:"18 × 11 × 3 cm", colors:["#9fae8e","#c3d0af","#e6c9c1"],
-   delivery:"3–5 working days"},
-  {id:6, name:"Dusk Rose Oversized", price:6100, category:"Slings", swatch:"sw-6", rating:5, popularity:87, limited:true,
-   desc:"Our largest silhouette — deep dusk-pink denim, dense floral embroidery, and a substantial brass chain built for everyday carry.",
-   materials:"Heavyweight denim, brass chain, suede lining", dimensions:"30 × 20 × 7 cm", colors:["#b7a0a8","#dcc7cd","#332c24"],
-   delivery:"6–8 working days"}
-];
+/* ============================================================
+   BACKEND API SCAFFOLD — not wired to a real server yet.
+   ------------------------------------------------------------
+   Every call below just logs its payload to the console for now.
+   When your server is ready:
+     1. Set API.baseURL to your real endpoint.
+     2. In API.request(), delete the console.log line and
+        uncomment the fetch() block underneath it.
+     3. Everything that calls API.* elsewhere in this file
+        (addToCart, toggleWish, newsletter, checkout) needs
+        no other changes — they already call these methods.
+   ============================================================ */
+const API = {
+  baseURL: 'https://your-server.com/api', // TODO: replace with your real API base URL
 
-const CATEGORIES = ["All", "Clutches", "Minis", "Slings"];
+  async request(path, method = 'POST', body = null){
+    console.log(`[API stub] ${method} ${this.baseURL}${path}`, body || '');
+    // Uncomment this block once your server exists, and remove the console.log above:
+    //
+    // try {
+    //   const res = await fetch(`${this.baseURL}${path}`, {
+    //     method,
+    //     headers: { 'Content-Type': 'application/json' },
+    //     credentials: 'include', // if you use cookie-based sessions
+    //     body: body ? JSON.stringify(body) : undefined
+    //   });
+    //   if(!res.ok) throw new Error(`Request failed: ${res.status}`);
+    //   return await res.json();
+    // } catch(err){
+    //   console.error('API request failed', err);
+    // }
+    return Promise.resolve(null);
+  },
 
-const WHY = [
-  {title:"Handmade with Care", desc:"Every panel is embroidered by hand, one bag at a time.", icon:'<path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/>'},
-  {title:"Premium Materials", desc:"Raw denim, solid brass, and cotton threads chosen to age well.", icon:'<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>'},
-  {title:"Secure Payments", desc:"Encrypted checkout, every time, on every device.", icon:'<rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>'},
-  {title:"Fast Shipping", desc:"Dispatched within 48 hours, tracked door to door.", icon:'<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="1.6"/><circle cx="18" cy="19" r="1.6"/>'},
-  {title:"Custom Designs", desc:"Request a bespoke embroidery pattern or monogram.", icon:'<path d="M3 21l4-1 11-11-3-3L4 17z"/><path d="M13 5l3 3"/>'},
-  {title:"Quality Guaranteed", desc:"Free repairs on stitching and hardware, always.", icon:'<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/>'}
-];
+  // Cart
+  addToCart(item){ return this.request('/cart/add', 'POST', item); },
+  removeFromCart(id){ return this.request('/cart/remove', 'POST', { id }); },
+  updateCartQty(id, qty){ return this.request('/cart/update', 'POST', { id, qty }); },
 
-const TESTIMONIALS = [
-  {name:"Ananya R.", loc:"Mumbai", quote:"The stitching detail is unreal in person — it doesn't look mass-made at all, it looks like it has a story.", initial:"A", color:"#8296ab"},
-  {name:"Priya K.", loc:"Bengaluru", quote:"Bought the Blush Bow Mini for my sister and she hasn't put it down since. The bow charm is adorable.", initial:"P", color:"#e6c9c1"},
-  {name:"Meera S.", loc:"Delhi", quote:"Feels like an heirloom already. The brass hardware has that satisfying weight to it.", initial:"M", color:"#b8975f"},
-  {name:"Ishita D.", loc:"Kolkata", quote:"I've had mine for two years and the embroidery hasn't faded a bit. Worth every rupee.", initial:"I", color:"#9fae8e"}
-];
+  // Wishlist
+  addToWishlist(id){ return this.request('/wishlist/add', 'POST', { id }); },
+  removeFromWishlist(id){ return this.request('/wishlist/remove', 'POST', { id }); },
+
+  // Newsletter + checkout
+  subscribeNewsletter(email){ return this.request('/newsletter/subscribe', 'POST', { email }); },
+  checkout(cart){ return this.request('/checkout', 'POST', { cart }); }
+};
+
+/* ============================================================
+   SITE DATA — everything editable lives here in one place.
+   ------------------------------------------------------------
+   Each product supports an "image" field: paste a real photo
+   URL there (e.g. "https://yoursite.com/images/rosewood.jpg")
+   and the card will show that photo instead of the built-in
+   fabric-swatch illustration. Leave image: "" to keep the
+   illustration. originalPrice is optional — set it equal to
+   price if there's no discount, or higher to show a strikethrough.
+   ============================================================ */
+const SITE_DATA = {
+
+  categories: ["All", "Clutches", "Minis", "Slings"],
+
+  products: [
+    {
+      id: 1, name: "Rosewood Envelope Clutch", category: "Clutches",
+      price: 4200, originalPrice: 4800,
+      image: "", swatch: "sw-1",
+      rating: 5, popularity: 98, limited: true,
+      desc: "A deep indigo denim base hand-embroidered with a spray of rosewood pink blooms, finished with a brass clasp and detachable chain.",
+      materials: "Raw denim, cotton embroidery thread, solid brass hardware",
+      dimensions: "28 × 17 × 4 cm",
+      colors: [
+        { name: "Denim Blue", hex: "#7c93a8" },
+        { name: "Deep Indigo", hex: "#5c7086" },
+        { name: "Rosewood Blush", hex: "#e6c9c1" }
+      ],
+      delivery: "5–7 working days"
+    },
+    {
+      id: 2, name: "Blush Bow Mini", category: "Minis",
+      price: 2950, originalPrice: 2950,
+      image: "", swatch: "sw-2",
+      rating: 4, popularity: 80, limited: false,
+      desc: "Our most-loved mini, topped with a hand-folded denim bow charm and a trail of blush florals across the flap.",
+      materials: "Washed denim, blush cotton lining, brass ring",
+      dimensions: "20 × 13 × 3 cm",
+      colors: [
+        { name: "Blush Pink", hex: "#e6c9c1" },
+        { name: "Dusty Mauve", hex: "#b7a0a8" },
+        { name: "Antique Gold", hex: "#d8c6a5" }
+      ],
+      delivery: "4–6 working days"
+    },
+    {
+      id: 3, name: "Chambray Bloom Clutch", category: "Clutches",
+      price: 3600, originalPrice: 4100,
+      image: "", swatch: "sw-3",
+      rating: 5, popularity: 91, limited: false,
+      desc: "Lighter chambray denim with a scattered floral motif and a slim gold-tone frame closure — an everyday piece that still feels special.",
+      materials: "Chambray denim, silk-blend thread, gold-tone frame",
+      dimensions: "26 × 16 × 4 cm",
+      colors: [
+        { name: "Deep Indigo", hex: "#5c7086" },
+        { name: "Denim Blue", hex: "#7c93a8" },
+        { name: "Sage Green", hex: "#9fae8e" }
+      ],
+      delivery: "5–7 working days"
+    },
+    {
+      id: 4, name: "Antique Gold Sling", category: "Slings",
+      price: 5200, originalPrice: 5900,
+      image: "", swatch: "sw-4",
+      rating: 5, popularity: 75, limited: true,
+      desc: "A structured sling silhouette in aged-gold denim, embroidered by hand with a single climbing rose vine along the seam.",
+      materials: "Waxed denim, antique-gold hardware, adjustable strap",
+      dimensions: "24 × 15 × 6 cm",
+      colors: [
+        { name: "Antique Gold", hex: "#d8c6a5" },
+        { name: "Brass", hex: "#b8975f" },
+        { name: "Ink Black", hex: "#332c24" }
+      ],
+      delivery: "6–8 working days"
+    },
+    {
+      id: 5, name: "Sage Meadow Pouch", category: "Minis",
+      price: 2400, originalPrice: 2400,
+      image: "", swatch: "sw-5",
+      rating: 4, popularity: 64, limited: false,
+      desc: "A soft sage-toned pouch embroidered with a meadow of wildflowers — small enough for evenings, sturdy enough for every day.",
+      materials: "Cotton-denim blend, brass zip pull",
+      dimensions: "18 × 11 × 3 cm",
+      colors: [
+        { name: "Sage Green", hex: "#9fae8e" },
+        { name: "Meadow Mint", hex: "#c3d0af" },
+        { name: "Blush Pink", hex: "#e6c9c1" }
+      ],
+      delivery: "3–5 working days"
+    },
+    {
+      id: 6, name: "Dusk Rose Oversized", category: "Slings",
+      price: 6100, originalPrice: 6900,
+      image: "", swatch: "sw-6",
+      rating: 5, popularity: 87, limited: true,
+      desc: "Our largest silhouette — deep dusk-pink denim, dense floral embroidery, and a substantial brass chain built for everyday carry.",
+      materials: "Heavyweight denim, brass chain, suede lining",
+      dimensions: "30 × 20 × 7 cm",
+      colors: [
+        { name: "Dusk Mauve", hex: "#b7a0a8" },
+        { name: "Dusty Rose", hex: "#dcc7cd" },
+        { name: "Ink Black", hex: "#332c24" }
+      ],
+      delivery: "6–8 working days"
+    }
+  ],
+
+  why: [
+    { title:"Handmade with Care", desc:"Every panel is embroidered by hand, one bag at a time.", icon:'<path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/>' },
+    { title:"Premium Materials", desc:"Raw denim, solid brass, and cotton threads chosen to age well.", icon:'<path d="M12 2l3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/>' },
+    { title:"Secure Payments", desc:"Encrypted checkout, every time, on every device.", icon:'<rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>' },
+    { title:"Fast Shipping", desc:"Dispatched within 48 hours, tracked door to door.", icon:'<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="1.6"/><circle cx="18" cy="19" r="1.6"/>' },
+    { title:"Custom Designs", desc:"Request a bespoke embroidery pattern or monogram.", icon:'<path d="M3 21l4-1 11-11-3-3L4 17z"/><path d="M13 5l3 3"/>' },
+    { title:"Quality Guaranteed", desc:"Free repairs on stitching and hardware, always.", icon:'<path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/>' }
+  ],
+
+  testimonials: [
+    { name:"Ananya R.", loc:"Mumbai", quote:"The stitching detail is unreal in person — it doesn't look mass-made at all, it looks like it has a story.", initial:"A", color:"#8296ab" },
+    { name:"Priya K.", loc:"Bengaluru", quote:"Bought the Blush Bow Mini for my sister and she hasn't put it down since. The bow charm is adorable.", initial:"P", color:"#e6c9c1" },
+    { name:"Meera S.", loc:"Delhi", quote:"Feels like an heirloom already. The brass hardware has that satisfying weight to it.", initial:"M", color:"#b8975f" },
+    { name:"Ishita D.", loc:"Kolkata", quote:"I've had mine for two years and the embroidery hasn't faded a bit. Worth every rupee.", initial:"I", color:"#9fae8e" }
+  ]
+};
 
 /* ============ STATE (in-memory, no localStorage) ============ */
 let cart = [];
@@ -816,12 +1023,35 @@ function starSVG(){
   return '<svg viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/></svg>';
 }
 
+function mediaMarkup(p){
+  return p.image
+    ? `<img class="product-img" src="${p.image}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>`
+    : `<div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>`;
+}
+
+function cardControlHTML(p){
+  const item = cart.find(c=>c.id===p.id);
+  if(!item){
+    return `<button class="add-btn" data-add="${p.id}">Add to Cart</button>`;
+  }
+  return `
+    <div class="card-stepper">
+      <button class="qty-btn" data-card-minus="${p.id}" aria-label="Decrease quantity">−</button>
+      <span>${item.qty}</span>
+      <button class="qty-btn" data-card-plus="${p.id}" aria-label="Increase quantity">+</button>
+    </div>
+    <button class="card-remove-btn" data-card-remove="${p.id}" aria-label="Remove from cart">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-8 0 1 13h8l1-13"/></svg>
+    </button>`;
+}
+
 function productCard(p){
   const isFav = wishlist.has(p.id);
+  const hasDiscount = p.originalPrice && p.originalPrice > p.price;
   return `
   <div class="product-card" data-id="${p.id}">
     <div class="card-media ${p.swatch}">
-      <div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>
+      ${mediaMarkup(p)}
       <div class="stitch-frame"></div>
       <div class="badges">
         <span class="badge handmade">Handmade</span>
@@ -837,19 +1067,30 @@ function productCard(p){
       <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
       <p class="card-desc">${p.desc.slice(0,72)}...</p>
       <div class="card-bottom">
-        <span class="price">₹${p.price.toLocaleString('en-IN')}</span>
-        <button class="add-btn" data-add="${p.id}">Add to Cart</button>
+        <div class="price-group">
+          <span class="price">₹${p.price.toLocaleString('en-IN')}</span>
+          ${hasDiscount ? `<span class="price-original">₹${p.originalPrice.toLocaleString('en-IN')}</span>` : ''}
+        </div>
+        <div class="card-control" data-pid="${p.id}">${cardControlHTML(p)}</div>
       </div>
     </div>
   </div>`;
 }
 
+function refreshCardControls(){
+  document.querySelectorAll('.card-control').forEach(el=>{
+    const id = +el.dataset.pid;
+    const p = SITE_DATA.products.find(x=>x.id===id);
+    if(p) el.innerHTML = cardControlHTML(p);
+  });
+}
+
 function renderFeatured(){
-  document.getElementById('featuredGrid').innerHTML = PRODUCTS.slice(0,6).map(productCard).join('');
+  document.getElementById('featuredGrid').innerHTML = SITE_DATA.products.slice(0,6).map(productCard).join('');
 }
 
 function getFilteredProducts(){
-  let list = PRODUCTS.slice();
+  let list = SITE_DATA.products.slice();
   if(currentFilter !== "All") list = list.filter(p => p.category === currentFilter);
   if(searchTerm.trim()) list = list.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
   if(currentSort === "price-asc") list.sort((a,b)=>a.price-b.price);
@@ -867,18 +1108,17 @@ function renderShop(){
     grid.innerHTML = list.length ? list.map(productCard).join('') : `<p style="grid-column:1/-1; text-align:center; color:var(--ink-soft); padding:40px 0;">No pieces match that search — try another name or filter.</p>`;
     grid.style.transition = 'opacity 0.4s ease';
     grid.style.opacity = 1;
-    attachCardEvents();
   }, 180);
 }
 
 function renderChips(){
-  document.getElementById('filterChips').innerHTML = CATEGORIES.map(c =>
+  document.getElementById('filterChips').innerHTML = SITE_DATA.categories.map(c =>
     `<button class="chip ${c===currentFilter?'active':''}" data-chip="${c}">${c}</button>`
   ).join('');
 }
 
 function renderWhy(){
-  document.getElementById('whyGrid').innerHTML = WHY.map(w => `
+  document.getElementById('whyGrid').innerHTML = SITE_DATA.why.map(w => `
     <div class="why-card">
       <div class="why-icon">${w.icon.replace('stroke="#fff"','stroke="var(--gold)"')}</div>
       <h4>${w.title}</h4>
@@ -887,7 +1127,7 @@ function renderWhy(){
 }
 
 function renderTestimonials(){
-  document.getElementById('testimonialTrack').innerHTML = TESTIMONIALS.map(t => `
+  document.getElementById('testimonialTrack').innerHTML = SITE_DATA.testimonials.map(t => `
     <div class="t-card">
       <div class="t-head">
         <div class="t-avatar" style="background:${t.color}">${t.initial}</div>
@@ -909,16 +1149,60 @@ function renderGallery(){
 }
 
 /* ============ CART LOGIC ============ */
-function addToCart(id, btn){
+function flyToCart(sourceEl){
+  if(!sourceEl) return;
+  const cartIcon = document.getElementById('cartBtn');
+  const startRect = sourceEl.getBoundingClientRect();
+  const endRect = cartIcon.getBoundingClientRect();
+  if(startRect.width === 0) return;
+
+  const clone = sourceEl.cloneNode(true);
+  clone.classList.add('fly-clone');
+  clone.style.left = startRect.left + 'px';
+  clone.style.top = startRect.top + 'px';
+  clone.style.width = startRect.width + 'px';
+  clone.style.height = startRect.height + 'px';
+  clone.style.margin = '0';
+  clone.style.borderRadius = '14px';
+  clone.style.opacity = '1';
+  document.body.appendChild(clone);
+
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      clone.style.left = (endRect.left + endRect.width/2 - 9) + 'px';
+      clone.style.top = (endRect.top + endRect.height/2 - 9) + 'px';
+      clone.style.width = '18px';
+      clone.style.height = '18px';
+      clone.style.borderRadius = '50%';
+      clone.style.opacity = '0.15';
+    });
+  });
+
+  setTimeout(()=>{
+    clone.remove();
+    cartIcon.classList.add('cart-bump');
+    document.getElementById('cartCount').classList.add('badge-pop');
+    setTimeout(()=>{
+      cartIcon.classList.remove('cart-bump');
+      document.getElementById('cartCount').classList.remove('badge-pop');
+    }, 500);
+  }, 700);
+}
+
+function addToCart(id, btn, sourceEl){
   const p = PRODUCTS.find(x=>x.id===id);
   const existing = cart.find(x=>x.id===id);
   if(existing) existing.qty++;
   else cart.push({...p, qty:1});
   updateCartUI();
-  showToast(`${p.name} added to your bag`);
+
+  flyToCart(sourceEl);
+  API.addToCart({id: p.id, name: p.name, price: p.price}); // fire-and-forget stub, see API block below
+
   if(btn){
-    btn.classList.add('added');
+    btn.classList.add('added','pulsing');
     btn.textContent = 'Added ✓';
+    setTimeout(()=>btn.classList.remove('pulsing'), 400);
     setTimeout(()=>{ btn.classList.remove('added'); btn.textContent = 'Add to Cart'; }, 1400);
   }
 }
@@ -927,12 +1211,18 @@ function changeQty(id, delta){
   const item = cart.find(x=>x.id===id);
   if(!item) return;
   item.qty += delta;
-  if(item.qty <= 0) cart = cart.filter(x=>x.id!==id);
+  if(item.qty <= 0){
+    cart = cart.filter(x=>x.id!==id);
+    API.removeFromCart(id);
+  } else {
+    API.updateCartQty(id, item.qty);
+  }
   updateCartUI();
 }
 
 function removeFromCart(id){
   cart = cart.filter(x=>x.id!==id);
+  API.removeFromCart(id);
   updateCartUI();
 }
 
@@ -966,7 +1256,8 @@ function updateCartUI(){
 }
 
 function toggleWish(id, btn){
-  if(wishlist.has(id)) wishlist.delete(id); else wishlist.add(id);
+  if(wishlist.has(id)){ wishlist.delete(id); API.removeFromWishlist(id); }
+  else { wishlist.add(id); API.addToWishlist(id); }
   btn.classList.toggle('active');
   document.getElementById('wishCount').textContent = wishlist.size;
 }
@@ -1016,8 +1307,16 @@ function openQuickView(id){
   });
   document.getElementById('qvMinus').onclick = ()=>{ if(qty>1) qty--; document.getElementById('qvQty').textContent = qty; };
   document.getElementById('qvPlus').onclick = ()=>{ qty++; document.getElementById('qvQty').textContent = qty; };
-  document.getElementById('qvAddCart').onclick = ()=>{ for(let i=0;i<qty;i++) addToCart(p.id); closeQuickView(); };
-  document.getElementById('qvBuyNow').onclick = ()=>{ for(let i=0;i<qty;i++) addToCart(p.id); closeQuickView(); openCart(); };
+  document.getElementById('qvAddCart').onclick = ()=>{
+    const media = box.querySelector('.qv-media');
+    for(let i=0;i<qty;i++) addToCart(p.id, null, i===0 ? media : null);
+    closeQuickView();
+  };
+  document.getElementById('qvBuyNow').onclick = ()=>{
+    const media = box.querySelector('.qv-media');
+    for(let i=0;i<qty;i++) addToCart(p.id, null, i===0 ? media : null);
+    closeQuickView(); openCart();
+  };
   document.getElementById('qvCloseBtn').onclick = closeQuickView;
 }
 function closeQuickView(){
@@ -1048,7 +1347,11 @@ function showToast(msg){
 /* ============ EVENT WIRING ============ */
 function attachCardEvents(){
   document.querySelectorAll('[data-add]').forEach(b=>{
-    b.onclick = (e)=>{ e.stopPropagation(); addToCart(+b.dataset.add, b); };
+    b.onclick = (e)=>{
+      e.stopPropagation();
+      const media = b.closest('.product-card')?.querySelector('.card-media');
+      addToCart(+b.dataset.add, b, media);
+    };
   });
   document.querySelectorAll('[data-fav]').forEach(b=>{
     b.onclick = (e)=>{ e.stopPropagation(); toggleWish(+b.dataset.fav, b); };
@@ -1093,18 +1396,46 @@ document.addEventListener('DOMContentLoaded', ()=>{
   }, {threshold:0.12});
   revealEls.forEach(el=>io.observe(el));
 
-  // search toggle
+  // search: sleek expand/collapse
+  const searchWrap = document.getElementById('searchWrap');
   const searchToggle = document.getElementById('searchToggle');
   const searchBox = document.getElementById('searchBox');
-  searchToggle.onclick = ()=>{
-    searchBox.classList.toggle('open');
-    if(searchBox.classList.contains('open')) document.getElementById('shopSearchNav').focus();
+  const searchInput = document.getElementById('shopSearchNav');
+  const searchClose = document.getElementById('searchClose');
+
+  function openSearch(){
+    searchWrap.classList.add('open');
+    searchBox.classList.add('open');
+    searchToggle.setAttribute('aria-expanded','true');
+    setTimeout(()=>searchInput.focus(), 200);
+  }
+  function closeSearch(){
+    searchWrap.classList.remove('open');
+    searchBox.classList.remove('open');
+    searchToggle.setAttribute('aria-expanded','false');
+    searchInput.blur();
+  }
+  searchToggle.onclick = (e)=>{
+    e.stopPropagation();
+    searchBox.classList.contains('open') ? closeSearch() : openSearch();
   };
-  document.getElementById('shopSearchNav').addEventListener('input', (e)=>{
+  searchClose.onclick = (e)=>{ e.stopPropagation(); closeSearch(); };
+  document.addEventListener('click', (e)=>{
+    if(searchBox.classList.contains('open') && !searchWrap.contains(e.target)) closeSearch();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && searchBox.classList.contains('open')) closeSearch();
+  });
+  searchInput.addEventListener('input', (e)=>{
     searchTerm = e.target.value;
     document.getElementById('shopSearch').value = e.target.value;
-    document.getElementById('shop').scrollIntoView({behavior:'smooth'});
     renderShop();
+  });
+  searchInput.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter'){
+      document.getElementById('shop').scrollIntoView({behavior:'smooth'});
+      closeSearch();
+    }
   });
 
   // shop filters/search/sort
@@ -1127,6 +1458,11 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // cart drawer
   document.getElementById('cartBtn').onclick = openCart;
   document.getElementById('closeCart').onclick = closeCartFn;
+  document.getElementById('checkoutBtn').onclick = ()=>{
+    if(cart.length === 0) return;
+    API.checkout(cart);
+    showToast('Checkout stub fired — wire this up to your server.');
+  };
   document.getElementById('overlayBg').onclick = ()=>{ closeCartFn(); closeQuickView(); };
 
   // quickview modal close on backdrop
@@ -1140,6 +1476,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // newsletter
   document.getElementById('newsletterForm').addEventListener('submit', (e)=>{
     e.preventDefault();
+    const email = e.target.querySelector('input').value;
+    API.subscribeNewsletter(email);
     showToast("You're on the list — welcome to Maison Verso.");
     e.target.reset();
   });
