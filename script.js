@@ -535,6 +535,9 @@ function updateCartUI(){
   itemsEl.querySelectorAll('[data-remove]').forEach(b=>b.onclick=()=>removeFromCart(+b.dataset.remove));
   itemsEl.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{ closeCartFn(); openQuickView(+b.dataset.edit); });
 
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  if(checkoutBtn) checkoutBtn.disabled = cart.length === 0;
+
   refreshCardControls();
 }
 
@@ -827,12 +830,29 @@ document.addEventListener('DOMContentLoaded', async ()=>{
       showToast("Couldn't reach the order server — please try again in a moment.");
     }
   };
-  document.getElementById('applyCoupon').onclick = ()=>{
-    const code = document.getElementById('couponInput').value.trim();
-    if(!code) return;
+  const couponInput = document.getElementById('couponInput');
+  const applyCouponBtn = document.getElementById('applyCoupon');
+
+  function submitCoupon(){
+    const code = couponInput.value.trim();
+    if(!code){
+      couponInput.classList.remove('nudge-shake');
+      void couponInput.offsetWidth; // restart the animation if triggered twice in a row
+      couponInput.classList.add('nudge-shake');
+      couponInput.focus();
+      return;
+    }
     API.applyCoupon(code);
     showToast(`Coupon "${code}" sent — wire this up to your server to apply it.`);
-  };
+  }
+
+  applyCouponBtn.disabled = true;
+  couponInput.addEventListener('input', ()=>{
+    applyCouponBtn.disabled = !couponInput.value.trim();
+    couponInput.classList.remove('nudge-shake');
+  });
+  couponInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') submitCoupon(); });
+  applyCouponBtn.onclick = submitCoupon;
   document.getElementById('overlayBg').onclick = ()=>{ closeCartFn(); closeQuickView(); };
 
   // quickview modal close on backdrop

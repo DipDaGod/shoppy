@@ -1,4 +1,4 @@
-:root{
+  :root{
     --cream:#faf6ef;
     --ivory:#f4ede1;
     --beige:#e9dcc6;
@@ -664,3 +664,71 @@
     padding:14px 26px; border-radius:100px; font-size:13px; z-index:1500; opacity:0; transition:all 0.4s ease; pointer-events:none;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  /* ============================================================
+     BUTTON UX — press feedback, keyboard focus rings, disabled
+     states, and clearer hover targets, applied broadly.
+     ============================================================ */
+
+  /* No grey flash on mobile tap; we style our own feedback instead. */
+  button, a, .chip, .qty-btn { -webkit-tap-highlight-color: transparent; }
+
+  /* Every interactive control gets a visible keyboard focus ring —
+     mouse/touch users never see this (:focus-visible skips them),
+     keyboard and screen-reader users always do. */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  .chip:focus-visible,
+  .color-dot:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Tactile press feedback — buttons visibly react to being clicked/tapped,
+     not just hovered. Placed after :hover rules so press wins while held. */
+  .btn-primary:active,
+  .btn-secondary:active,
+  .add-btn:active,
+  .checkout-btn:active,
+  .coupon-row button:active,
+  .qty-btn:active,
+  .card-remove-btn:active,
+  .fav-btn:active,
+  .ci-icon-btn:active,
+  .icon-btn:active,
+  .close-btn:active,
+  .search-close:active,
+  .chip:active,
+  .quickview-btn:active {
+    transform: scale(0.93);
+    transition-duration: 0.1s;
+  }
+
+  /* Disabled buttons look and behave inert instead of silently doing nothing. */
+  button:disabled,
+  button.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none !important;
+  }
+
+  /* Missing focus styling on a couple of inputs that only had outline:none. */
+  .sort-select:focus, .shop-search:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184,151,95,0.15);
+  }
+
+  /* A short shake, used to nudge attention to an input instead of a button
+     silently ignoring an empty submit (e.g. Apply Coupon with no code). */
+  @keyframes nudgeShake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(3px); }
+  }
+  .nudge-shake { animation: nudgeShake 0.4s ease; border-color: #c96b72 !important; }
