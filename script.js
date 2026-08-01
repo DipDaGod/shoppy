@@ -4,13 +4,20 @@
    about-section mentions, copyright line, the @handle in the
    gallery section, the contact email, and the wax-seal
    monogram in the hero all update automatically.
+
+   STORE_INITIALS controls the monogram shown on the hero's
+   wax seal. Leave it as "" to auto-generate from STORE_NAME
+   (first letter of each word), or set it directly like below
+   to force an exact monogram regardless of the name's words.
    ============================================================ */
-const STORE_NAME = "Maison Verso";
+const STORE_NAME = "SD Creations";
+const STORE_INITIALS = "SD";
 
 function storeSlug(){
   return STORE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 function storeInitials(){
+  if(STORE_INITIALS) return STORE_INITIALS.toUpperCase();
   const letters = STORE_NAME.trim().split(/\s+/).filter(w => /^[A-Za-z]/.test(w));
   return letters.map(w => w[0].toUpperCase()).slice(0, 2).join('');
 }
@@ -38,68 +45,82 @@ function applyStoreName(){
 
   const waxSeal = document.getElementById('waxSeal');
   if(waxSeal) waxSeal.setAttribute('data-initials', storeInitials());
+
+  const loaderMark = document.getElementById('loaderMark');
+  if(loaderMark) loaderMark.innerHTML = STORE_NAME.toUpperCase().replace(/\s+/g, '&nbsp;');
 }
 
 /* ============================================================
-   BACKEND API SCAFFOLD — not wired to a real server yet.
+   BACKEND API — wired to your Cloudflare Worker.
    ------------------------------------------------------------
-   Every call below just logs its payload to the console for now.
-   When your server is ready:
-     1. Set API.baseURL to your real endpoint.
-     2. In API.request(), delete the console.log line and
-        uncomment the fetch() block underneath it.
-     3. Everything that calls API.* elsewhere in this file
-        (addToCart, toggleWish, newsletter, checkout) needs
-        no other changes — they already call these methods.
+   /site-data and /checkout are real, implemented endpoints (see
+   worker.js). The rest (cart/wishlist/newsletter/coupon sync)
+   aren't implemented on the Worker yet — calls to them will just
+   log a 404 warning in the console until you add matching routes
+   in worker.js. Nothing else breaks in the meantime.
    ============================================================ */
 const API = {
-  baseURL: 'https://your-server.com/api', // TODO: replace with your real API base URL
+  baseURL: 'https://myshop.dhairyaplayz97.workers.dev/api',
 
-  async request(path, method = 'POST', body = null){
-    console.log(`[API stub] ${method} ${this.baseURL}${path}`, body || '');
-    // Uncomment this block once your server exists, and remove the console.log above:
-    //
-    // try {
-    //   const res = await fetch(`${this.baseURL}${path}`, {
-    //     method,
-    //     headers: { 'Content-Type': 'application/json' },
-    //     credentials: 'include', // if you use cookie-based sessions
-    //     body: body ? JSON.stringify(body) : undefined
-    //   });
-    //   if(!res.ok) throw new Error(`Request failed: ${res.status}`);
-    //   return await res.json();
-    // } catch(err){
-    //   console.error('API request failed', err);
-    // }
-    return Promise.resolve(null);
+  async request(path, method = 'GET', body = null){
+    try {
+      const res = await fetch(`${this.baseURL}${path}`, {
+        method,
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body: body ? JSON.stringify(body) : undefined
+      });
+      if(!res.ok){
+        console.warn(`[API] ${method} ${path} responded ${res.status}`);
+        return null;
+      }
+      const text = await res.text();
+      return text ? JSON.parse(text) : null;
+    } catch(err){
+      console.warn(`[API] ${method} ${path} failed —`, err.message);
+      return null;
+    }
   },
 
-  // Cart
+  // Real: pulls the authoritative product catalog (with real prices) from the Worker.
+  getSiteData(){ return this.request('/site-data', 'GET'); },
+
+  // Real: the Worker recomputes the total itself from its own price list,
+  // so a price edited in the browser's devtools never reaches the charge.
+  checkout(cart){
+    const payload = { cart: cart.map(i => ({ id: i.id, qty: i.qty })) };
+    return this.request('/checkout', 'POST', payload);
+  },
+
+  // Not implemented on the Worker yet — see worker.js for where to add them.
   addToCart(item){ return this.request('/cart/add', 'POST', item); },
   removeFromCart(id){ return this.request('/cart/remove', 'POST', { id }); },
   updateCartQty(id, qty){ return this.request('/cart/update', 'POST', { id, qty }); },
-
-  // Wishlist
   addToWishlist(id){ return this.request('/wishlist/add', 'POST', { id }); },
   removeFromWishlist(id){ return this.request('/wishlist/remove', 'POST', { id }); },
-
-  // Newsletter + checkout
   subscribeNewsletter(email){ return this.request('/newsletter/subscribe', 'POST', { email }); },
-  checkout(cart){ return this.request('/checkout', 'POST', { cart }); },
   applyCoupon(code){ return this.request('/coupon/apply', 'POST', { code }); }
 };
 
+async function loadSiteData(){
+  const remote = await API.getSiteData();
+  if(remote && Array.isArray(remote.products) && remote.products.length){
+    SITE_DATA = remote;
+  } else {
+    console.warn('Could not reach the Worker at', API.baseURL, '— using the local fallback catalog instead.');
+    SITE_DATA = FALLBACK_SITE_DATA;
+  }
+}
+
 /* ============================================================
-   SITE DATA — everything editable lives here in one place.
-   ------------------------------------------------------------
-   Each product supports an "image" field: paste a real photo
-   URL there (e.g. "https://yoursite.com/images/peacock-zari.jpg")
-   and the card will show that photo instead of the built-in
-   paper-envelope illustration. Leave image: "" to keep the
-   illustration. originalPrice is optional — set it equal to
-   price if there's no discount, or higher to show a strikethrough.
+   FALLBACK SITE DATA — used only if the Worker can't be reached
+   (offline, Worker not deployed yet, network hiccup). Real prices
+   now live in worker.js on Cloudflare, not here — editing this
+   object no longer changes what customers are actually charged;
+   it only changes what shows up if the Worker is unreachable.
    ============================================================ */
-const SITE_DATA = {
+let SITE_DATA = { categories: [], products: [], why: [], testimonials: [] };
+
+const FALLBACK_SITE_DATA = {
 
   categories: ["All", "Wedding", "Festive", "Baby Shower"],
 
@@ -234,9 +255,21 @@ function starSVG(){
   return '<svg viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/></svg>';
 }
 
+// Broken product image links fall back to the built-in swatch illustration.
+// This replaces an inline onerror="" attribute (which a strict CSP blocks) —
+// "error" events don't bubble, so this listener needs the capture flag.
+document.addEventListener('error', (e)=>{
+  const img = e.target;
+  if(img.tagName === 'IMG' && img.classList.contains('product-img')){
+    img.style.display = 'none';
+    const fallback = img.nextElementSibling;
+    if(fallback) fallback.style.display = 'flex';
+  }
+}, true);
+
 function mediaMarkup(p){
   return p.image
-    ? `<img class="product-img" src="${p.image}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>`
+    ? `<img class="product-img" src="${p.image}" alt="${p.name}"><div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>`
     : `<div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>`;
 }
 
@@ -646,8 +679,9 @@ function ripple(e){
   setTimeout(()=>circle.remove(), 650);
 }
 
-document.addEventListener('DOMContentLoaded', ()=>{
+document.addEventListener('DOMContentLoaded', async ()=>{
   applyStoreName();
+  await loadSiteData();
   renderFeatured();
   renderChips();
   renderShop();
@@ -775,10 +809,23 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // cart drawer
   document.getElementById('cartBtn').onclick = openCart;
   document.getElementById('closeCart').onclick = closeCartFn;
-  document.getElementById('checkoutBtn').onclick = ()=>{
+  document.getElementById('checkoutBtn').onclick = async ()=>{
     if(cart.length === 0) return;
-    API.checkout(cart);
-    showToast('Checkout stub fired — wire this up to your server.');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const originalLabel = checkoutBtn.textContent;
+    checkoutBtn.textContent = 'Confirming with server…';
+    checkoutBtn.disabled = true;
+
+    const result = await API.checkout(cart);
+
+    checkoutBtn.textContent = originalLabel;
+    checkoutBtn.disabled = false;
+
+    if(result && typeof result.total === 'number'){
+      showToast(`Server-verified total: ₹${result.total.toLocaleString('en-IN')}. Wire this into real payment next.`);
+    } else {
+      showToast("Couldn't reach the order server — please try again in a moment.");
+    }
   };
   document.getElementById('applyCoupon').onclick = ()=>{
     const code = document.getElementById('couponInput').value.trim();

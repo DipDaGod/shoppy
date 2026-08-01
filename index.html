@@ -3,6 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!--
+  Content-Security-Policy — a meta tag version, so it works no matter
+  where you host this. Note: the meta-tag form of CSP can't set the
+  frame-ancestors or report-uri directives (the spec ignores those
+  outside a real HTTP header) and is generally weaker than a header.
+  If your host lets you set custom response headers (Cloudflare Pages,
+  Netlify, etc.), set this same policy there instead/as well — see the
+  included _headers file for a Cloudflare Pages example.
+-->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self';
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src https://fonts.gstatic.com;
+  img-src 'self' https: data:;
+  connect-src 'self' https://myshop.dhairyaplayz97.workers.dev;
+  base-uri 'self';
+  form-action 'self';
+  object-src 'none';
+">
 <title>Maison Verso — Handmade Shagun Envelopes</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Marcellus&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -10,7 +30,7 @@
 </head>
 <body>
 
-<div id="loader"><div class="loader-mark">MAISON&nbsp;VERSO</div></div>
+<div id="loader"><div class="loader-mark" id="loaderMark">MAISON&nbsp;VERSO</div></div>
 
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
