@@ -344,12 +344,62 @@ function getFilteredProducts(){
   return list;
 }
 
+function hasActiveFilters(){
+  return currentFilter !== "All" || searchTerm.trim() !== "" || currentSort !== "newest";
+}
+
+function renderShopStatus(total, shown){
+  const el = document.getElementById('shopStatus');
+  if(!el) return;
+  const countText = total === 0
+    ? 'No pieces match your filters'
+    : `Showing ${shown} of ${total} piece${total === 1 ? '' : 's'}`;
+  el.innerHTML = `
+    <span>${countText}</span>
+    ${hasActiveFilters() ? `<button class="clear-filters-btn" data-clear-filters>Clear filters</button>` : ''}
+  `;
+}
+
+const SORT_LABELS = {
+  newest: "Newest",
+  popular: "Most popular",
+  "price-asc": "Price: low to high",
+  "price-desc": "Price: high to low"
+};
+
+function setSortValue(value){
+  currentSort = value;
+  document.getElementById('sortTriggerLabel').textContent = SORT_LABELS[value] || value;
+  document.querySelectorAll('#sortOptions .cs-option').forEach(opt=>{
+    const active = opt.dataset.value === value;
+    opt.classList.toggle('active', active);
+    opt.setAttribute('aria-selected', active);
+  });
+}
+
+function clearShopFilters(){
+  currentFilter = "All";
+  currentSort = "newest";
+  searchTerm = "";
+  document.getElementById('shopSearch').value = "";
+  const navSearch = document.getElementById('shopSearchNav');
+  if(navSearch) navSearch.value = "";
+  setSortValue("newest");
+  renderChips();
+  renderShop();
+}
+
 function renderShop(){
   const grid = document.getElementById('shopGrid');
   const list = getFilteredProducts();
+  renderShopStatus(SITE_DATA.products.length, list.length);
   grid.style.opacity = 0;
   setTimeout(()=>{
-    grid.innerHTML = list.length ? list.map(productCard).join('') : `<p style="grid-column:1/-1; text-align:center; color:var(--ink-soft); padding:40px 0;">No pieces match that search — try another name or filter.</p>`;
+    grid.innerHTML = list.length ? list.map(productCard).join('') : `
+      <div class="shop-empty">
+        <p>No pieces match that search — try another name or filter.</p>
+        <button class="clear-filters-btn" data-clear-filters>Clear filters</button>
+      </div>`;
     grid.style.transition = 'opacity 0.4s ease';
     grid.style.opacity = 1;
   }, 180);
@@ -357,7 +407,7 @@ function renderShop(){
 
 function renderChips(){
   document.getElementById('filterChips').innerHTML = SITE_DATA.categories.map(c =>
-    `<button class="chip ${c===currentFilter?'active':''}" data-chip="${c}">${c}</button>`
+    `<button class="chip ${c===currentFilter?'active':''}" data-chip="${c}" aria-pressed="${c===currentFilter}">${c}</button>`
   ).join('');
 }
 
@@ -685,7 +735,7 @@ function ripple(e){
 document.addEventListener('DOMContentLoaded', async ()=>{
   applyStoreName();
   await loadSiteData();
-  renderFeatured();
+  // renderFeatured(); — Featured section is temporarily hidden (see index.html)
   renderChips();
   renderShop();
   renderWhy();
@@ -780,10 +830,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   document.addEventListener('keydown', (e)=>{
     if(e.key === 'Escape' && searchBox.classList.contains('open')) closeSearch();
   });
+  let searchDebounce;
   searchInput.addEventListener('input', (e)=>{
     searchTerm = e.target.value;
     document.getElementById('shopSearch').value = e.target.value;
-    renderShop();
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(renderShop, 150);
   });
   searchInput.addEventListener('keydown', (e)=>{
     if(e.key === 'Enter'){
@@ -800,13 +852,79 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     renderChips();
     renderShop();
   });
+  let shopSearchDebounce;
   document.getElementById('shopSearch').addEventListener('input', (e)=>{
     searchTerm = e.target.value;
-    renderShop();
+    const navSearch = document.getElementById('shopSearchNav');
+    if(navSearch) navSearch.value = e.target.value;
+    clearTimeout(shopSearchDebounce);
+    shopSearchDebounce = setTimeout(renderShop, 150);
   });
-  document.getElementById('sortSelect').addEventListener('change', (e)=>{
-    currentSort = e.target.value;
+  // custom sort dropdown — replaces the native <select> so the open
+  // state is our own styled panel instead of the browser's default list
+  const sortSelectWrap = document.getElementById('sortSelect');
+  const sortTrigger = document.getElementById('sortTrigger');
+  const sortOptionsList = document.getElementById('sortOptions');
+  const sortOptions = Array.from(sortOptionsList.querySelectorAll('.cs-option'));
+
+  function openSort(){
+    sortSelectWrap.classList.add('open');
+    sortTrigger.setAttribute('aria-expanded', 'true');
+    const active = sortOptions.find(o => o.classList.contains('active')) || sortOptions[0];
+    active.setAttribute('tabindex', '0');
+    active.focus();
+  }
+  function closeSort(returnFocus){
+    sortSelectWrap.classList.remove('open');
+    sortTrigger.setAttribute('aria-expanded', 'false');
+    sortOptions.forEach(o => o.setAttribute('tabindex', '-1'));
+    if(returnFocus) sortTrigger.focus();
+  }
+  function chooseSort(value){
+    setSortValue(value);
     renderShop();
+    closeSort(true);
+  }
+
+  sortTrigger.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    sortSelectWrap.classList.contains('open') ? closeSort(false) : openSort();
+  });
+  sortOptions.forEach(opt=>{
+    opt.setAttribute('tabindex', '-1');
+    opt.addEventListener('click', ()=> chooseSort(opt.dataset.value));
+    opt.addEventListener('keydown', (e)=>{
+      const idx = sortOptions.indexOf(opt);
+      if(e.key === 'Enter' || e.key === ' '){
+        e.preventDefault();
+        chooseSort(opt.dataset.value);
+      } else if(e.key === 'ArrowDown'){
+        e.preventDefault();
+        const next = sortOptions[Math.min(idx + 1, sortOptions.length - 1)];
+        opt.setAttribute('tabindex', '-1');
+        next.setAttribute('tabindex', '0');
+        next.focus();
+      } else if(e.key === 'ArrowUp'){
+        e.preventDefault();
+        const prev = sortOptions[Math.max(idx - 1, 0)];
+        opt.setAttribute('tabindex', '-1');
+        prev.setAttribute('tabindex', '0');
+        prev.focus();
+      } else if(e.key === 'Escape'){
+        closeSort(true);
+      } else if(e.key === 'Tab'){
+        closeSort(false);
+      }
+    });
+  });
+  document.addEventListener('click', (e)=>{
+    if(sortSelectWrap.classList.contains('open') && !sortSelectWrap.contains(e.target)) closeSort(false);
+  });
+  document.getElementById('shopGrid').addEventListener('click', (e)=>{
+    if(e.target.closest('[data-clear-filters]')) clearShopFilters();
+  });
+  document.getElementById('shopStatus').addEventListener('click', (e)=>{
+    if(e.target.closest('[data-clear-filters]')) clearShopFilters();
   });
 
   // cart drawer

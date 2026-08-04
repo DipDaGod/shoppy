@@ -392,11 +392,64 @@
   }
   .chip.active, .chip:hover{background:var(--ink); color:var(--white); border-color:var(--ink);}
   .shop-right{display:flex; gap:14px; align-items:center;}
-  .sort-select, .shop-search{
+  .shop-search{
     padding:10px 18px; border-radius:100px; border:1px solid rgba(51,44,36,0.18); background:var(--white);
-    font-size:13px; color:var(--ink); outline:none;
+    font-size:13px; color:var(--ink); outline:none; width:200px;
+    transition: border-color 0.25s ease;
   }
-  .shop-search{width:200px;}
+
+  /* ---------- CUSTOM SORT DROPDOWN ---------- */
+  .cs-select{position:relative; font-size:13px;}
+  .cs-trigger{
+    display:flex; align-items:center; gap:10px; padding:10px 16px 10px 18px; border-radius:100px;
+    border:1px solid rgba(51,44,36,0.18); background:var(--white); color:var(--ink); font-size:13px;
+    font-family:inherit; cursor:pointer; white-space:nowrap; transition: border-color 0.25s ease, background 0.25s ease;
+  }
+  .cs-trigger:hover{border-color: rgba(184,151,95,0.5);}
+  .cs-select.open .cs-trigger{border-color:var(--gold); background:var(--ivory);}
+  .cs-chevron{width:13px; height:13px; flex-shrink:0; transition: transform 0.3s ease;}
+  .cs-select.open .cs-chevron{transform:rotate(180deg);}
+  .cs-options{
+    position:absolute; top:calc(100% + 8px); right:0; min-width:100%; z-index:20;
+    background:var(--white); border-radius:14px; box-shadow:var(--shadow-lift); border:1px solid rgba(51,44,36,0.08);
+    padding:6px; list-style:none; opacity:0; visibility:hidden; transform:translateY(-6px);
+    transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  }
+  .cs-select.open .cs-options{opacity:1; visibility:visible; transform:translateY(0);}
+  .cs-option{
+    padding:10px 16px; border-radius:9px; color:var(--ink-soft); white-space:nowrap; cursor:pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .cs-option:hover{background:var(--ivory); color:var(--ink);}
+  .cs-option.active{color:var(--gold); font-weight:600;}
+  .cs-option.active::before{content:'✓'; display:inline-block; width:14px; margin-right:2px; font-size:11px;}
+
+  .visually-hidden{
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden;
+    clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+
+  .shop-status{
+    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+    margin-top:-24px; margin-bottom:32px; font-size:13px; color:var(--ink-soft);
+    min-height:20px;
+  }
+  .shop-status .clear-filters-btn{
+    font-size:12.5px; color:var(--gold); text-decoration:underline; text-underline-offset:3px;
+    transition:color 0.25s ease;
+  }
+  .shop-status .clear-filters-btn:hover{color:var(--ink);}
+
+  .shop-empty{
+    grid-column:1/-1; text-align:center; padding:56px 20px; color:var(--ink-soft);
+  }
+  .shop-empty p{margin-bottom:16px; font-size:15px;}
+  .shop-empty .clear-filters-btn{
+    display:inline-block; padding:10px 22px; border-radius:100px; border:1px solid rgba(51,44,36,0.18);
+    font-size:12.5px; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink);
+    transition:all 0.3s ease;
+  }
+  .shop-empty .clear-filters-btn:hover{background:var(--ink); color:var(--white); border-color:var(--ink);}
 
   /* ---------- WHY CHOOSE US ---------- */
   .why-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:26px;}
@@ -716,10 +769,19 @@
     transform: none !important;
   }
 
-  /* Missing focus styling on a couple of inputs that only had outline:none. */
-  .sort-select:focus, .shop-search:focus {
+  /* Keyboard-only focus ring for the search input — mouse/touch clicks
+     no longer trigger a highlight, matching every other control on the site. */
+  .shop-search:focus-visible {
     border-color: var(--gold);
     box-shadow: 0 0 0 3px rgba(184,151,95,0.15);
+  }
+  .cs-trigger:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+  .cs-option:focus-visible{
+    outline: 2px solid var(--gold);
+    outline-offset: -2px;
   }
 
   /* A short shake, used to nudge attention to an input instead of a button

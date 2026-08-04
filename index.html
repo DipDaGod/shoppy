@@ -104,7 +104,7 @@
   <div class="scroll-cue"><span>Scroll</span><div class="line"></div></div>
 </section>
 
-<!-- FEATURED PRODUCTS -->
+<!-- FEATURED PRODUCTS — temporarily hidden, re-enable by uncommenting
 <section class="pad reveal" id="featured">
   <div class="container">
     <div class="section-head">
@@ -117,6 +117,7 @@
 </section>
 
 <div class="container"><div class="stitch-divider"></div></div>
+-->
 
 <!-- SHOP -->
 <section class="pad reveal" id="shop">
@@ -127,18 +128,26 @@
       <p>Filter by occasion, sort by what matters to you, or search for a design by name.</p>
     </div>
     <div class="shop-controls">
-      <div class="filter-chips" id="filterChips"></div>
+      <div class="filter-chips" id="filterChips" role="group" aria-label="Filter by category"></div>
       <div class="shop-right">
-        <input type="text" class="shop-search" id="shopSearch" placeholder="Search...">
-        <select class="sort-select" id="sortSelect">
-          <option value="newest">Newest</option>
-          <option value="popular">Most popular</option>
-          <option value="price-asc">Price: low to high</option>
-          <option value="price-desc">Price: high to low</option>
-        </select>
+        <label class="visually-hidden" for="shopSearch">Search pieces</label>
+        <input type="text" class="shop-search" id="shopSearch" placeholder="Search..." aria-label="Search pieces">
+        <div class="cs-select" id="sortSelect">
+          <button type="button" class="cs-trigger" id="sortTrigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Sort products">
+            <span id="sortTriggerLabel">Newest</span>
+            <svg class="cs-chevron" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <ul class="cs-options" id="sortOptions" role="listbox" tabindex="-1" aria-label="Sort products">
+            <li class="cs-option active" role="option" aria-selected="true" data-value="newest">Newest</li>
+            <li class="cs-option" role="option" aria-selected="false" data-value="popular">Most popular</li>
+            <li class="cs-option" role="option" aria-selected="false" data-value="price-asc">Price: low to high</li>
+            <li class="cs-option" role="option" aria-selected="false" data-value="price-desc">Price: high to low</li>
+          </ul>
+        </div>
       </div>
     </div>
-    <div class="products-grid" id="shopGrid"></div>
+    <div class="shop-status" id="shopStatus"></div>
+    <div class="products-grid" id="shopGrid" aria-live="polite"></div>
   </div>
 </section>
 
