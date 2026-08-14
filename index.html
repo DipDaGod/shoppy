@@ -18,7 +18,7 @@
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src https://fonts.gstatic.com;
   img-src 'self' https: data:;
-  connect-src 'self' https://myshop.dhairyaplayz97.workers.dev;
+  connect-src 'self';
   base-uri 'self';
   form-action 'self';
   object-src 'none';
@@ -39,31 +39,9 @@
     <ul class="nav-links">
       <li><a href="#home">Home</a></li>
       <li><a href="#shop">Shop</a></li>
-      <li><a href="#collections">Collections</a></li>
-      <li><a href="#about">About</a></li>
       <li><a href="#contact">Contact</a></li>
     </ul>
     <div class="nav-icons">
-      <div class="search-wrap" id="searchWrap">
-        <button class="icon-btn search-icon-btn" id="searchToggle" aria-label="Search" aria-expanded="false">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </button>
-        <div class="search-box" id="searchBox">
-          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.5" width="15" height="15"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="shopSearchNav" placeholder="Search pieces..." autocomplete="off">
-          <button class="search-close" id="searchClose" aria-label="Close search">
-            <svg viewBox="0 0 24 24"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
-          </button>
-        </div>
-      </div>
-      <button class="icon-btn" id="wishlistBtn" aria-label="Wishlist">
-        <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-        <span class="cart-count" id="wishCount">0</span>
-      </button>
-      <button class="icon-btn" id="cartBtn" aria-label="Cart">
-        <svg viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
-        <span class="cart-count" id="cartCount">0</span>
-      </button>
       <button class="hamburger" id="hamburgerBtn" aria-label="Menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -80,7 +58,6 @@
       <p>Each <span data-store-name>Maison Verso</span> piece begins as thick handmade paper, hand-painted or hand-foiled with traditional motifs — made for the shagun, the gift, the blessing that deserves better than a plain white envelope.</p>
       <div class="hero-btns">
         <a href="#shop" class="btn-primary ripple">Shop Collection</a>
-        <a href="#about" class="btn-secondary">Our Story</a>
       </div>
     </div>
     <div class="hero-visual">
@@ -130,8 +107,19 @@
     <div class="shop-controls">
       <div class="filter-chips" id="filterChips" role="group" aria-label="Filter by category"></div>
       <div class="shop-right">
-        <label class="visually-hidden" for="shopSearch">Search pieces</label>
-        <input type="text" class="shop-search" id="shopSearch" placeholder="Search..." aria-label="Search pieces">
+        <div class="shop-search-wrap" id="shopSearchWrap">
+          <button type="button" class="shop-search-toggle" id="shopSearchToggle" aria-label="Search products" aria-expanded="false">
+            <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </button>
+          <div class="shop-search-box" id="shopSearchBox">
+            <svg class="shop-search-icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <label class="visually-hidden" for="shopSearch">Search pieces</label>
+            <input type="text" class="shop-search" id="shopSearch" placeholder="Search pieces..." aria-label="Search pieces" autocomplete="off">
+            <button class="shop-search-close" id="shopSearchClose" aria-label="Close search" type="button">
+              <svg viewBox="0 0 24 24"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg>
+            </button>
+          </div>
+        </div>
         <div class="cs-select" id="sortSelect">
           <button type="button" class="cs-trigger" id="sortTrigger" aria-haspopup="listbox" aria-expanded="false" aria-label="Sort products">
             <span id="sortTriggerLabel">Newest</span>
@@ -151,77 +139,6 @@
   </div>
 </section>
 
-<div class="container"><div class="stitch-divider"></div></div>
-
-<!-- WHY CHOOSE US -->
-<section class="pad reveal" id="collections">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">Why <span data-store-name>Maison Verso</span></span>
-      <h2>Made to last, made by hand</h2>
-    </div>
-    <div class="why-grid" id="whyGrid"></div>
-  </div>
-</section>
-
-<!-- ABOUT -->
-<section class="pad reveal" id="about">
-  <div class="container">
-    <div class="about-grid">
-      <div class="about-media">
-        <div class="about-frame"><div class="about-stitch"></div></div>
-        <div class="about-badge"><div class="num">7+</div><div class="lbl">Years of craft</div></div>
-      </div>
-      <div class="about-text">
-        <span class="eyebrow">Our story</span>
-        <h2>Every envelope is signed by the hand that painted it.</h2>
-        <p><span data-store-name>Maison Verso</span> began at a single worktable, hand-painting motifs onto sheets of thick handmade paper because the shagun envelopes we could find never matched the gift going inside them. Today the studio is still small on purpose — every design is hand-painted or hand-foiled, every fold is scored and creased by hand, and every envelope is checked before it ever leaves the workshop.</p>
-        <p>Every piece is finished the same way: a delicate gold-tone chain loop and a small dangling charm, so the envelope holds the gift as beautifully as it's given.</p>
-        <p>We believe a good gift deserves a good envelope. That's why we keep the brushwork visible, the foil a little imperfect, and a small maker's mark stamped inside the flap of every piece.</p>
-        <a href="#contact" class="btn-secondary" style="display:inline-block; margin-top:10px;">Meet the makers</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="container"><div class="stitch-divider"></div></div>
-
-<!-- TESTIMONIALS -->
-<section class="pad reveal">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow">Kind words</span>
-      <h2>From the ones who gifted them</h2>
-    </div>
-    <div class="testimonial-track" id="testimonialTrack"></div>
-  </div>
-</section>
-
-<!-- GALLERY -->
-<section class="pad reveal">
-  <div class="container">
-    <div class="section-head">
-      <span class="eyebrow" data-store-handle>@maisonverso</span>
-      <h2>From the studio floor</h2>
-    </div>
-    <div class="masonry" id="masonryGrid"></div>
-  </div>
-</section>
-
-<!-- NEWSLETTER -->
-<section class="pad reveal">
-  <div class="container">
-    <div class="newsletter">
-      <h2>Be first to new arrivals</h2>
-      <p>One email a month. New hand-painted designs, restocks, and a peek into the studio.</p>
-      <form class="newsletter-form" id="newsletterForm">
-        <input type="email" placeholder="you@email.com" required>
-        <button type="submit">Subscribe</button>
-      </form>
-    </div>
-  </div>
-</section>
-
 <!-- FOOTER -->
 <footer id="contact">
   <div class="container">
@@ -237,17 +154,8 @@
       </div>
       <div class="footer-col">
         <h4>Shop</h4>
-        <a href="#shop">All Envelopes</a>
+        <a href="#shop">All Pieces</a>
         <a href="#shop">New Arrivals</a>
-        <a href="#shop">Limited Edition</a>
-        <a href="#collections">Collections</a>
-      </div>
-      <div class="footer-col">
-        <h4>Company</h4>
-        <a href="#about">Our Story</a>
-        <a href="#">Craftsmanship</a>
-        <a href="#">Sustainability</a>
-        <a href="#contact">Contact</a>
       </div>
       <div class="footer-col">
         <h4>Get in touch</h4>
@@ -263,35 +171,12 @@
   </div>
 </footer>
 
-<!-- CART DRAWER -->
-<div class="overlay-bg" id="overlayBg"></div>
-<div class="cart-drawer" id="cartDrawer">
-  <div class="cart-head">
-    <h3>Your Bag</h3>
-    <button class="close-btn" id="closeCart"><svg viewBox="0 0 24 24"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
-  </div>
-  <div class="cart-items" id="cartItems"></div>
-  <div class="cart-foot">
-    <div class="summary-rows" id="summaryRows"></div>
-    <button class="checkout-btn" id="checkoutBtn">Proceed to Checkout</button>
-    <div class="delivery-note">Estimated delivery in <strong>5–8 working days</strong></div>
-    <div class="coupon-box">
-      <span class="coupon-label">Have a Coupon?</span>
-      <div class="coupon-row">
-        <input type="text" id="couponInput" placeholder="Coupon Code">
-        <button id="applyCoupon">Apply</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- QUICK VIEW MODAL -->
 <div class="qv-modal" id="qvModal">
   <div class="qv-box" id="qvBox"></div>
 </div>
 
-<div class="toast" id="toast"></div>
-
+<script src="products.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
