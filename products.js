@@ -1,10 +1,9 @@
 /* ============================================================
    PRODUCTS — the single source of truth for the shop.
    ------------------------------------------------------------
-   This is a plain static file, loaded directly by index.html
-   (no backend/Worker call, no network round-trip). To add,
-   remove, or edit a product, just edit the PRODUCTS array below
-   and refresh the page — nothing else needs to change.
+   This is a plain static file, loaded directly by index.html.
+   To add, remove, or edit a product, just edit the PRODUCTS
+   array below and refresh the page — nothing else needs to change.
 
    Every section on the site (shop grid, filter chips, the
    hidden Featured section) is generated FROM this array, so:
@@ -22,8 +21,10 @@
    originalPrice same as price if not on sale, higher if it is —
                  the difference is what shows as a struck-through
                  price and a "Limited Edition"-style discount
-   image         a real https:// image URL, or "" to fall back to
-                 the CSS placeholder swatch
+   image         path to the product photo, e.g. "images/peacock-1.jpg"
+                 — all images live in the /images folder next to
+                 index.html. Leave as "" to fall back to the CSS
+                 placeholder swatch instead.
    swatch        which placeholder swatch to use when image is ""
                  (sw-1 through sw-6 exist in styles.css; reuse any)
    rating        1–5, shown as filled stars

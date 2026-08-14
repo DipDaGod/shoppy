@@ -52,8 +52,8 @@ function applyStoreName(){
 
 /* ============================================================
    SITE DATA — comes straight from products.js (loaded before this
-   file in index.html). No backend/Worker call — editing a product
-   there and refreshing is all it takes to update the shop.
+   file in index.html). Editing a product there and refreshing is
+   all it takes to update the shop.
    ============================================================ */
 let SITE_DATA = { categories: CATEGORIES, products: PRODUCTS };
 

@@ -32,6 +32,20 @@
   button{font-family:inherit; border:none; cursor:pointer; background:none;}
   ::selection{background:var(--gold-light); color:var(--ink);}
 
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+      width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+      background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+      background: #b89458;
+      border-radius: 999px;
+  }
+
   .container{max-width:1240px; margin:0 auto; padding:0 32px;}
   section{position:relative;}
 
