@@ -478,8 +478,8 @@
     .shop-status{margin-top:0; margin-bottom:14px; font-size:12px;}
 
     /* ---- product grid: compact, balanced 2-up instead of 1-up ---- */
-    .products-grid{grid-template-columns:repeat(2,1fr); gap:12px;}
-    .product-card{border-radius:14px;}
+    .products-grid{grid-template-columns:repeat(2,1fr); gap:12px; width:100%; min-width:0; overflow:hidden;}
+    .product-card{border-radius:14px; min-width:0; max-width:100%; overflow:hidden;}
     .stitch-frame{inset:8px; border-radius:9px;}
     .badges{top:8px; left:8px; gap:4px;}
     .badge{font-size:8.5px; padding:4px 8px;}

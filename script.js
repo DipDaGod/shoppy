@@ -383,41 +383,71 @@ function initQvGallery(count){
 // (falls back to the product's price if the design doesn't override
 // it), the "Design — X" label, the active thumbnail, and a WhatsApp
 // message that names the exact design so enquiries arrive specific.
-function renderQvDesign(index){
+// Pass animate=false on the initial render to skip the slide transition.
+function renderQvDesign(index, animate){
   const p = qvProduct;
   const designs = productDesigns(p);
-  qvActiveDesignIndex = ((index % designs.length) + designs.length) % designs.length;
+  const newIndex = ((index % designs.length) + designs.length) % designs.length;
+  const direction = newIndex > qvActiveDesignIndex ? 1 : (newIndex < qvActiveDesignIndex ? -1 : 0);
+  qvActiveDesignIndex = newIndex;
   const design = designs[qvActiveDesignIndex];
   const slides = designSlides(design);
 
-  document.getElementById('qvGallery').innerHTML = buildGalleryMarkup(p, slides);
-  if(slides.length > 1) initQvGallery(slides.length);
+  const galleryEl = document.getElementById('qvGallery');
+  const shouldAnimate = animate !== false && direction !== 0;
 
-  const effectivePrice = (design.price != null) ? design.price : p.price;
-  const hasDiscount = p.originalPrice && p.originalPrice > effectivePrice;
-  document.getElementById('qvPrice').textContent = `₹${effectivePrice.toLocaleString('en-IN')}`;
-  const originalEl = document.getElementById('qvOriginal');
-  if(originalEl){
-    if(hasDiscount){
-      originalEl.textContent = `₹${p.originalPrice.toLocaleString('en-IN')}`;
-      originalEl.style.display = '';
-    } else {
-      originalEl.style.display = 'none';
+  function applyMetaUI(){
+    const effectivePrice = (design.price != null) ? design.price : p.price;
+    const hasDiscount = p.originalPrice && p.originalPrice > effectivePrice;
+    document.getElementById('qvPrice').textContent = `₹${effectivePrice.toLocaleString('en-IN')}`;
+    const originalEl = document.getElementById('qvOriginal');
+    if(originalEl){
+      if(hasDiscount){ originalEl.textContent = `₹${p.originalPrice.toLocaleString('en-IN')}`; originalEl.style.display = ''; }
+      else { originalEl.style.display = 'none'; }
     }
+    const nameEl = document.getElementById('qvDesignName');
+    if(nameEl) nameEl.textContent = design.name;
+    document.querySelectorAll('#designThumbs .design-thumb').forEach((t, i)=>{
+      t.classList.toggle('active', i === qvActiveDesignIndex);
+      t.setAttribute('aria-selected', i === qvActiveDesignIndex);
+    });
+    const message = designs.length > 1
+      ? `Hi! I'm interested in the ${p.name} — ${design.name}. Could you please share more details?`
+      : `Hi! I'm interested in "${p.name}" (₹${effectivePrice.toLocaleString('en-IN')}). Could you tell me more about it?`;
+    document.getElementById('whatsappEnquire').href = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
   }
 
-  const nameEl = document.getElementById('qvDesignName');
-  if(nameEl) nameEl.textContent = design.name;
+  if(!shouldAnimate){
+    galleryEl.innerHTML = `<div class="qv-design-frame" style="position:absolute;inset:0;">${buildGalleryMarkup(p, slides)}</div>`;
+    if(slides.length > 1) initQvGallery(slides.length);
+    applyMetaUI();
+    return;
+  }
 
-  document.querySelectorAll('#designThumbs .design-thumb').forEach((t, i)=>{
-    t.classList.toggle('active', i === qvActiveDesignIndex);
-    t.setAttribute('aria-selected', i === qvActiveDesignIndex);
+  // Slide old frame out, new frame in, direction-aware
+  const oldFrame = galleryEl.querySelector('.qv-design-frame');
+  const newFrame = document.createElement('div');
+  newFrame.className = 'qv-design-frame';
+  newFrame.style.cssText = `position:absolute;inset:0;transform:translateX(${direction > 0 ? '100%' : '-100%'});will-change:transform;`;
+  newFrame.innerHTML = buildGalleryMarkup(p, slides);
+  galleryEl.appendChild(newFrame);
+
+  if(slides.length > 1) initQvGallery(slides.length);
+  applyMetaUI();
+
+  // Double rAF ensures the browser has painted the starting position before transitioning
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      const easing = 'transform 0.42s cubic-bezier(.22,.61,.36,1)';
+      if(oldFrame){
+        oldFrame.style.transition = easing;
+        oldFrame.style.transform = `translateX(${direction > 0 ? '-100%' : '100%'})`;
+      }
+      newFrame.style.transition = easing;
+      newFrame.style.transform = 'translateX(0)';
+      setTimeout(()=>{ if(oldFrame) oldFrame.remove(); }, 440);
+    });
   });
-
-  const message = designs.length > 1
-    ? `Hi! I'm interested in the ${p.name} — ${design.name}. Could you please share more details?`
-    : `Hi! I'm interested in "${p.name}" (₹${effectivePrice.toLocaleString('en-IN')}). Could you tell me more about it?`;
-  document.getElementById('whatsappEnquire').href = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
 }
 
 function openQuickView(id){
@@ -472,7 +502,7 @@ function openQuickView(id){
   qvModalKeyHandler = (e)=>{ if(e.key === 'Escape') closeQuickView(); };
   document.addEventListener('keydown', qvModalKeyHandler);
 
-  renderQvDesign(0);
+  renderQvDesign(0, false);
 
   document.querySelectorAll('#designThumbs .design-thumb').forEach(t=>{
     t.onclick = ()=>{
