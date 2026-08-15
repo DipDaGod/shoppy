@@ -13,6 +13,10 @@
 const STORE_NAME = "SD Creations";
 const STORE_INITIALS = "SD";
 
+// Digits only, country code first, no "+" or spaces — used to build the
+// "Enquire on WhatsApp" link in Quick View. Matches the footer phone number.
+const WHATSAPP_PHONE = "919836960841";
+
 function storeSlug(){
   return STORE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
@@ -88,23 +92,41 @@ document.addEventListener('error', (e)=>{
   }
 }, true);
 
-function mediaMarkup(p){
-  return p.image
-    ? `<img class="product-img" src="${p.image}" alt="${p.name}"><div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>`
+function productDesigns(p){
+  return (Array.isArray(p.designs) && p.designs.length) ? p.designs : [{ name: p.name, image: "", images: [] }];
+}
+
+function designSlides(design){
+  if(Array.isArray(design.images) && design.images.length) return design.images;
+  return design.image ? [design.image] : [];
+}
+
+function productCoverImage(p){
+  if(p.coverImage) return p.coverImage;
+  const firstDesign = productDesigns(p)[0];
+  return designSlides(firstDesign)[0] || "";
+}
+
+function coverMediaMarkup(p){
+  const src = productCoverImage(p);
+  return src
+    ? `<img class="product-img" src="${src}" alt="${p.name}"><div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>`
     : `<div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>`;
 }
 
 function productCard(p){
   const hasDiscount = p.originalPrice && p.originalPrice > p.price;
+  const designCount = productDesigns(p).length;
   return `
   <div class="product-card" data-id="${p.id}">
     <div class="card-media ${p.swatch}">
-      ${mediaMarkup(p)}
+      ${coverMediaMarkup(p)}
       <div class="stitch-frame"></div>
       <div class="badges">
         <span class="badge handmade">Handmade</span>
         ${p.limited ? '<span class="badge limited">Limited Edition</span>' : ''}
       </div>
+      ${designCount > 1 ? `<span class="badge designs-badge">${designCount} Designs</span>` : ''}
       <button class="quickview-btn" data-quickview="${p.id}">Quick View</button>
     </div>
     <div class="card-body">
@@ -204,48 +226,207 @@ function renderChips(){
 }
 
 /* ============ QUICK VIEW ============ */
+function buildGalleryMarkup(p, slides){
+  if(slides.length === 0){
+    return `<div class="qv-slide-track"><div class="qv-slide"><div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div></div></div>`;
+  }
+
+  const slidesHTML = slides.map(src => `
+    <div class="qv-slide">
+      <img class="product-img" src="${src}" alt="${p.name}">
+      <div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>
+    </div>`).join('');
+
+  if(slides.length === 1){
+    return `<div class="qv-slide-track">${slidesHTML}</div>`;
+  }
+
+  const navHTML = `
+    <button class="qv-nav qv-prev" id="qvPrev" type="button" aria-label="Previous photo">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="qv-nav qv-next" id="qvNext" type="button" aria-label="Next photo">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+    <div class="qv-dots" id="qvDots" role="tablist" aria-label="Product photos">
+      ${slides.map((_,i)=>`<button class="qv-dot ${i===0?'active':''}" data-slide="${i}" type="button" role="tab" aria-selected="${i===0}" aria-label="Photo ${i+1} of ${slides.length}"></button>`).join('')}
+    </div>`;
+
+  return `<div class="qv-slide-track" id="qvSlideTrack">${slidesHTML}</div>${navHTML}`;
+}
+
+let qvModalKeyHandler = null;  // Escape-to-close, active for the whole Quick View session
+let qvGalleryKeyHandler = null; // arrow-key photo nav, re-bound whenever the gallery re-renders
+let qvSlideIndex = 0;
+let qvProduct = null;
+let qvActiveDesignIndex = 0;
+
+function initQvGallery(count){
+  // A design switch can call this more than once per Quick View session —
+  // always clear the previous listener first so they don't stack up.
+  if(qvGalleryKeyHandler){ document.removeEventListener('keydown', qvGalleryKeyHandler); qvGalleryKeyHandler = null; }
+
+  qvSlideIndex = 0;
+  const track = document.getElementById('qvSlideTrack');
+  const dots = Array.from(document.querySelectorAll('#qvDots .qv-dot'));
+  const prevBtn = document.getElementById('qvPrev');
+  const nextBtn = document.getElementById('qvNext');
+
+  function goTo(i){
+    qvSlideIndex = (i + count) % count;
+    track.style.transform = `translateX(-${qvSlideIndex * 100}%)`;
+    dots.forEach((d, idx)=>{
+      d.classList.toggle('active', idx === qvSlideIndex);
+      d.setAttribute('aria-selected', idx === qvSlideIndex);
+    });
+  }
+
+  prevBtn.onclick = ()=> goTo(qvSlideIndex - 1);
+  nextBtn.onclick = ()=> goTo(qvSlideIndex + 1);
+  dots.forEach(d => d.onclick = ()=> goTo(+d.dataset.slide));
+
+  // swipe support
+  let startX = 0, deltaX = 0, dragging = false;
+  track.addEventListener('touchstart', (e)=>{
+    startX = e.touches[0].clientX; dragging = true; deltaX = 0;
+    track.style.transition = 'none';
+  }, { passive:true });
+  track.addEventListener('touchmove', (e)=>{
+    if(!dragging) return;
+    deltaX = e.touches[0].clientX - startX;
+    track.style.transform = `translateX(calc(-${qvSlideIndex * 100}% + ${deltaX}px))`;
+  }, { passive:true });
+  track.addEventListener('touchend', ()=>{
+    dragging = false;
+    track.style.transition = '';
+    if(Math.abs(deltaX) > 50) goTo(qvSlideIndex + (deltaX < 0 ? 1 : -1));
+    else goTo(qvSlideIndex);
+    deltaX = 0;
+  });
+
+  // arrow-key navigation between this design's photos while Quick View is open
+  qvGalleryKeyHandler = (e)=>{
+    if(e.key === 'ArrowRight') goTo(qvSlideIndex + 1);
+    else if(e.key === 'ArrowLeft') goTo(qvSlideIndex - 1);
+  };
+  document.addEventListener('keydown', qvGalleryKeyHandler);
+}
+
+// Renders the currently-selected design: its photo gallery, price
+// (falls back to the product's price if the design doesn't override
+// it), the "Design — X" label, the active thumbnail, and a WhatsApp
+// message that names the exact design so enquiries arrive specific.
+function renderQvDesign(index){
+  const p = qvProduct;
+  const designs = productDesigns(p);
+  qvActiveDesignIndex = ((index % designs.length) + designs.length) % designs.length;
+  const design = designs[qvActiveDesignIndex];
+  const slides = designSlides(design);
+
+  document.getElementById('qvGallery').innerHTML = buildGalleryMarkup(p, slides);
+  if(slides.length > 1) initQvGallery(slides.length);
+
+  const effectivePrice = (design.price != null) ? design.price : p.price;
+  const hasDiscount = p.originalPrice && p.originalPrice > effectivePrice;
+  document.getElementById('qvPrice').textContent = `₹${effectivePrice.toLocaleString('en-IN')}`;
+  const originalEl = document.getElementById('qvOriginal');
+  if(originalEl){
+    if(hasDiscount){
+      originalEl.textContent = `₹${p.originalPrice.toLocaleString('en-IN')}`;
+      originalEl.style.display = '';
+    } else {
+      originalEl.style.display = 'none';
+    }
+  }
+
+  const nameEl = document.getElementById('qvDesignName');
+  if(nameEl) nameEl.textContent = design.name;
+
+  document.querySelectorAll('#designThumbs .design-thumb').forEach((t, i)=>{
+    t.classList.toggle('active', i === qvActiveDesignIndex);
+    t.setAttribute('aria-selected', i === qvActiveDesignIndex);
+  });
+
+  const message = designs.length > 1
+    ? `Hi! I'm interested in the ${p.name} — ${design.name}. Could you please share more details?`
+    : `Hi! I'm interested in "${p.name}" (₹${effectivePrice.toLocaleString('en-IN')}). Could you tell me more about it?`;
+  document.getElementById('whatsappEnquire').href = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+}
+
 function openQuickView(id){
   const p = SITE_DATA.products.find(x=>x.id===id);
+  qvProduct = p;
+  const designs = productDesigns(p);
   const box = document.getElementById('qvBox');
-  const hasDiscount = p.originalPrice && p.originalPrice > p.price;
+
   box.innerHTML = `
     <div class="qv-media ${p.swatch}">
-      ${mediaMarkup(p)}
+      <div class="qv-gallery" id="qvGallery"></div>
       <button class="qv-close" id="qvCloseBtn"><svg viewBox="0 0 24 24" stroke="#332c24" fill="none"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
     </div>
     <div class="qv-info">
-      <span class="eyebrow">${p.category}</span>
-      <h3>${p.name}</h3>
-      <div class="qv-price-group">
-        <div class="qv-price">₹${p.price.toLocaleString('en-IN')}</div>
-        ${hasDiscount ? `<div class="qv-original">₹${p.originalPrice.toLocaleString('en-IN')}</div>` : ''}
-      </div>
-      <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
-      <p class="qv-desc" style="margin-top:14px;">${p.desc}</p>
-      <div class="qv-meta">
-        <div><span>Materials</span>${p.materials}</div>
-        <div><span>Dimensions</span>${p.dimensions}</div>
-      </div>
-      <div><span style="display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-bottom:8px;">Colour — <span id="qvColorName">${p.colors[0].name}</span></span>
-        <div class="color-dots">
-          ${p.colors.map((c,i)=>`<div class="color-dot ${i===0?'active':''}" style="background:${c.hex}" data-color="${c.name}" title="${c.name}"></div>`).join('')}
+      <div class="qv-info-scroll" id="qvInfoScroll">
+        <span class="eyebrow">${p.category}</span>
+        <h3>${p.name}</h3>
+        ${designs.length > 1 ? `<div class="qv-design-tag">Design — <span id="qvDesignName">${designs[0].name}</span></div>` : ''}
+        <div class="qv-price-group">
+          <div class="qv-price" id="qvPrice"></div>
+          <div class="qv-original" id="qvOriginal" style="display:none;"></div>
         </div>
+        <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
+        <p class="qv-desc" style="margin-top:14px;">${p.desc}</p>
+        <div class="qv-meta">
+          <div><span>Materials</span>${p.materials}</div>
+          <div><span>Dimensions</span>${p.dimensions}</div>
+        </div>
+        ${designs.length > 1 ? `
+        <div class="qv-design-picker">
+          <span class="qv-designs-label">Choose a design — ${designs.length} available</span>
+          <div class="design-thumbs" id="designThumbs" role="tablist" aria-label="Available designs">
+            ${designs.map((d,i)=>`
+              <button class="design-thumb ${i===0?'active':''}" data-design="${i}" type="button" role="tab" aria-selected="${i===0}" aria-label="${d.name}">
+                ${designSlides(d)[0] ? `<img src="${designSlides(d)[0]}" alt="${d.name}">` : `<div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>`}
+              </button>`).join('')}
+          </div>
+        </div>` : ''}
+        <div class="qv-note">Estimated delivery: ${p.delivery}. Handmade piece — slight variation in paint, foil, and paper grain is part of the charm.</div>
       </div>
-      <div class="qv-note">Estimated delivery: ${p.delivery}. Handmade piece — slight variation in paint, foil, and paper grain is part of the charm.</div>
+      <div class="qv-cta-bar">
+        <a id="whatsappEnquire" class="whatsapp-btn" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.1-1.6-.8-1.9-.9-.2-.1-.4-.1-.6.1-.2.3-.7.9-.8 1-.2.2-.3.2-.5.1-.3-.1-1.2-.4-2.2-1.4-.8-.7-1.4-1.6-1.5-1.9-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.1.2-.3.2-.4.1-.2 0-.3 0-.5C11 9.2 10.6 8 10.4 7.6c-.2-.4-.3-.4-.5-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.1 0 1.3.9 2.5 1 2.7.1.2 1.8 2.8 4.4 3.9.6.3 1.1.4 1.5.5.6.2 1.2.2 1.6.1.5-.1 1.6-.6 1.8-1.3.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3z"/><path d="M12 2C6.5 2 2 6.5 2 12c0 1.9.5 3.6 1.4 5.1L2 22l5.1-1.3c1.4.8 3.1 1.2 4.9 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2zm0 18.2c-1.6 0-3.1-.4-4.4-1.2l-.3-.2-3.1.8.8-3-.2-.3C4 14.9 3.6 13.5 3.6 12c0-4.6 3.8-8.4 8.4-8.4s8.4 3.8 8.4 8.4-3.8 8.2-8.4 8.2z"/></svg>
+          Enquire on WhatsApp
+        </a>
+      </div>
     </div>`;
+
   document.getElementById('qvModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  box.querySelectorAll('[data-color]').forEach(d=>d.onclick=()=>{
-    box.querySelectorAll('[data-color]').forEach(x=>x.classList.remove('active'));
-    d.classList.add('active');
-    document.getElementById('qvColorName').textContent = d.dataset.color;
+  qvModalKeyHandler = (e)=>{ if(e.key === 'Escape') closeQuickView(); };
+  document.addEventListener('keydown', qvModalKeyHandler);
+
+  renderQvDesign(0);
+
+  document.querySelectorAll('#designThumbs .design-thumb').forEach(t=>{
+    t.onclick = ()=>{
+      renderQvDesign(+t.dataset.design);
+      // On the mobile stacked layout the image sits above the scrolling
+      // info panel — jump back up so the newly-selected design is visible
+      // instead of leaving the shopper looking at a photo that didn't change.
+      if(window.matchMedia('(max-width:760px)').matches){
+        document.getElementById('qvInfoScroll')?.scrollTo({ top:0, behavior:'smooth' });
+      }
+    };
   });
+
   document.getElementById('qvCloseBtn').onclick = closeQuickView;
 }
 function closeQuickView(){
   document.getElementById('qvModal').classList.remove('open');
   document.body.style.overflow = '';
+  if(qvModalKeyHandler){ document.removeEventListener('keydown', qvModalKeyHandler); qvModalKeyHandler = null; }
+  if(qvGalleryKeyHandler){ document.removeEventListener('keydown', qvGalleryKeyHandler); qvGalleryKeyHandler = null; }
+  qvProduct = null;
 }
 
 /* ============ EVENT WIRING ============ */

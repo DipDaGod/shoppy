@@ -30,6 +30,13 @@
   img{max-width:100%; display:block;}
   a{text-decoration:none; color:inherit;}
   button{font-family:inherit; border:none; cursor:pointer; background:none;}
+  /* Icon-only buttons/links use fill:none SVGs (arrows, X, circles) — by
+     default only the painted stroke pixels are clickable, not the empty
+     space inside the glyph, which made buttons feel like they only
+     responded when tapped dead-center. Forcing the icon itself to ignore
+     pointer events means every click/tap always resolves to the actual
+     button or link underneath, across its full box. */
+  button svg, a svg{pointer-events:none;}
   ::selection{background:var(--gold-light); color:var(--ink);}
 
   /* Scrollbar */
@@ -301,6 +308,10 @@
   }
   .badge.handmade{background:rgba(255,255,255,0.85); color:var(--gold); border:1px solid var(--gold-light);}
   .badge.limited{background:rgba(51,44,36,0.85); color:var(--white);}
+  .badge.designs-badge{
+    position:absolute; top:14px; right:14px; z-index:3;
+    background:var(--ink); color:var(--white); border:none;
+  }
 
   .quickview-btn{
     position:absolute; left:50%; bottom:14px; transform:translate(-50%,14px); z-index:3;
@@ -476,6 +487,7 @@
     .stitch-frame{inset:8px; border-radius:9px;}
     .badges{top:8px; left:8px; gap:4px;}
     .badge{font-size:8.5px; padding:4px 8px;}
+    .badge.designs-badge{top:8px; right:8px;}
 
     /* Hover-only reveal doesn't work on touch — keep Quick View reachable. */
     .quickview-btn{
@@ -522,28 +534,132 @@
   }
   .qv-modal.open{opacity:1; pointer-events:auto;}
   .qv-box{
-    background:var(--white); border-radius:26px; max-width:920px; width:100%; max-height:88vh; overflow-y:auto;
+    background:var(--white); border-radius:26px; max-width:920px; width:100%; max-height:88vh; overflow:hidden;
     display:grid; grid-template-columns:1fr 1fr; box-shadow:var(--shadow-lift); transform:scale(0.94) translateY(20px);
     transition:transform 0.45s cubic-bezier(.22,.61,.36,1);
   }
   .qv-modal.open .qv-box{transform:scale(1) translateY(0);}
-  .qv-media{position:relative; min-height:340px;}
+  .qv-media{position:relative; min-height:340px; background:var(--ivory); overflow:hidden;}
+
+  /* ---- Quick View photo gallery — swipeable, dots, arrows ---- */
+  .qv-gallery{position:relative; width:100%; height:100%; min-height:340px; overflow:hidden;}
+  .qv-slide-track{display:flex; width:100%; height:100%; transition:transform 0.4s cubic-bezier(.22,.61,.36,1);}
+  .qv-slide{position:relative; flex:0 0 100%; width:100%; height:100%; min-height:340px;}
+  .qv-slide .product-img{width:100%; height:100%; object-fit:cover; display:block;}
+  .qv-nav{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:4; width:34px; height:34px; border-radius:50%;
+    background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; color:var(--ink);
+    transition:background 0.25s ease, transform 0.25s ease;
+  }
+  .qv-nav svg{width:15px; height:15px;}
+  .qv-nav:hover{background:var(--white); transform:translateY(-50%) scale(1.08);}
+  .qv-prev{left:14px;}
+  .qv-next{right:14px;}
+  .qv-dots{
+    position:absolute; left:50%; bottom:14px; transform:translateX(-50%); z-index:4;
+    display:flex; gap:7px; padding:6px 10px; border-radius:100px; background:rgba(255,255,255,0.6); backdrop-filter:blur(3px);
+  }
+  .qv-dot{width:6px; height:6px; border-radius:50%; background:rgba(51,44,36,0.35); transition:all 0.3s ease; padding:0;}
+  .qv-dot.active{width:16px; background:var(--gold);}
+
   .qv-close{position:absolute; top:18px; right:18px; z-index:5; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center;}
   .qv-close svg{width:15px; height:15px; stroke-width:2;}
-  .qv-info{padding:40px 40px 40px 34px;}
+
+  /* .qv-info is a flex column so the CTA bar can pin to the bottom
+     while everything above it scrolls independently — critical on
+     phones, where product details + a design picker easily run
+     longer than the screen. */
+  .qv-info{display:flex; flex-direction:column; min-height:0; max-height:88vh;}
+  .qv-info-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:40px 40px 24px 34px;}
   .qv-info h3{font-size:28px; margin-bottom:10px;}
+  .qv-design-tag{
+    display:inline-block; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--gold);
+    font-weight:600; margin-bottom:14px;
+  }
   .qv-price-group{display:flex; align-items:baseline; gap:10px; margin-bottom:16px;}
   .qv-price{font-family:var(--display); font-size:24px; color:var(--gold);}
   .qv-original{font-size:15px; color:var(--ink-soft); text-decoration:line-through;}
   .qv-desc{font-size:14px; color:var(--ink-soft); margin-bottom:22px; line-height:1.6;}
   .qv-meta{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; font-size:13px;}
   .qv-meta div span{display:block; color:var(--ink-soft); font-size:11px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;}
-  .color-dots{display:flex; gap:10px; margin-bottom:22px;}
-  .color-dot{width:26px; height:26px; border-radius:50%; border:2px solid transparent; cursor:pointer; transition:border-color 0.3s ease;}
-  .color-dot.active{border-color:var(--ink);}
-  .qv-note{font-size:12px; color:var(--ink-soft); border-top:1px dashed rgba(51,44,36,0.15); padding-top:16px; margin-top:22px;}
 
-  @media(max-width:760px){.qv-box{grid-template-columns:1fr;} .qv-media{min-height:260px;}}
+  /* ---- Design picker — horizontally-scrollable thumbnails, large
+     touch targets (52px, comfortably above the ~44px minimum) ---- */
+  .qv-design-picker{margin-bottom:22px;}
+  .qv-designs-label{
+    display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-bottom:10px;
+  }
+  .design-thumbs{
+    display:flex; gap:10px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding:2px 2px 6px;
+  }
+  .design-thumbs::-webkit-scrollbar{display:none;}
+  .design-thumb{
+    position:relative; flex:0 0 52px; width:52px; height:52px; border-radius:12px; overflow:hidden;
+    border:2px solid transparent; padding:0; background:var(--ivory); transition:border-color 0.25s ease, transform 0.2s ease;
+  }
+  .design-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .design-thumb .swatch{width:100%; height:100%;}
+  .design-thumb:hover{transform:translateY(-2px);}
+  .design-thumb.active{border-color:var(--gold);}
+
+  .qv-note{font-size:12px; color:var(--ink-soft); border-top:1px dashed rgba(51,44,36,0.15); padding-top:16px; margin-top:4px;}
+
+  /* Sticky CTA — pinned to the bottom of the modal, always reachable
+     without scrolling through the product details first. */
+  .qv-cta-bar{flex-shrink:0; padding:14px 34px 30px; border-top:1px solid rgba(51,44,36,0.08); background:var(--white);}
+
+  .whatsapp-btn{
+    display:flex; align-items:center; justify-content:center; gap:9px;
+    width:100%; padding:15px 18px; border-radius:100px;
+    background:var(--ink); color:var(--white); font-size:14px; font-weight:500;
+    letter-spacing:0.02em; text-align:center;
+    transition: background 0.3s ease, transform 0.2s ease;
+  }
+  .whatsapp-btn svg{width:17px; height:17px; flex-shrink:0;}
+  .whatsapp-btn:hover{background:var(--gold); transform:translateY(-1px);}
+
+  @media(max-width:760px){
+    .qv-modal{padding:16px;}
+    .qv-box{grid-template-columns:1fr; border-radius:22px; max-height:92vh;}
+    .qv-media{min-height:220px;}
+    .qv-gallery, .qv-slide{min-height:220px;}
+    .qv-info{max-height:calc(92vh - 220px);}
+    .qv-info-scroll{padding:24px 24px 20px;}
+    .qv-meta{grid-template-columns:1fr; gap:12px;}
+    .qv-cta-bar{padding:12px 24px 20px;}
+    .whatsapp-btn{padding:16px 18px; font-size:14.5px;}
+  }
+  @media(max-width:480px){
+    .qv-modal{padding:8px;}
+    .qv-box{border-radius:18px; max-height:95vh;}
+    .qv-media{min-height:172px;}
+    .qv-gallery, .qv-slide{min-height:172px;}
+    .qv-nav{width:30px; height:30px;}
+    .qv-nav svg{width:13px; height:13px;}
+    .qv-prev{left:10px;}
+    .qv-next{right:10px;}
+    .qv-dots{bottom:10px; gap:5px; padding:5px 8px;}
+    .qv-dot{width:5px; height:5px;}
+    .qv-dot.active{width:13px;}
+    .qv-close{top:10px; right:10px; width:34px; height:34px;}
+    .qv-close svg{width:14px; height:14px;}
+    .qv-info{max-height:calc(95vh - 172px);}
+    .qv-info-scroll{padding:18px 16px 16px;}
+    .qv-info h3{font-size:19px; margin-bottom:6px; line-height:1.25;}
+    .qv-design-tag{font-size:10px; margin-bottom:10px;}
+    .qv-price-group{gap:8px; margin-bottom:10px;}
+    .qv-price{font-size:19px;}
+    .qv-original{font-size:12.5px;}
+    .qv-desc{font-size:12.5px; margin-bottom:14px; line-height:1.55;}
+    .qv-meta{margin-bottom:14px; font-size:12.5px;}
+    .qv-design-picker{margin-bottom:14px;}
+    .design-thumb{flex-basis:50px; width:50px; height:50px; border-radius:10px;}
+    .qv-note{font-size:11px; padding-top:12px;}
+    .qv-cta-bar{padding:10px 16px 16px;}
+    /* Full-width, larger tap target — this is the primary action on
+       a phone screen, sized well above the ~44px touch-target minimum. */
+    .whatsapp-btn{padding:15px 16px; font-size:14px; border-radius:14px;}
+  }
 
   /* ---------- Loader ---------- */
   #loader{
@@ -574,7 +690,7 @@
   input:focus-visible,
   select:focus-visible,
   .chip:focus-visible,
-  .color-dot:focus-visible {
+  .design-thumb:focus-visible {
     outline: 2px solid var(--gold);
     outline-offset: 2px;
     border-radius: 6px;
@@ -587,6 +703,10 @@
   .chip:active,
   .shop-search-toggle:active,
   .shop-search-close:active,
+  .qv-nav:active,
+  .qv-dot:active,
+  .design-thumb:active,
+  .whatsapp-btn:active,
   .quickview-btn:active {
     transform: scale(0.93);
     transition-duration: 0.1s;
