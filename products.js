@@ -73,55 +73,63 @@
 const PRODUCTS = [
   {
     id: 1,
-    name: "Swarna Dhaaga",
-    category: "Rakhi Lumba",
-    price: 799, originalPrice: 799,
+    name: "Tanjore Soan",
+    category: "Soan",
+    price: 200, originalPrice: 350,
     coverImage: "",
     swatch: "sw-1",
     rating: 5, popularity: 95, limited: false,
-    desc: "A hand-finished rakhi lumba in fine golden thread work, with a dangling charm styled after traditional temple jewellery motifs.",
-    materials: "Zari (metallic) thread, gold-tone charm, cotton base",
-    dimensions: "Lumba: 6 × 3 cm approx.",
+    desc: "A handcrafted Tanjore Soan, hand-painted with traditional motifs and finished with intricate gold detailing for a rich, festive look.",
+    materials: "Hand-painted Tanjore artwork, gold-tone detailing, handmade base",
+    dimensions: "5x5 cm",
     delivery: "3–5 working days",
     designs: [
-      { name: "Design 1", image: "", images: [] },
-      { name: "Design 2", image: "", images: [] },
-      { name: "Design 3", image: "", images: [] },
-      { name: "Design 4", image: "", images: [] }
+      { name: "Swastika", image: "images/soan-1.jpeg", images: [] },
+      { name: "Om", image: "images/soan-2.jpeg", images: [] },
+      { name: "Swastika Gold", image: "images/soan-3.jpeg", images: [] },
+      { name: "Sun", image: "images/soan-4.jpeg", images: [] }
     ]
   },
   {
     id: 2,
-    name: "Tejore Suna",
-    category: "Tanjore Art",
-    price: 2499, originalPrice: 2499,
+    name: "Swarn Dhaga",
+    category: "Rakhi",
+    price: 100, originalPrice: 200,
     coverImage: "",
     swatch: "sw-3",
-    rating: 5, popularity: 88, limited: false,
-    desc: "A hand-painted Tanjore piece in relief gesso work finished with genuine gold foil — traditional South Indian temple-art style.",
-    materials: "Wood base, gesso relief work, 24k gold foil, semi-precious stones",
-    dimensions: "12 × 12 in.",
+    rating: 5, popularity: 94, limited: false,
+    desc: "A handcrafted Tanjore rakhi featuring hand-painted traditional motifs, intricate gold detailing, colourful threads, and decorative beads. Each design is individually handmade for a rich and festive finish.",
+    materials: "Hand-painted Tanjore artwork, gold-tone detailing, decorative beads, traditional threads, handmade base",
+    dimensions: "Approx. 12 × 12 cm",
     delivery: "5–8 working days",
     designs: [
-      { name: "Design 1", image: "", images: [] },
-      { name: "Design 2", image: "", images: [] },
-      { name: "Design 3", image: "", images: [] }
+      { name: "Design 1", image: "images/rakhi-1.jpeg", images: [] },
+      { name: "Design 2", image: "images/rakhi-2.jpeg", images: [] },
+      { name: "Design 3", image: "images/rakhi-3.jpeg", images: [] },
+      { name: "Design 4", image: "images/rakhi-4.jpeg", images: [] },
+      { name: "Design 5", image: "images/rakhi-5.jpeg", images: [] },
+      { name: "Design 6", image: "images/rakhi-6.jpeg", images: [] },
+      { name: "Design 7", image: "images/rakhi-7.jpeg", images: [] },
+      { name: "Design 8", image: "images/rakhi-8.jpeg", images: [] },
+      { name: "Design 9", image: "images/rakhi-9.jpeg", images: [] },
+      { name: "Design 10", image: "images/rakhi-10.jpeg", images: [] }
     ]
   },
   {
     id: 3,
     name: "Golden Heritage",
-    category: "Tanjore Art",
-    price: 3499, originalPrice: 3499,
-    coverImage: "",
+    category: "Lumba",
+    price: 800, originalPrice: 1100,
+    coverImage: "images/lumba-1.jpeg",
     swatch: "sw-6",
     rating: 5, popularity: 91, limited: true,
-    desc: "Our most detailed Tanjore piece — intricate gold-foil relief work on a heavyweight wood base, built to be a centrepiece.",
-    materials: "Heavyweight wood base, gesso relief work, 24k gold foil, gemstones",
-    dimensions: "18 × 14 in.",
-    delivery: "7–10 working days",
+    desc: "A handcrafted Tanjore lumba featuring intricate hand-painted detailing, rich gold accents, and traditional Indian motifs, created as an elegant festive statement piece.",
+    materials: "Hand-painted Tanjore artwork, gold-tone detailing, decorative beads, handmade base",
+    dimensions: "8x8 cm",
+    delivery: "5-7 working days",
     designs: [
-      { name: "Design 1", image: "", images: [] }
+      { name: "Peacock Heritage", image: "images/lumba-1.jpeg", images: [] },
+      { name: "Royal Kalash", image: "images/lumba-2.png", images: [] }
     ]
   }
 ];

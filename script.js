@@ -101,17 +101,31 @@ function designSlides(design){
   return design.image ? [design.image] : [];
 }
 
-function productCoverImage(p){
-  if(p.coverImage) return p.coverImage;
-  const firstDesign = productDesigns(p)[0];
-  return designSlides(firstDesign)[0] || "";
+function cardCarouselSlides(p){
+  // Pulls one representative photo per design (skipping empty/duplicate
+  // ones) so the card can auto-cycle through what's actually available,
+  // rather than a single static "cover" photo.
+  const seen = new Set();
+  const slides = [];
+  if(p.coverImage && !seen.has(p.coverImage)){ seen.add(p.coverImage); slides.push(p.coverImage); }
+  productDesigns(p).forEach(d=>{
+    const src = designSlides(d)[0];
+    if(src && !seen.has(src)){ seen.add(src); slides.push(src); }
+  });
+  return slides;
 }
 
-function coverMediaMarkup(p){
-  const src = productCoverImage(p);
-  return src
-    ? `<img class="product-img" src="${src}" alt="${p.name}"><div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>`
-    : `<div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>`;
+function cardMediaMarkup(p){
+  const slides = cardCarouselSlides(p);
+  if(slides.length === 0){
+    return `<div class="card-slide-track"><div class="card-slide"><div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div></div></div>`;
+  }
+  const slidesHTML = slides.map(src => `
+    <div class="card-slide">
+      <img class="product-img" src="${src}" alt="${p.name}">
+      <div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>
+    </div>`).join('');
+  return `<div class="card-slide-track">${slidesHTML}</div>`;
 }
 
 function productCard(p){
@@ -119,15 +133,14 @@ function productCard(p){
   const designCount = productDesigns(p).length;
   return `
   <div class="product-card" data-id="${p.id}">
-    <div class="card-media ${p.swatch}">
-      ${coverMediaMarkup(p)}
+    <div class="card-media ${p.swatch}" data-quickview="${p.id}" role="button" tabindex="0" aria-label="View ${p.name}">
+      ${cardMediaMarkup(p)}
       <div class="stitch-frame"></div>
       <div class="badges">
         <span class="badge handmade">Handmade</span>
         ${p.limited ? '<span class="badge limited">Limited Edition</span>' : ''}
       </div>
       ${designCount > 1 ? `<span class="badge designs-badge">${designCount} Designs</span>` : ''}
-      <button class="quickview-btn" data-quickview="${p.id}">Quick View</button>
     </div>
     <div class="card-body">
       <div class="card-top"><h3>${p.name}</h3></div>
@@ -203,11 +216,64 @@ function clearShopFilters(){
   renderShop();
 }
 
+let cardCarouselTimers = [];
+function clearCardCarousels(){
+  cardCarouselTimers.forEach(t => clearInterval(t));
+  cardCarouselTimers = [];
+}
+function initCardCarousels(){
+  clearCardCarousels();
+  document.querySelectorAll('.card-slide-track').forEach(track=>{
+    const slides = Array.from(track.children);
+    const slideCount = slides.length;
+    if(slideCount <= 1) return;
+    // Start at a random image
+    let index = Math.floor(Math.random() * slideCount);
+    // Clone the first slide for a seamless loop
+    const firstClone = slides[0].cloneNode(true);
+    track.appendChild(firstClone);
+    track.style.transition = 'none';
+    track.style.transform = `translateX(-${index * 100}%)`;
+    let timer = null;
+    const advance = ()=>{
+      index++;
+      track.style.transition = 'transform 1.8s cubic-bezier(.22,.61,.36,1)';
+      track.style.transform = `translateX(-${index * 100}%)`;
+      // Seamless reset after reaching the clone
+      if(index === slideCount){
+        setTimeout(()=>{
+          track.style.transition = 'none';
+          index = 0;
+          track.style.transform = 'translateX(0)';
+          requestAnimationFrame(()=>{
+            track.style.transition =
+              'transform 1.8s cubic-bezier(.22,.61,.36,1)';
+          });
+        }, 1800);
+      }
+    };
+    const start = ()=>{
+      clearInterval(timer);
+      timer = setInterval(advance, 6500);
+      cardCarouselTimers.push(timer);
+    };
+    const stop = ()=>{
+      clearInterval(timer);
+      timer = null;
+    };
+    start();
+    const card = track.closest('.product-card');
+    card.addEventListener('mouseenter', stop);
+    card.addEventListener('mouseleave', start);
+  });
+}
+
 function renderShop(){
   const grid = document.getElementById('shopGrid');
   const list = getFilteredProducts();
   renderShopStatus(SITE_DATA.products.length, list.length);
   grid.style.opacity = 0;
+  clearCardCarousels();
   setTimeout(()=>{
     grid.innerHTML = list.length ? list.map(productCard).join('') : `
       <div class="shop-empty">
@@ -216,6 +282,7 @@ function renderShop(){
       </div>`;
     grid.style.transition = 'opacity 0.4s ease';
     grid.style.opacity = 1;
+    initCardCarousels();
   }, 180);
 }
 
@@ -435,6 +502,14 @@ function attachGlobalCardDelegation(){
     const qvBtn = e.target.closest('[data-quickview]');
     if(qvBtn){ e.stopPropagation(); openQuickView(+qvBtn.dataset.quickview); return; }
   });
+  // The whole card image is now the trigger (div[role="button"], not a
+  // real <button>), so Enter/Space need to be wired up by hand for
+  // keyboard users.
+  document.body.addEventListener('keydown', (e)=>{
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    const qvTarget = e.target.closest('[data-quickview]');
+    if(qvTarget){ e.preventDefault(); openQuickView(+qvTarget.dataset.quickview); }
+  });
 }
 
 function ripple(e){
@@ -455,6 +530,19 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderChips();
   renderShop();
   attachGlobalCardDelegation();
+
+  // In-page navigation (nav links, hero button, footer links) scrolls
+  // smoothly without ever writing a "#section" fragment into the URL bar.
+  document.body.addEventListener('click', (e)=>{
+    const link = e.target.closest('a[href^="#"]');
+    if(!link) return;
+    e.preventDefault();
+    const hash = link.getAttribute('href');
+    if(hash.length > 1){
+      const target = document.querySelector(hash);
+      if(target) target.scrollIntoView({ behavior:'smooth' });
+    }
+  });
 
   // navbar scroll
   const navbar = document.getElementById('navbar');
