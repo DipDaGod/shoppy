@@ -26,7 +26,7 @@ function storeInitials(){
   return letters.map(w => w[0].toUpperCase()).slice(0, 2).join('');
 }
 function applyStoreName(){
-  document.title = `${STORE_NAME} — Handmade Shagun Envelopes`;
+  document.title = `${STORE_NAME} — Handmade Tanjore Creations`;
 
   // Logo: last word shown in gold (matches the two-tone logo style), rest in ink.
   const words = STORE_NAME.trim().split(/\s+/);
