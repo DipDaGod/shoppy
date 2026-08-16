@@ -652,6 +652,25 @@
   .qv-close{position:absolute; top:18px; right:18px; z-index:5; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center;}
   .qv-close svg{width:15px; height:15px; stroke-width:2;}
 
+  /* ---- Design-switch side arrows — separate from .qv-nav above,
+     which pages through *photos* of the current design (rare, only
+     when a design itself has more than one image). These page
+     between *designs* instead, sit further out toward the edges so
+     the two controls don't collide on the off chance both appear at
+     once, and stay deliberately understated (smaller, lower opacity
+     at rest) since swiping/thumbnails are the primary way to browse. */
+  .qv-design-side-nav{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:5;
+    width:28px; height:28px; border-radius:50%;
+    background:rgba(255,255,255,0.55); backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; color:var(--ink);
+    opacity:0.7; transition:opacity 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  }
+  .qv-design-side-nav svg{width:12px; height:12px; stroke-width:2.2;}
+  .qv-design-side-nav:hover{opacity:1; background:rgba(255,255,255,0.9); transform:translateY(-50%) scale(1.08);}
+  .qv-design-side-prev{left:8px;}
+  .qv-design-side-next{right:8px;}
+
   /* .qv-info is a flex column so the CTA bar can pin to the bottom
      while everything above it scrolls independently — critical on
      phones, where product details + a design picker easily run
@@ -805,10 +824,20 @@
   input:focus-visible,
   select:focus-visible,
   .chip:focus-visible,
-  .design-thumb:focus-visible {
+  .design-thumb:focus-visible,
+  .qv-design-side-nav:focus-visible {
     outline: 2px solid var(--gold);
     outline-offset: 2px;
     border-radius: 6px;
+  }
+
+  /* Separate (not joined to the shared list below) because it's
+     vertically centered via translateY(-50%) — a plain scale(0.93)
+     would replace that transform outright and make it jump off-center
+     while pressed, so the centering has to be composed back in. */
+  .qv-design-side-nav:active{
+    transform: translateY(-50%) scale(0.9);
+    transition-duration: 0.1s;
   }
 
   /* Tactile press feedback — buttons visibly react to being clicked/tapped,

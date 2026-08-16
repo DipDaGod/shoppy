@@ -409,6 +409,46 @@ function initQvGallery(count){
   document.addEventListener('keydown', qvGalleryKeyHandler);
 }
 
+/* ============ DESIGN-SWITCH SWIPE (on the main image) ============
+   Distinct from initQvGallery above, which swipes between PHOTOS of
+   the *same* design (only relevant if a design has multiple images —
+   rare). This swipes between DESIGNS themselves, directly on the main
+   image, reusing renderQvDesign's existing slide-over transition.
+   Bound fresh every time Quick View opens, since #qvGallery itself is
+   recreated (box.innerHTML) on every open. */
+function initQvDesignSwipe(){
+  const gallery = document.getElementById('qvGallery');
+  let startX = 0, deltaX = 0, dragging = false;
+
+  gallery.addEventListener('touchstart', (e)=>{
+    // If this design itself has a multi-photo gallery active, let that
+    // swipe own the gesture instead of also switching designs.
+    const activeSlides = designSlides(productDesigns(qvProduct)[qvActiveDesignIndex]);
+    if(activeSlides.length > 1){ dragging = false; return; }
+    startX = e.touches[0].clientX;
+    dragging = true;
+    deltaX = 0;
+  }, { passive:true });
+
+  gallery.addEventListener('touchmove', (e)=>{
+    if(!dragging) return;
+    deltaX = e.touches[0].clientX - startX;
+  }, { passive:true });
+
+  gallery.addEventListener('touchend', ()=>{
+    if(!dragging) return;
+    dragging = false;
+    if(Math.abs(deltaX) > 50){
+      renderQvDesign(qvActiveDesignIndex + (deltaX < 0 ? 1 : -1));
+      // A real swipe just happened — don't also let the resulting tap
+      // open the fullscreen image viewer.
+      qvGalleryJustSwiped = true;
+      setTimeout(()=>{ qvGalleryJustSwiped = false; }, 300);
+    }
+    deltaX = 0;
+  });
+}
+
 // Renders the currently-selected design: its photo gallery, price
 // (falls back to the product's price if the design doesn't override
 // it), the "Design — X" label, the active thumbnail, and a WhatsApp
@@ -493,6 +533,13 @@ function openQuickView(id){
     </div>
     <div class="qv-media ${p.swatch}">
       <div class="qv-gallery" id="qvGallery"></div>
+      ${designs.length > 1 ? `
+      <button class="qv-design-side-nav qv-design-side-prev" id="qvDesignPrev" type="button" aria-label="Previous design">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="qv-design-side-nav qv-design-side-next" id="qvDesignNext" type="button" aria-label="Next design">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>` : ''}
       <button class="qv-close" id="qvCloseBtn"><svg viewBox="0 0 24 24" stroke="#332c24" fill="none"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
     </div>
     <div class="qv-info">
@@ -549,6 +596,12 @@ function openQuickView(id){
   });
 
   document.getElementById('qvCloseBtn').onclick = closeQuickView;
+
+  if(designs.length > 1){
+    document.getElementById('qvDesignPrev').onclick = ()=> renderQvDesign(qvActiveDesignIndex - 1);
+    document.getElementById('qvDesignNext').onclick = ()=> renderQvDesign(qvActiveDesignIndex + 1);
+    initQvDesignSwipe();
+  }
 }
 function closeQuickView(){
   document.getElementById('qvModal').classList.remove('open');
