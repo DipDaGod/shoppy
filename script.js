@@ -556,7 +556,7 @@ function ripple(e){
 
 document.addEventListener('DOMContentLoaded', ()=>{
   applyStoreName();
-  // renderFeatured(); — Featured section is temporarily hidden (see index.html)
+  renderFeatured();
   renderChips();
   renderShop();
   attachGlobalCardDelegation();

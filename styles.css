@@ -331,6 +331,71 @@
 
   .product-img{width:100%; height:100%; object-fit:cover; display:block; position:relative;}
 
+  /* ---------- COLLECTION SPREAD LAYOUT ----------
+     Only the small curated "Featured" row (.collection-grid) gets this
+     treatment — the main filterable Shop grid keeps its original grid
+     layout untouched below. Cards, images, text, and colors are the
+     same .product-card markup/styles as everywhere else; only the
+     container layout and the hover choreography differ here. */
+  .products-grid.collection-grid{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:24px;
+  }
+  .collection-grid .product-card{
+    flex:0 1 340px; max-width:360px; min-width:240px;
+  }
+
+  /* Interactive "spreading open" hover — only for pointers that can
+     actually hover (mouse/trackpad) on a wide-enough viewport. Touch
+     devices (phones and most tablets) simply get the calm static row;
+     tapping a card still opens Quick View as normal. */
+  @media (hover:hover) and (pointer:fine) and (min-width:641px){
+    .collection-grid .product-card{
+      transition:
+        transform 650ms cubic-bezier(.2,.8,.2,1),
+        box-shadow 650ms ease,
+        filter 650ms ease,
+        border-color 0.5s ease;
+    }
+    .collection-grid .product-card:hover{
+      transform: translateY(-16px) scale(1.06);
+      z-index: 5;
+      box-shadow: var(--shadow-lift);
+    }
+    /* Cards after the hovered one slide right; cards before it slide
+       left — the "spreading open" effect. Scale/saturate stay subtle
+       (no blur, no heavy fade) so the row still reads as one piece. */
+    .collection-grid .product-card:hover ~ .product-card{
+      transform: translateX(28px) scale(0.97);
+      filter: saturate(0.85);
+    }
+    .collection-grid .product-card:has(~ .product-card:hover){
+      transform: translateX(-28px) scale(0.97);
+      filter: saturate(0.85);
+    }
+  }
+  /* Tablet-width version of the same effect — same choreography, just
+     a gentler push so three cards don't crowd a narrower viewport. */
+  @media (hover:hover) and (pointer:fine) and (min-width:641px) and (max-width:920px){
+    .collection-grid .product-card:hover{
+      transform: translateY(-10px) scale(1.045);
+    }
+    .collection-grid .product-card:hover ~ .product-card{
+      transform: translateX(14px) scale(0.97);
+    }
+    .collection-grid .product-card:has(~ .product-card:hover){
+      transform: translateX(-14px) scale(0.97);
+    }
+  }
+  /* Mobile — plain single column, spread/hover effect fully disabled
+     (it's already gated out by (hover:hover) above; this just settles
+     the layout back to a normal stacked list for easy tapping). */
+  @media(max-width:640px){
+    .products-grid.collection-grid{
+      display:flex; flex-direction:column; flex-wrap:nowrap; gap:16px;
+    }
+    .collection-grid .product-card{ max-width:100%; flex:none; }
+  }
+
   /* swatch color variants */
   .sw-1{background:linear-gradient(135deg,#efe6d3,#5c7a68);}
   .sw-2{background:linear-gradient(135deg,#d8a355,#e08a4b);}
@@ -480,6 +545,11 @@
     /* ---- product grid: compact, balanced 2-up instead of 1-up ---- */
     .products-grid{grid-template-columns:repeat(2,1fr); gap:12px; width:100%; min-width:0; overflow:hidden;}
     .product-card{border-radius:14px; min-width:0; max-width:100%; overflow:hidden;}
+    /* Image was a full 1:1 square, which on a narrow 2-up card made the
+       photo the dominant (and sometimes only visible) part of the card,
+       crowding out the name/price below it. Shortening the ratio and
+       capping the height keeps the photo proportionate on any phone. */
+    .card-media{aspect-ratio:4/3.3; max-height:36vh;}
     .stitch-frame{inset:8px; border-radius:9px;}
     .badges{top:8px; left:8px; gap:4px;}
     .badge{font-size:8.5px; padding:4px 8px;}
@@ -493,6 +563,14 @@
     .card-desc{display:none;} /* full description lives in Quick View */
     .price{font-size:15.5px;}
     .price-original{font-size:10.5px;}
+  }
+
+  /* Very narrow phones (≤380px) — shrink the image ratio a touch further
+     so two columns never squeeze the name/price into overflow. */
+  @media(max-width:380px){
+    .card-media{aspect-ratio:4/3.6; max-height:32vh;}
+    .card-top h3{font-size:12.5px;}
+    .price{font-size:14px;}
   }
 
 
