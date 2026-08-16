@@ -487,23 +487,20 @@ function openQuickView(id){
   const box = document.getElementById('qvBox');
 
   box.innerHTML = `
+    <div class="qv-name">
+      <span class="eyebrow">${p.category}</span>
+      <h3>${p.name}</h3>
+    </div>
     <div class="qv-media ${p.swatch}">
       <div class="qv-gallery" id="qvGallery"></div>
       <button class="qv-close" id="qvCloseBtn"><svg viewBox="0 0 24 24" stroke="#332c24" fill="none"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
     </div>
     <div class="qv-info">
       <div class="qv-info-scroll" id="qvInfoScroll">
-        <span class="eyebrow">${p.category}</span>
-        <h3>${p.name}</h3>
-        ${designs.length > 1 ? `<div class="qv-design-tag">Design — <span id="qvDesignName">${designs[0].name}</span></div>` : ''}
-        <div class="qv-price-group">
-          <div class="qv-price" id="qvPrice"></div>
-          <div class="qv-original" id="qvOriginal" style="display:none;"></div>
-        </div>
-        <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
-        <p class="qv-desc" style="margin-top:14px;">${p.desc}</p>
+        <p class="qv-desc">${p.desc}</p>
         ${designs.length > 1 ? `
         <div class="qv-design-picker">
+          <div class="qv-design-tag">Design — <span id="qvDesignName">${designs[0].name}</span></div>
           <span class="qv-designs-label">Choose a design — ${designs.length} available</span>
           <div class="design-thumbs" id="designThumbs" role="tablist" aria-label="Available designs">
             ${designs.map((d,i)=>`
@@ -512,6 +509,11 @@ function openQuickView(id){
               </button>`).join('')}
           </div>
         </div>` : ''}
+        <div class="qv-price-group">
+          <div class="qv-price" id="qvPrice"></div>
+          <div class="qv-original" id="qvOriginal" style="display:none;"></div>
+        </div>
+        <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
         <div class="qv-meta">
           <div><span>Materials</span>${p.materials}</div>
           <div><span>Dimensions</span>${p.dimensions}</div>

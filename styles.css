@@ -607,17 +607,32 @@
   .qv-modal.open{opacity:1; pointer-events:auto;}
   .qv-box{
     background:var(--white); border-radius:26px; max-width:920px; width:100%; max-height:88vh; overflow:hidden;
-    display:grid; grid-template-columns:1fr 1fr; box-shadow:var(--shadow-lift); transform:scale(0.94) translateY(20px);
+    display:grid; grid-template-columns:1fr 1fr; grid-template-rows:auto 1fr;
+    grid-template-areas:
+      "name  name"
+      "media info";
+    box-shadow:var(--shadow-lift); transform:scale(0.94) translateY(20px);
     transition:transform 0.45s cubic-bezier(.22,.61,.36,1);
   }
   .qv-modal.open .qv-box{transform:scale(1) translateY(0);}
-  .qv-media{position:relative; min-height:340px; background:var(--ivory); overflow:hidden;}
+  /* Name sits above the gallery/info split (its own full-width grid
+     row) rather than beside the image, on desktop as well as mobile. */
+  .qv-name{grid-area:name; padding:30px 40px 6px 34px;}
+  .qv-name h3{font-size:28px; margin-bottom:10px;}
+  .qv-media{grid-area:media; position:relative; min-height:340px; background:var(--ivory); overflow:hidden;}
 
   /* ---- Quick View photo gallery — swipeable, dots, arrows ---- */
   .qv-gallery{position:relative; width:100%; height:100%; min-height:340px; overflow:hidden;}
   .qv-slide-track{display:flex; width:100%; height:100%; transition:transform 0.4s cubic-bezier(.22,.61,.36,1);}
   .qv-slide{position:relative; flex:0 0 100%; width:100%; height:100%; min-height:340px;}
-  .qv-slide .product-img{width:100%; height:100%; object-fit:cover; display:block;}
+  .qv-slide .product-img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    /* Source photos have the actual envelope/rakhi/lumba lower in the
+       frame — bias the crop toward the bottom of the image instead of
+       centering, so the product itself stays the focal point instead
+       of empty/background space at the top. */
+    object-position:center bottom;
+  }
   .qv-nav{
     position:absolute; top:50%; transform:translateY(-50%); z-index:4; width:34px; height:34px; border-radius:50%;
     background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center; color:var(--ink);
@@ -641,17 +656,16 @@
      while everything above it scrolls independently — critical on
      phones, where product details + a design picker easily run
      longer than the screen. */
-  .qv-info{display:flex; flex-direction:column; min-height:0; max-height:88vh;}
-  .qv-info-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:40px 40px 24px 34px;}
-  .qv-info h3{font-size:28px; margin-bottom:10px;}
+  .qv-info{grid-area:info; display:flex; flex-direction:column; min-height:0; max-height:88vh;}
+  .qv-info-scroll{flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:22px 40px 24px 34px;}
+  .qv-desc{font-size:14px; color:var(--ink-soft); margin-bottom:22px; line-height:1.6;}
   .qv-design-tag{
-    display:inline-block; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--gold);
-    font-weight:600; margin-bottom:14px;
+    display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--gold);
+    font-weight:600; margin-bottom:8px;
   }
   .qv-price-group{display:flex; align-items:baseline; gap:10px; margin-bottom:16px;}
   .qv-price{font-family:var(--display); font-size:24px; color:var(--gold);}
   .qv-original{font-size:15px; color:var(--ink-soft); text-decoration:line-through;}
-  .qv-desc{font-size:14px; color:var(--ink-soft); margin-bottom:22px; line-height:1.6;}
   .qv-meta{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; font-size:13px;}
   .qv-meta div span{display:block; color:var(--ink-soft); font-size:11px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px;}
 
@@ -711,20 +725,32 @@
 
   @media(max-width:760px){
     .qv-modal{padding:16px;}
-    .qv-box{grid-template-columns:1fr; border-radius:22px; max-height:92vh;}
-    .qv-media{min-height:220px;}
-    .qv-gallery, .qv-slide{min-height:220px;}
-    .qv-info{max-height:calc(92vh - 220px);}
-    .qv-info-scroll{padding:24px 24px 20px;}
+    /* Full vertical stack — name, then image, then the scrollable
+       info block — instead of the desktop grid-area split. DOM order
+       (name, media, info) already matches the wanted reading order. */
+    .qv-box{
+      display:flex; flex-direction:column;
+      border-radius:22px; max-height:92vh;
+    }
+    .qv-name{padding:20px 22px 8px;}
+    .qv-name h3{font-size:21px; margin-bottom:6px;}
+    /* Noticeably more of the screen for the photo than before (was a
+       flat 220px) — the image is the main content on mobile now. */
+    .qv-media{min-height:42vh; flex-shrink:0;}
+    .qv-gallery, .qv-slide{min-height:42vh;}
+    .qv-info{flex:1 1 auto; min-height:0; max-height:none;}
+    .qv-info-scroll{padding:20px 22px 20px;}
     .qv-meta{grid-template-columns:1fr; gap:12px;}
-    .qv-cta-bar{padding:12px 24px 20px;}
+    .qv-cta-bar{padding:12px 22px 20px;}
     .whatsapp-btn{padding:16px 18px; font-size:14.5px;}
   }
   @media(max-width:480px){
     .qv-modal{padding:8px;}
     .qv-box{border-radius:18px; max-height:95vh;}
-    .qv-media{min-height:172px;}
-    .qv-gallery, .qv-slide{min-height:172px;}
+    .qv-name{padding:16px 16px 6px;}
+    .qv-name h3{font-size:18px; margin-bottom:5px; line-height:1.25;}
+    .qv-media{min-height:38vh;}
+    .qv-gallery, .qv-slide{min-height:38vh;}
     .qv-nav{width:30px; height:30px;}
     .qv-nav svg{width:13px; height:13px;}
     .qv-prev{left:10px;}
@@ -734,10 +760,8 @@
     .qv-dot.active{width:13px;}
     .qv-close{top:10px; right:10px; width:34px; height:34px;}
     .qv-close svg{width:14px; height:14px;}
-    .qv-info{max-height:calc(95vh - 172px);}
-    .qv-info-scroll{padding:18px 16px 16px;}
-    .qv-info h3{font-size:19px; margin-bottom:6px; line-height:1.25;}
-    .qv-design-tag{font-size:10px; margin-bottom:10px;}
+    .qv-info-scroll{padding:14px 16px 16px;}
+    .qv-design-tag{font-size:10px; margin-bottom:6px;}
     .qv-price-group{gap:8px; margin-bottom:10px;}
     .qv-price{font-size:19px;}
     .qv-original{font-size:12.5px;}
