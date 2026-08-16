@@ -327,6 +327,32 @@ let qvGalleryKeyHandler = null; // arrow-key photo nav, re-bound whenever the ga
 let qvSlideIndex = 0;
 let qvProduct = null;
 let qvActiveDesignIndex = 0;
+let qvGalleryJustSwiped = false; // true briefly after a real drag, so the resulting tap doesn't also open the fullscreen viewer
+
+/* ============ MOBILE FULLSCREEN IMAGE VIEWER ============
+   Tapping the Quick View photo on mobile opens a true fullscreen
+   overlay (separate from the qv-modal box) so the image isn't
+   constrained by the modal's max-height/columns. Desktop is
+   untouched — the gallery there has no click-to-expand behavior. */
+const MOBILE_IMG_VIEWER_QUERY = '(max-width:760px)';
+
+function openImgViewer(src, alt){
+  if(!src) return;
+  const viewer = document.getElementById('imgViewer');
+  const img = document.getElementById('imgViewerImg');
+  img.src = src;
+  img.alt = alt || '';
+  viewer.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeImgViewer(){
+  const viewer = document.getElementById('imgViewer');
+  viewer.classList.remove('open');
+  // Only release the scroll lock if the Quick View modal underneath
+  // isn't still open — it manages its own lock independently.
+  const qvModal = document.getElementById('qvModal');
+  if(!qvModal.classList.contains('open')) document.body.style.overflow = '';
+}
 
 function initQvGallery(count){
   // A design switch can call this more than once per Quick View session —
@@ -368,6 +394,10 @@ function initQvGallery(count){
     track.style.transition = '';
     if(Math.abs(deltaX) > 50) goTo(qvSlideIndex + (deltaX < 0 ? 1 : -1));
     else goTo(qvSlideIndex);
+    if(Math.abs(deltaX) > 10){
+      qvGalleryJustSwiped = true;
+      setTimeout(()=>{ qvGalleryJustSwiped = false; }, 300);
+    }
     deltaX = 0;
   });
 
@@ -472,10 +502,6 @@ function openQuickView(id){
         </div>
         <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
         <p class="qv-desc" style="margin-top:14px;">${p.desc}</p>
-        <div class="qv-meta">
-          <div><span>Materials</span>${p.materials}</div>
-          <div><span>Dimensions</span>${p.dimensions}</div>
-        </div>
         ${designs.length > 1 ? `
         <div class="qv-design-picker">
           <span class="qv-designs-label">Choose a design — ${designs.length} available</span>
@@ -486,6 +512,10 @@ function openQuickView(id){
               </button>`).join('')}
           </div>
         </div>` : ''}
+        <div class="qv-meta">
+          <div><span>Materials</span>${p.materials}</div>
+          <div><span>Dimensions</span>${p.dimensions}</div>
+        </div>
         <div class="qv-note">Estimated delivery: ${p.delivery}. Handmade piece — slight variation in paint, foil, and paper grain is part of the charm.</div>
       </div>
       <div class="qv-cta-bar">
@@ -524,6 +554,9 @@ function closeQuickView(){
   if(qvModalKeyHandler){ document.removeEventListener('keydown', qvModalKeyHandler); qvModalKeyHandler = null; }
   if(qvGalleryKeyHandler){ document.removeEventListener('keydown', qvGalleryKeyHandler); qvGalleryKeyHandler = null; }
   qvProduct = null;
+  // If the fullscreen image viewer was left open on top, close it too
+  // rather than leaving it stranded with the page scroll now unlocked.
+  document.getElementById('imgViewer').classList.remove('open');
 }
 
 /* ============ EVENT WIRING ============ */
@@ -556,10 +589,22 @@ function ripple(e){
 
 document.addEventListener('DOMContentLoaded', ()=>{
   applyStoreName();
-  renderFeatured();
+  // renderFeatured(); — Featured section is temporarily hidden (see index.html)
   renderChips();
   renderShop();
   attachGlobalCardDelegation();
+
+  // Mobile-only: tap the Quick View photo to open it fullscreen.
+  // Delegated on document since #qvGallery is re-created every time
+  // Quick View opens.
+  document.body.addEventListener('click', (e)=>{
+    if(!window.matchMedia(MOBILE_IMG_VIEWER_QUERY).matches) return;
+    if(qvGalleryJustSwiped) return;
+    const img = e.target.closest('#qvGallery img.product-img');
+    if(!img) return;
+    openImgViewer(img.currentSrc || img.src, img.alt);
+  });
+  document.getElementById('imgViewerClose').onclick = closeImgViewer;
 
   // In-page navigation (nav links, hero button, footer links) scrolls
   // smoothly without ever writing a "#section" fragment into the URL bar.
