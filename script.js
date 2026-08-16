@@ -300,7 +300,7 @@ function buildGalleryMarkup(p, slides){
 
   const slidesHTML = slides.map(src => `
     <div class="qv-slide">
-      <img class="product-img" src="${src}" alt="${p.name}">
+      <img class="product-img" src="${src}" alt="${p.name}" draggable="false">
       <div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>
     </div>`).join('');
 
@@ -308,221 +308,378 @@ function buildGalleryMarkup(p, slides){
     return `<div class="qv-slide-track">${slidesHTML}</div>`;
   }
 
+  // No ids here on purpose — with the drag carousel below, this markup can
+  // be mounted up to three times at once (prev/current/next design), and
+  // wirePhotoSubGallery() always scopes its lookups to the current slide.
   const navHTML = `
-    <button class="qv-nav qv-prev" id="qvPrev" type="button" aria-label="Previous photo">
+    <button class="qv-nav qv-prev" type="button" aria-label="Previous photo">
       <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
     </button>
-    <button class="qv-nav qv-next" id="qvNext" type="button" aria-label="Next photo">
+    <button class="qv-nav qv-next" type="button" aria-label="Next photo">
       <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
     </button>
-    <div class="qv-dots" id="qvDots" role="tablist" aria-label="Product photos">
+    <div class="qv-dots" role="tablist" aria-label="Product photos">
       ${slides.map((_,i)=>`<button class="qv-dot ${i===0?'active':''}" data-slide="${i}" type="button" role="tab" aria-selected="${i===0}" aria-label="Photo ${i+1} of ${slides.length}"></button>`).join('')}
     </div>`;
 
-  return `<div class="qv-slide-track" id="qvSlideTrack">${slidesHTML}</div>${navHTML}`;
+  return `<div class="qv-slide-track">${slidesHTML}</div>${navHTML}`;
 }
 
 let qvModalKeyHandler = null;  // Escape-to-close, active for the whole Quick View session
-let qvGalleryKeyHandler = null; // arrow-key photo nav, re-bound whenever the gallery re-renders
-let qvSlideIndex = 0;
+let qvGalleryKeyHandler = null; // arrow-key photo nav, re-bound whenever the current design's slide changes
 let qvProduct = null;
 let qvActiveDesignIndex = 0;
 let qvGalleryJustSwiped = false; // true briefly after a real drag, so the resulting tap doesn't also open the fullscreen viewer
+let qvDesignCarousel = null;   // the drag carousel driving the main design-switch image
+let imgViewerCarousel = null;  // the drag carousel driving the fullscreen mobile viewer
+
+/* ============================================================
+   DRAG CAROUSEL — a small reusable "Apple Photos"-style slider.
+   Three slides live in the DOM at once (previous / current / next).
+   Dragging translates the whole track in real time so the image
+   physically follows the finger/cursor; releasing either completes
+   the transition (swipe far enough) or snaps back. Button/thumbnail
+   navigation animates through the exact same settle step, so every
+   trigger — swipe, arrow, thumbnail — feels identical. Used by the
+   Quick View design switcher and the fullscreen mobile viewer.
+   ============================================================ */
+function createDragCarousel({ container, count, startIndex = 0, renderSlide, onSettle, onDragEnd, threshold = 0.18 }){
+  const mod = (n, m) => ((n % m) + m) % m;
+  let index = mod(startIndex, count);
+
+  container.innerHTML = '';
+  container.classList.add('dc-viewport');
+
+  if(count <= 1){
+    container.innerHTML = renderSlide(index);
+    return {
+      goTo(){}, next(){}, prev(){},
+      get index(){ return index; },
+      getCurrentSlideEl(){ return container.firstElementChild; },
+      destroy(){}
+    };
+  }
+
+  const track = document.createElement('div');
+  track.className = 'dc-track';
+  container.appendChild(track);
+
+  let width = container.clientWidth || 1;
+  let animating = false;
+  let dragging = false;
+  let pendingIndex = null;
+  let startX = 0, deltaX = 0, pointerId = null;
+
+  function makeSlide(i){
+    const el = document.createElement('div');
+    el.className = 'dc-slide';
+    el.style.width = width + 'px';
+    el.innerHTML = renderSlide(i);
+    return el;
+  }
+
+  function layout(){
+    width = container.clientWidth || width || 1;
+    Array.from(track.children).forEach(c => c.style.width = width + 'px');
+  }
+
+  function build(){
+    track.innerHTML = '';
+    track.appendChild(makeSlide(mod(index - 1, count)));
+    track.appendChild(makeSlide(index));
+    track.appendChild(makeSlide(mod(index + 1, count)));
+    layout();
+    setTransition(false);
+    track.style.transform = `translate3d(-${width}px,0,0)`;
+    void track.offsetWidth; // force reflow so the next transition actually animates
+  }
+
+  function setTransition(on){
+    track.style.transition = on ? 'transform 0.4s cubic-bezier(.22,.61,.36,1)' : 'none';
+  }
+
+  build();
+
+  function onTransitionEnd(){
+    animating = false;
+    if(pendingIndex != null){ index = pendingIndex; pendingIndex = null; }
+    build();
+    onSettle && onSettle(index);
+  }
+
+  function finishNow(){
+    // A new gesture/nav started mid-transition — jump straight to the end
+    // state instead of letting the new slide slide "over" the old one.
+    if(!animating) return;
+    track.removeEventListener('transitionend', onTransitionEnd);
+    onTransitionEnd();
+  }
+
+  function animateTo(px, newIndex){
+    animating = true;
+    pendingIndex = newIndex; // null = snap back, no index change
+    setTransition(true);
+    track.style.transform = `translate3d(${-px}px,0,0)`;
+    track.addEventListener('transitionend', onTransitionEnd, { once:true });
+  }
+
+  const settleNext = ()=> animateTo(width * 2, mod(index + 1, count));
+  const settlePrev = ()=> animateTo(0, mod(index - 1, count));
+  const snapBack   = ()=> animateTo(width, null);
+
+  function goTo(newIndex){
+    newIndex = mod(newIndex, count);
+    if(animating) finishNow();
+    if(newIndex === index) return;
+    const forward = mod(newIndex - index, count) <= mod(index - newIndex, count);
+    const direction = forward ? 1 : -1;
+    const adjacent = mod(index + direction, count);
+    if(adjacent !== newIndex){
+      // Long jump (e.g. a thumbnail several designs away) — patch the
+      // incoming slot with the real target before sliding to it.
+      const slot = direction > 0 ? track.children[2] : track.children[0];
+      slot.innerHTML = renderSlide(newIndex);
+    }
+    if(direction > 0) animateTo(width * 2, newIndex);
+    else animateTo(0, newIndex);
+  }
+
+  function onPointerDown(e){
+    if(e.pointerType === 'mouse' && e.button !== 0) return;
+    if(animating) finishNow();
+    dragging = true;
+    pointerId = e.pointerId;
+    startX = e.clientX; deltaX = 0;
+    setTransition(false);
+    if(e.cancelable) e.preventDefault();
+    try{ container.setPointerCapture(pointerId); }catch(err){}
+  }
+  function onPointerMove(e){
+    if(!dragging || e.pointerId !== pointerId) return;
+    deltaX = e.clientX - startX;
+    track.style.transform = `translate3d(${-(width - deltaX)}px,0,0)`;
+  }
+  function endDrag(e){
+    if(!dragging || (pointerId != null && e.pointerId !== pointerId)) return;
+    dragging = false;
+    try{ container.releasePointerCapture(pointerId); }catch(err){}
+    pointerId = null;
+    const dx = deltaX;
+    if(Math.abs(dx) > Math.max(40, width * threshold)){
+      if(dx < 0) settleNext(); else settlePrev();
+    } else {
+      snapBack();
+    }
+    deltaX = 0;
+    onDragEnd && onDragEnd(dx);
+  }
+
+  container.addEventListener('pointerdown', onPointerDown);
+  container.addEventListener('pointermove', onPointerMove);
+  container.addEventListener('pointerup', endDrag);
+  container.addEventListener('pointercancel', endDrag);
+
+  function onResize(){
+    if(dragging || animating) return;
+    layout();
+    setTransition(false);
+    track.style.transform = `translate3d(-${width}px,0,0)`;
+  }
+  window.addEventListener('resize', onResize);
+
+  return {
+    goTo,
+    next(){ goTo(index + 1); },
+    prev(){ goTo(index - 1); },
+    get index(){ return index; },
+    getCurrentSlideEl(){ return track.children[1] || null; },
+    destroy(){
+      window.removeEventListener('resize', onResize);
+      container.removeEventListener('pointerdown', onPointerDown);
+      container.removeEventListener('pointermove', onPointerMove);
+      container.removeEventListener('pointerup', endDrag);
+      container.removeEventListener('pointercancel', endDrag);
+    }
+  };
+}
+
+// Wires the (rare) case of a single design having several of its own
+// photos — dots/arrows/drag scoped to whichever slide element currently
+// holds this markup, since the design carousel can mount it 3x at once.
+function wirePhotoSubGallery(scopeEl){
+  if(qvGalleryKeyHandler){ document.removeEventListener('keydown', qvGalleryKeyHandler); qvGalleryKeyHandler = null; }
+  if(!scopeEl) return;
+  const track = scopeEl.querySelector('.qv-slide-track');
+  if(!track) return;
+  const count = track.children.length;
+  if(count <= 1) return;
+
+  const dots = Array.from(scopeEl.querySelectorAll('.qv-dot'));
+  const prevBtn = scopeEl.querySelector('.qv-prev');
+  const nextBtn = scopeEl.querySelector('.qv-next');
+  let slideIndex = 0;
+
+  function goTo(i){
+    slideIndex = ((i % count) + count) % count;
+    track.style.transform = `translateX(-${slideIndex * 100}%)`;
+    dots.forEach((d, idx)=>{
+      d.classList.toggle('active', idx === slideIndex);
+      d.setAttribute('aria-selected', idx === slideIndex);
+    });
+  }
+
+  if(prevBtn) prevBtn.onclick = (e)=>{ e.stopPropagation(); goTo(slideIndex - 1); };
+  if(nextBtn) nextBtn.onclick = (e)=>{ e.stopPropagation(); goTo(slideIndex + 1); };
+  dots.forEach(d => d.onclick = (e)=>{ e.stopPropagation(); goTo(+d.dataset.slide); });
+  // Stop these controls from also starting/confusing the outer
+  // design-switch drag, which listens on an ancestor of this track.
+  [prevBtn, nextBtn, ...dots].filter(Boolean).forEach(el => {
+    el.addEventListener('pointerdown', ev => ev.stopPropagation());
+  });
+
+  let startX = 0, deltaX = 0, dragging = false, pid = null;
+  track.addEventListener('pointerdown', (e)=>{
+    e.stopPropagation();
+    dragging = true; pid = e.pointerId; startX = e.clientX; deltaX = 0;
+    track.style.transition = 'none';
+    try{ track.setPointerCapture(pid); }catch(err){}
+  });
+  track.addEventListener('pointermove', (e)=>{
+    if(!dragging || e.pointerId !== pid) return;
+    e.stopPropagation();
+    deltaX = e.clientX - startX;
+    track.style.transform = `translateX(calc(-${slideIndex * 100}% + ${deltaX}px))`;
+  });
+  const endDrag = (e)=>{
+    if(!dragging || e.pointerId !== pid) return;
+    e.stopPropagation();
+    dragging = false;
+    track.style.transition = '';
+    if(Math.abs(deltaX) > 50) goTo(slideIndex + (deltaX < 0 ? 1 : -1));
+    else goTo(slideIndex);
+    if(Math.abs(deltaX) > 10){
+      qvGalleryJustSwiped = true;
+      setTimeout(()=>{ qvGalleryJustSwiped = false; }, 300);
+    }
+    deltaX = 0;
+  };
+  track.addEventListener('pointerup', endDrag);
+  track.addEventListener('pointercancel', endDrag);
+
+  qvGalleryKeyHandler = (e)=>{
+    if(e.key === 'ArrowRight') goTo(slideIndex + 1);
+    else if(e.key === 'ArrowLeft') goTo(slideIndex - 1);
+  };
+  document.addEventListener('keydown', qvGalleryKeyHandler);
+}
+
+function designSlideMarkup(p, i){
+  const designs = productDesigns(p);
+  const design = designs[i];
+  return buildGalleryMarkup(p, designSlides(design));
+}
+
+// Updates everything driven by the currently-active design: price
+// (falls back to the product's price if the design doesn't override
+// it), the "Design — X" label, the active thumbnail, and a WhatsApp
+// message that names the exact design so enquiries arrive specific.
+function applyDesignMetaUI(){
+  const p = qvProduct;
+  const designs = productDesigns(p);
+  const design = designs[qvActiveDesignIndex];
+  const effectivePrice = (design.price != null) ? design.price : p.price;
+  const hasDiscount = p.originalPrice && p.originalPrice > effectivePrice;
+  document.getElementById('qvPrice').textContent = `₹${effectivePrice.toLocaleString('en-IN')}`;
+  const originalEl = document.getElementById('qvOriginal');
+  if(originalEl){
+    if(hasDiscount){ originalEl.textContent = `₹${p.originalPrice.toLocaleString('en-IN')}`; originalEl.style.display = ''; }
+    else { originalEl.style.display = 'none'; }
+  }
+  const nameEl = document.getElementById('qvDesignName');
+  if(nameEl) nameEl.textContent = design.name;
+  document.querySelectorAll('#designThumbs .design-thumb').forEach((t, i)=>{
+    t.classList.toggle('active', i === qvActiveDesignIndex);
+    t.setAttribute('aria-selected', i === qvActiveDesignIndex);
+  });
+  const message = designs.length > 1
+    ? `Hi! I'm interested in the ${p.name} — ${design.name}. Could you please share more details?`
+    : `Hi! I'm interested in "${p.name}" (₹${effectivePrice.toLocaleString('en-IN')}). Could you tell me more about it?`;
+  document.getElementById('whatsappEnquire').href = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
+}
 
 /* ============ MOBILE FULLSCREEN IMAGE VIEWER ============
    Tapping the Quick View photo on mobile opens a true fullscreen
    overlay (separate from the qv-modal box) so the image isn't
    constrained by the modal's max-height/columns. Desktop is
-   untouched — the gallery there has no click-to-expand behavior. */
+   untouched — the gallery there has no click-to-expand behavior.
+   Swiping here pages through the same designs as the main Quick
+   View image, and stays in sync with it. */
 const MOBILE_IMG_VIEWER_QUERY = '(max-width:760px)';
 
-function openImgViewer(src, alt){
-  if(!src) return;
+function imgViewerSlideMarkup(p, i){
+  const designs = productDesigns(p);
+  const design = designs[i];
+  const src = designSlides(design)[0] || '';
+  if(!src) return `<div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>`;
+  return `<img class="img-viewer-img" src="${src}" alt="${p.name} — ${design.name}" draggable="false">`;
+}
+
+function openImgViewer(startIndex){
+  if(!qvProduct) return;
+  const designs = productDesigns(qvProduct);
+  if(!designs.length) return;
+
   const viewer = document.getElementById('imgViewer');
-  const img = document.getElementById('imgViewerImg');
-  img.src = src;
-  img.alt = alt || '';
+  const gallery = document.getElementById('imgViewerGallery');
+  if(imgViewerCarousel){ imgViewerCarousel.destroy(); imgViewerCarousel = null; }
+  gallery.innerHTML = '';
+
+  if(designs.length > 1){
+    imgViewerCarousel = createDragCarousel({
+      container: gallery,
+      count: designs.length,
+      startIndex,
+      renderSlide: (i)=> imgViewerSlideMarkup(qvProduct, i),
+      onSettle: (i)=>{
+        // Keep the Quick View card behind this overlay in sync, so
+        // closing it doesn't reveal a stale design.
+        qvActiveDesignIndex = i;
+        applyDesignMetaUI();
+        if(qvDesignCarousel) qvDesignCarousel.goTo(i);
+      }
+    });
+    const navHTML = `
+      <button class="img-viewer-nav img-viewer-prev" id="imgViewerPrev" type="button" aria-label="Previous design">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <button class="img-viewer-nav img-viewer-next" id="imgViewerNext" type="button" aria-label="Next design">
+        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>`;
+    gallery.insertAdjacentHTML('beforeend', navHTML);
+    document.getElementById('imgViewerPrev').onclick = ()=> imgViewerCarousel.prev();
+    document.getElementById('imgViewerNext').onclick = ()=> imgViewerCarousel.next();
+  } else {
+    gallery.innerHTML = imgViewerSlideMarkup(qvProduct, 0);
+  }
+
   viewer.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
 function closeImgViewer(){
   const viewer = document.getElementById('imgViewer');
   viewer.classList.remove('open');
+  if(imgViewerCarousel){ imgViewerCarousel.destroy(); imgViewerCarousel = null; }
   // Only release the scroll lock if the Quick View modal underneath
   // isn't still open — it manages its own lock independently.
   const qvModal = document.getElementById('qvModal');
   if(!qvModal.classList.contains('open')) document.body.style.overflow = '';
 }
 
-function initQvGallery(count){
-  // A design switch can call this more than once per Quick View session —
-  // always clear the previous listener first so they don't stack up.
-  if(qvGalleryKeyHandler){ document.removeEventListener('keydown', qvGalleryKeyHandler); qvGalleryKeyHandler = null; }
-
-  qvSlideIndex = 0;
-  const track = document.getElementById('qvSlideTrack');
-  const dots = Array.from(document.querySelectorAll('#qvDots .qv-dot'));
-  const prevBtn = document.getElementById('qvPrev');
-  const nextBtn = document.getElementById('qvNext');
-
-  function goTo(i){
-    qvSlideIndex = (i + count) % count;
-    track.style.transform = `translateX(-${qvSlideIndex * 100}%)`;
-    dots.forEach((d, idx)=>{
-      d.classList.toggle('active', idx === qvSlideIndex);
-      d.setAttribute('aria-selected', idx === qvSlideIndex);
-    });
-  }
-
-  prevBtn.onclick = ()=> goTo(qvSlideIndex - 1);
-  nextBtn.onclick = ()=> goTo(qvSlideIndex + 1);
-  dots.forEach(d => d.onclick = ()=> goTo(+d.dataset.slide));
-
-  // swipe support
-  let startX = 0, deltaX = 0, dragging = false;
-  track.addEventListener('touchstart', (e)=>{
-    startX = e.touches[0].clientX; dragging = true; deltaX = 0;
-    track.style.transition = 'none';
-  }, { passive:true });
-  track.addEventListener('touchmove', (e)=>{
-    if(!dragging) return;
-    deltaX = e.touches[0].clientX - startX;
-    track.style.transform = `translateX(calc(-${qvSlideIndex * 100}% + ${deltaX}px))`;
-  }, { passive:true });
-  track.addEventListener('touchend', ()=>{
-    dragging = false;
-    track.style.transition = '';
-    if(Math.abs(deltaX) > 50) goTo(qvSlideIndex + (deltaX < 0 ? 1 : -1));
-    else goTo(qvSlideIndex);
-    if(Math.abs(deltaX) > 10){
-      qvGalleryJustSwiped = true;
-      setTimeout(()=>{ qvGalleryJustSwiped = false; }, 300);
-    }
-    deltaX = 0;
-  });
-
-  // arrow-key navigation between this design's photos while Quick View is open
-  qvGalleryKeyHandler = (e)=>{
-    if(e.key === 'ArrowRight') goTo(qvSlideIndex + 1);
-    else if(e.key === 'ArrowLeft') goTo(qvSlideIndex - 1);
-  };
-  document.addEventListener('keydown', qvGalleryKeyHandler);
-}
-
-/* ============ DESIGN-SWITCH SWIPE (on the main image) ============
-   Distinct from initQvGallery above, which swipes between PHOTOS of
-   the *same* design (only relevant if a design has multiple images —
-   rare). This swipes between DESIGNS themselves, directly on the main
-   image, reusing renderQvDesign's existing slide-over transition.
-   Bound fresh every time Quick View opens, since #qvGallery itself is
-   recreated (box.innerHTML) on every open. */
-function initQvDesignSwipe(){
-  const gallery = document.getElementById('qvGallery');
-  let startX = 0, deltaX = 0, dragging = false;
-
-  gallery.addEventListener('touchstart', (e)=>{
-    // If this design itself has a multi-photo gallery active, let that
-    // swipe own the gesture instead of also switching designs.
-    const activeSlides = designSlides(productDesigns(qvProduct)[qvActiveDesignIndex]);
-    if(activeSlides.length > 1){ dragging = false; return; }
-    startX = e.touches[0].clientX;
-    dragging = true;
-    deltaX = 0;
-  }, { passive:true });
-
-  gallery.addEventListener('touchmove', (e)=>{
-    if(!dragging) return;
-    deltaX = e.touches[0].clientX - startX;
-  }, { passive:true });
-
-  gallery.addEventListener('touchend', ()=>{
-    if(!dragging) return;
-    dragging = false;
-    if(Math.abs(deltaX) > 50){
-      renderQvDesign(qvActiveDesignIndex + (deltaX < 0 ? 1 : -1));
-      // A real swipe just happened — don't also let the resulting tap
-      // open the fullscreen image viewer.
-      qvGalleryJustSwiped = true;
-      setTimeout(()=>{ qvGalleryJustSwiped = false; }, 300);
-    }
-    deltaX = 0;
-  });
-}
-
-// Renders the currently-selected design: its photo gallery, price
-// (falls back to the product's price if the design doesn't override
-// it), the "Design — X" label, the active thumbnail, and a WhatsApp
-// message that names the exact design so enquiries arrive specific.
-// Pass animate=false on the initial render to skip the slide transition.
-function renderQvDesign(index, animate){
-  const p = qvProduct;
-  const designs = productDesigns(p);
-  const newIndex = ((index % designs.length) + designs.length) % designs.length;
-  const direction = newIndex > qvActiveDesignIndex ? 1 : (newIndex < qvActiveDesignIndex ? -1 : 0);
-  qvActiveDesignIndex = newIndex;
-  const design = designs[qvActiveDesignIndex];
-  const slides = designSlides(design);
-
-  const galleryEl = document.getElementById('qvGallery');
-  const shouldAnimate = animate !== false && direction !== 0;
-
-  function applyMetaUI(){
-    const effectivePrice = (design.price != null) ? design.price : p.price;
-    const hasDiscount = p.originalPrice && p.originalPrice > effectivePrice;
-    document.getElementById('qvPrice').textContent = `₹${effectivePrice.toLocaleString('en-IN')}`;
-    const originalEl = document.getElementById('qvOriginal');
-    if(originalEl){
-      if(hasDiscount){ originalEl.textContent = `₹${p.originalPrice.toLocaleString('en-IN')}`; originalEl.style.display = ''; }
-      else { originalEl.style.display = 'none'; }
-    }
-    const nameEl = document.getElementById('qvDesignName');
-    if(nameEl) nameEl.textContent = design.name;
-    document.querySelectorAll('#designThumbs .design-thumb').forEach((t, i)=>{
-      t.classList.toggle('active', i === qvActiveDesignIndex);
-      t.setAttribute('aria-selected', i === qvActiveDesignIndex);
-    });
-    const message = designs.length > 1
-      ? `Hi! I'm interested in the ${p.name} — ${design.name}. Could you please share more details?`
-      : `Hi! I'm interested in "${p.name}" (₹${effectivePrice.toLocaleString('en-IN')}). Could you tell me more about it?`;
-    document.getElementById('whatsappEnquire').href = `https://wa.me/${WHATSAPP_PHONE}?text=${encodeURIComponent(message)}`;
-  }
-
-  if(!shouldAnimate){
-    galleryEl.innerHTML = `<div class="qv-design-frame" style="position:absolute;inset:0;">${buildGalleryMarkup(p, slides)}</div>`;
-    if(slides.length > 1) initQvGallery(slides.length);
-    applyMetaUI();
-    return;
-  }
-
-  // Slide old frame out, new frame in, direction-aware
-  const oldFrame = galleryEl.querySelector('.qv-design-frame');
-  const newFrame = document.createElement('div');
-  newFrame.className = 'qv-design-frame';
-  newFrame.style.cssText = `position:absolute;inset:0;transform:translateX(${direction > 0 ? '100%' : '-100%'});will-change:transform;`;
-  newFrame.innerHTML = buildGalleryMarkup(p, slides);
-  galleryEl.appendChild(newFrame);
-
-  if(slides.length > 1) initQvGallery(slides.length);
-  applyMetaUI();
-
-  // Double rAF ensures the browser has painted the starting position before transitioning
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      const easing = 'transform 0.42s cubic-bezier(.22,.61,.36,1)';
-      if(oldFrame){
-        oldFrame.style.transition = easing;
-        oldFrame.style.transform = `translateX(${direction > 0 ? '-100%' : '100%'})`;
-      }
-      newFrame.style.transition = easing;
-      newFrame.style.transform = 'translateX(0)';
-      setTimeout(()=>{ if(oldFrame) oldFrame.remove(); }, 440);
-    });
-  });
-}
-
 function openQuickView(id){
   const p = SITE_DATA.products.find(x=>x.id===id);
   qvProduct = p;
+  qvActiveDesignIndex = 0;
+  if(qvDesignCarousel){ qvDesignCarousel.destroy(); qvDesignCarousel = null; }
   const designs = productDesigns(p);
   const box = document.getElementById('qvBox');
 
@@ -552,7 +709,7 @@ function openQuickView(id){
           <div class="design-thumbs" id="designThumbs" role="tablist" aria-label="Available designs">
             ${designs.map((d,i)=>`
               <button class="design-thumb ${i===0?'active':''}" data-design="${i}" type="button" role="tab" aria-selected="${i===0}" aria-label="${d.name}">
-                ${designSlides(d)[0] ? `<img src="${designSlides(d)[0]}" alt="${d.name}">` : `<div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>`}
+                ${designSlides(d)[0] ? `<img src="${designSlides(d)[0]}" alt="${d.name}" draggable="false">` : `<div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>`}
               </button>`).join('')}
           </div>
         </div>` : ''}
@@ -578,14 +735,43 @@ function openQuickView(id){
   document.getElementById('qvModal').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  qvModalKeyHandler = (e)=>{ if(e.key === 'Escape') closeQuickView(); };
+  qvModalKeyHandler = (e)=>{
+    if(e.key === 'Escape') closeQuickView();
+    else if(designs.length > 1 && e.key === 'ArrowRight') qvDesignCarousel && qvDesignCarousel.next();
+    else if(designs.length > 1 && e.key === 'ArrowLeft') qvDesignCarousel && qvDesignCarousel.prev();
+  };
   document.addEventListener('keydown', qvModalKeyHandler);
 
-  renderQvDesign(0, false);
+  const qvGalleryEl = document.getElementById('qvGallery');
+  if(designs.length > 1){
+    qvDesignCarousel = createDragCarousel({
+      container: qvGalleryEl,
+      count: designs.length,
+      startIndex: 0,
+      renderSlide: (i)=> designSlideMarkup(p, i),
+      onSettle: (i)=>{
+        qvActiveDesignIndex = i;
+        applyDesignMetaUI();
+        wirePhotoSubGallery(qvDesignCarousel.getCurrentSlideEl());
+      },
+      onDragEnd: (dx)=>{
+        if(Math.abs(dx) > 10){
+          qvGalleryJustSwiped = true;
+          setTimeout(()=>{ qvGalleryJustSwiped = false; }, 300);
+        }
+      }
+    });
+    document.getElementById('qvDesignPrev').onclick = ()=> qvDesignCarousel.prev();
+    document.getElementById('qvDesignNext').onclick = ()=> qvDesignCarousel.next();
+  } else {
+    qvGalleryEl.innerHTML = designSlideMarkup(p, 0);
+  }
+  applyDesignMetaUI();
+  wirePhotoSubGallery(qvDesignCarousel ? qvDesignCarousel.getCurrentSlideEl() : qvGalleryEl);
 
   document.querySelectorAll('#designThumbs .design-thumb').forEach(t=>{
     t.onclick = ()=>{
-      renderQvDesign(+t.dataset.design);
+      if(qvDesignCarousel) qvDesignCarousel.goTo(+t.dataset.design);
       // On the mobile stacked layout the image sits above the scrolling
       // info panel — jump back up so the newly-selected design is visible
       // instead of leaving the shopper looking at a photo that didn't change.
@@ -596,22 +782,17 @@ function openQuickView(id){
   });
 
   document.getElementById('qvCloseBtn').onclick = closeQuickView;
-
-  if(designs.length > 1){
-    document.getElementById('qvDesignPrev').onclick = ()=> renderQvDesign(qvActiveDesignIndex - 1);
-    document.getElementById('qvDesignNext').onclick = ()=> renderQvDesign(qvActiveDesignIndex + 1);
-    initQvDesignSwipe();
-  }
 }
 function closeQuickView(){
   document.getElementById('qvModal').classList.remove('open');
   document.body.style.overflow = '';
   if(qvModalKeyHandler){ document.removeEventListener('keydown', qvModalKeyHandler); qvModalKeyHandler = null; }
   if(qvGalleryKeyHandler){ document.removeEventListener('keydown', qvGalleryKeyHandler); qvGalleryKeyHandler = null; }
+  if(qvDesignCarousel){ qvDesignCarousel.destroy(); qvDesignCarousel = null; }
   qvProduct = null;
   // If the fullscreen image viewer was left open on top, close it too
   // rather than leaving it stranded with the page scroll now unlocked.
-  document.getElementById('imgViewer').classList.remove('open');
+  closeImgViewer();
 }
 
 /* ============ EVENT WIRING ============ */
@@ -657,7 +838,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     if(qvGalleryJustSwiped) return;
     const img = e.target.closest('#qvGallery img.product-img');
     if(!img) return;
-    openImgViewer(img.currentSrc || img.src, img.alt);
+    openImgViewer(qvActiveDesignIndex);
   });
   document.getElementById('imgViewerClose').onclick = closeImgViewer;
 

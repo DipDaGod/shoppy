@@ -621,6 +621,15 @@
   .qv-name h3{font-size:28px; margin-bottom:10px;}
   .qv-media{grid-area:media; position:relative; min-height:340px; background:var(--ivory); overflow:hidden;}
 
+  /* ---- Drag carousel engine — Apple Photos-style swipe, used for the
+     design switcher below and reused as-is by the fullscreen mobile
+     viewer. Three slides (prev/current/next) sit side by side in a row
+     that's translated in real time; see createDragCarousel in script.js. ---- */
+  .dc-viewport{position:relative; width:100%; height:100%; overflow:hidden; touch-action:none;}
+  .dc-track{display:flex; height:100%; will-change:transform;}
+  .dc-slide{position:relative; flex:0 0 auto; height:100%; overflow:hidden;}
+  .dc-slide img, .dc-slide .product-img{-webkit-user-drag:none; user-select:none;}
+
   /* ---- Quick View photo gallery — swipeable, dots, arrows ---- */
   .qv-gallery{position:relative; width:100%; height:100%; min-height:340px; overflow:hidden;}
   .qv-slide-track{display:flex; width:100%; height:100%; transition:transform 0.4s cubic-bezier(.22,.61,.36,1);}
@@ -720,13 +729,30 @@
     opacity:0; pointer-events:none; transition:opacity 0.3s ease;
   }
   .img-viewer.open{opacity:1; pointer-events:auto;}
-  .img-viewer-img{max-width:92%; max-height:88%; width:auto; height:auto; object-fit:contain; display:block;}
+  .img-viewer-gallery{position:relative; width:92vw; height:88vh; max-width:92%; max-height:88%;}
+  .img-viewer-gallery .dc-slide{display:flex; align-items:center; justify-content:center;}
+  .img-viewer-img{max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; display:block; margin:0 auto;}
   .img-viewer-close{
     position:fixed; top:16px; right:16px; z-index:2001; width:38px; height:38px; border-radius:50%;
     background:rgba(255,255,255,0.18); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
     display:flex; align-items:center; justify-content:center; color:#fff;
   }
   .img-viewer-close svg{width:16px; height:16px;}
+
+  /* Small, subtle prev/next arrows over the fullscreen image — same
+     restrained styling language as .qv-design-side-nav, adapted for
+     the dark backdrop. */
+  .img-viewer-nav{
+    position:absolute; top:50%; transform:translateY(-50%); z-index:5;
+    width:32px; height:32px; border-radius:50%;
+    background:rgba(255,255,255,0.14); backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center; color:#fff;
+    opacity:0.75; transition:opacity 0.25s ease, background 0.25s ease, transform 0.25s ease;
+  }
+  .img-viewer-nav svg{width:14px; height:14px; stroke-width:2.2;}
+  .img-viewer-nav:hover{opacity:1; background:rgba(255,255,255,0.24); transform:translateY(-50%) scale(1.08);}
+  .img-viewer-prev{left:10px;}
+  .img-viewer-next{right:10px;}
 
   /* Sticky CTA — pinned to the bottom of the modal, always reachable
      without scrolling through the product details first. */

@@ -129,7 +129,8 @@ const PRODUCTS = [
     delivery: "5-7 working days",
     designs: [
       { name: "Peacock Heritage", image: "images/lumba-1.jpeg", images: [] },
-      { name: "Royal Kalash", image: "images/lumba-2.png", images: [] }
+      { name: "Royal Kalash", image: "images/lumba-2.png", images: [] },
+      { name: "Swarna Abhushan", image: "images/lumba-3.png", images: [] }
     ]
   }
 ];
