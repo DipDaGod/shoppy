@@ -320,7 +320,7 @@
      instead of the cover-crop used in Quick View/the gallery. Scoped
      to .card-media so it doesn't affect .qv-slide/.qv-gallery images. */
   .card-media .product-img{
-    width:100%; height:100%; object-fit:contain; display:block;
+    width:100%; height:100%; object-fit:contain; display:block; transform:scale(1.33); transform-origin:center center;
   }
 
   /* ---------- COLLECTION SPREAD LAYOUT ----------
@@ -620,10 +620,8 @@
   .qv-media-frame{
       position:relative;
       height:100%;
-      width:100%;
-      max-width:420px;
+      max-height:580px;
       aspect-ratio:1/1;
-      height:auto;
       min-height:0;
       margin:0 auto;
       padding:28px;
@@ -770,7 +768,7 @@
 
   .whatsapp-btn{
     display:flex; align-items:center; justify-content:center; gap:9px;
-    width:100%; padding:15px 18px; border-radius:100px;
+    width:100%; padding:13px 16px; border-radius:100px;
     background:var(--ink); color:var(--white); font-size:14px; font-weight:500;
     letter-spacing:0.02em; text-align:center;
     transition: background 0.3s ease, transform 0.2s ease;
