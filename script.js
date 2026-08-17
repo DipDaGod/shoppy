@@ -2,13 +2,14 @@
    STORE NAME — edit this one line and the whole site updates:
    navbar logo, footer logo, page title, "Why ___" heading,
    about-section mentions, copyright line, the @handle in the
-   gallery section, the contact email, and the wax-seal
+   gallery section, the contact email, and the gold-medallion
    monogram in the hero all update automatically.
 
    STORE_INITIALS controls the monogram shown on the hero's
-   wax seal. Leave it as "" to auto-generate from STORE_NAME
-   (first letter of each word), or set it directly like below
-   to force an exact monogram regardless of the name's words.
+   gold medallion. Leave it as "" to auto-generate from
+   STORE_NAME (first letter of each word), or set it directly
+   like below to force an exact monogram regardless of the
+   name's words.
    ============================================================ */
 const STORE_NAME = "SD Creations";
 const STORE_INITIALS = "SD";
@@ -16,6 +17,7 @@ const STORE_INITIALS = "SD";
 // Digits only, country code first, no "+" or spaces — used to build the
 // "Enquire on WhatsApp" link in Quick View. Matches the footer phone number.
 const WHATSAPP_PHONE = "919836960841";
+
 
 function storeSlug(){
   return STORE_NAME.toLowerCase().replace(/[^a-z0-9]+/g, '');
@@ -684,20 +686,22 @@ function openQuickView(id){
   const box = document.getElementById('qvBox');
 
   box.innerHTML = `
+    <button class="qv-close" id="qvCloseBtn"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
     <div class="qv-name">
       <span class="eyebrow">${p.category}</span>
       <h3>${p.name}</h3>
     </div>
     <div class="qv-media ${p.swatch}">
-      <div class="qv-gallery" id="qvGallery"></div>
-      ${designs.length > 1 ? `
-      <button class="qv-design-side-nav qv-design-side-prev" id="qvDesignPrev" type="button" aria-label="Previous design">
-        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="qv-design-side-nav qv-design-side-next" id="qvDesignNext" type="button" aria-label="Next design">
-        <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>` : ''}
-      <button class="qv-close" id="qvCloseBtn"><svg viewBox="0 0 24 24" stroke="#332c24" fill="none"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
+      <div class="qv-media-frame">
+        <div class="qv-gallery" id="qvGallery"></div>
+        ${designs.length > 1 ? `
+        <button class="qv-design-side-nav qv-design-side-prev" id="qvDesignPrev" type="button" aria-label="Previous design">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="qv-design-side-nav qv-design-side-next" id="qvDesignNext" type="button" aria-label="Next design">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>` : ''}
+      </div>
     </div>
     <div class="qv-info">
       <div class="qv-info-scroll" id="qvInfoScroll">

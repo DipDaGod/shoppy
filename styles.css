@@ -173,69 +173,54 @@
   @keyframes rippleAnim{to{transform:scale(3); opacity:0;}}
 
   .hero-visual{position:relative; display:flex; align-items:center; justify-content:center; perspective:1200px;}
-  .tilt-wrap{transition: transform 0.2s ease-out; transform-style:preserve-3d; width:100%; display:flex; justify-content:center; position:relative; padding-top:60px;}
-  .chain-strap{
-    position:absolute; top:0; left:50%; transform:translateX(-50%);
-    width:64%; height:64px;
-    border:3px dashed var(--gold);
-    border-bottom:none;
-    border-radius:50% 50% 0 0 / 100% 100% 0 0;
-    opacity:0.8;
+  .tilt-wrap{transition: transform 0.2s ease-out; transform-style:preserve-3d; width:100%; display:flex; justify-content:center; position:relative; padding:24px 0 34px;}
+
+  /* ---- Art stack — two framed Tanjore product photos layered like a
+     small hand-arranged display, standing in for the old envelope
+     visual. Real catalog photography (same files used in the shop),
+     so this stays truthful to what's actually sold. ---- */
+  .art-stack{position:relative; width:100%; max-width:440px; aspect-ratio:4/3.4;}
+  .art-ring{
+    position:absolute; top:-6%; right:-8%; width:74%; aspect-ratio:1/1;
+    border-radius:50%; border:1.5px dashed rgba(184,151,95,0.4);
+    pointer-events:none;
   }
-  .charm{
-    position:absolute; left:9%; top:52px; z-index:3;
-    width:12px; height:18px; border-radius:50% 50% 45% 45%;
-    background:linear-gradient(180deg, var(--gold-light), var(--gold));
-    box-shadow:0 3px 6px rgba(0,0,0,0.22);
+  .art-frame{
+    position:absolute; border-radius:14px; background:var(--white); padding:9px;
+    box-shadow:var(--shadow-lift); border:1px solid rgba(184,151,95,0.35); overflow:hidden;
   }
-  .charm::before{
-    content:''; position:absolute; top:-7px; left:50%; transform:translateX(-50%);
-    width:7px; height:7px; border-radius:50%; border:2px solid var(--gold); background:transparent;
+  .art-frame img{width:100%; height:100%; object-fit:cover; border-radius:8px; display:block;}
+  .art-frame-back{
+    width:50%; aspect-ratio:1/1; left:0; bottom:0; z-index:1;
+    transform:rotate(-7deg); opacity:0.97;
   }
-  .charm::after{
-    content:''; position:absolute; bottom:-10px; left:50%; transform:translateX(-50%);
-    width:8px; height:8px; border-radius:50%; background:#f4ede1; box-shadow:0 1px 3px rgba(0,0,0,0.25);
-  }
-  .hero-card{
-    width:100%; max-width:440px; aspect-ratio:4/3.1; border-radius:14px; position:relative;
-    background: linear-gradient(160deg, #f7f1e6 0%, #efe6d3 55%, #e9dcc6 100%);
-    box-shadow:var(--shadow-lift);
-    border:1px solid rgba(184,151,95,0.35);
-    overflow:hidden;
+  .art-frame-main{
+    width:68%; aspect-ratio:4/3.1; right:0; top:4%; z-index:2;
+    transform:rotate(3deg);
     animation: floatSlow 6s ease-in-out infinite;
   }
-  @keyframes floatSlow{0%,100%{transform:translateY(0) rotate(-1.2deg);} 50%{transform:translateY(-14px) rotate(0.4deg);}}
-  .hero-card::before{
-    content:''; position:absolute; inset:0;
-    background-image: radial-gradient(rgba(51,44,36,0.035) 1px, transparent 1px);
-    background-size: 6px 6px;
-    opacity:0.5;
+  @keyframes floatSlow{0%,100%{transform:translateY(0) rotate(3deg);} 50%{transform:translateY(-14px) rotate(1.5deg);}}
+  /* A small cluster of gold-foil dots in the corner of the main
+     photo — a restrained nod to the gold-leaf detailing on the
+     pieces themselves, rather than a literal motif illustration. */
+  .art-gold-dots{position:absolute; top:14px; left:14px; z-index:2;}
+  .art-gold-dots i{
+    position:absolute; border-radius:50%; display:block;
+    background:linear-gradient(160deg, var(--gold-light), var(--gold));
+    box-shadow:0 2px 4px rgba(0,0,0,0.18);
   }
-  .hero-card .flap{
-    position:absolute; top:0; left:0; right:0; height:58%;
-    background:linear-gradient(160deg, #d8c6a5, #c9a876);
-    clip-path: polygon(0 0, 100% 0, 100% 40%, 50% 100%, 0 40%);
-    box-shadow: inset 0 -20px 30px rgba(0,0,0,0.06);
-  }
-  .hero-card .stitch-line{
-    position:absolute; left:8%; right:8%; top:8%; height:1px;
-    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.55) 0 8px, transparent 8px 16px);
-  }
-  .hero-card .bloom{
-    position:absolute; border-radius:50%; filter:blur(0.2px);
-  }
-  .hero-card .bloom.b1{width:70px; height:70px; background:radial-gradient(circle,#e79fa3,#d97e88); bottom:14%; right:16%;}
-  .hero-card .bloom.b2{width:44px; height:44px; background:radial-gradient(circle,#f0c4c8,#e79fa3); bottom:26%; right:32%;}
-  .hero-card .bloom.b3{width:30px; height:30px; background:radial-gradient(circle,#c9d8a6,#b3c98a); bottom:10%; right:34%;}
-  .hero-card .wax-seal{
-    position:absolute; top:52%; left:50%; transform:translate(-50%,-50%);
-    width:52px; height:52px; border-radius:50%;
-    background: radial-gradient(circle at 35% 30%, #d8a355, #a9762f 70%, #8a5f24 100%);
-    box-shadow:0 4px 10px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.3);
+  .art-gold-dots i:nth-child(1){width:10px; height:10px; top:0; left:0;}
+  .art-gold-dots i:nth-child(2){width:6px; height:6px; top:14px; left:10px; opacity:0.85;}
+  .art-gold-dots i:nth-child(3){width:4px; height:4px; top:2px; left:16px; opacity:0.7;}
+  .gold-medallion{
+    position:absolute; left:4%; bottom:-4%; z-index:3;
+    width:60px; height:60px; border-radius:50%;
+    background: radial-gradient(circle at 35% 30%, #e7c07f, #b8975f 65%, #93712f 100%);
+    box-shadow:0 6px 14px rgba(0,0,0,0.22), inset 0 2px 4px rgba(255,255,255,0.35);
     display:flex; align-items:center; justify-content:center;
   }
-  .hero-card .wax-seal::before{
-    content: attr(data-initials); font-family:var(--display); font-size:15px; color:rgba(255,255,255,0.85); letter-spacing:0.04em;
+  .gold-medallion::before{
+    content: attr(data-initials); font-family:var(--display); font-size:16px; color:rgba(255,255,255,0.92); letter-spacing:0.04em;
   }
   .float-shape{
     position:absolute; border-radius:50%; opacity:0.5; filter:blur(1px);
@@ -299,7 +284,7 @@
   .card-slide-track {display: flex; width: 100%; height: 100%; transition: transform 1.4s cubic-bezier(.22,.61,.36,1)}
   .card-slide{position:relative; flex:0 0 100%; width:100%; height:100%;}
   .swatch{width:100%; height:100%; position:relative; transition:transform 0.6s cubic-bezier(.22,.61,.36,1);}
-  .product-card:hover .swatch{transform:scale(1.06);}
+  .product-card:hover .swatch{transform:none;}
   .swatch::before{content:''; position:absolute; inset:0; background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 6px);}
   .stitch-frame{
     position:absolute; inset:14px; border-radius:12px; border:1px dashed rgba(255,255,255,0.5); pointer-events:none;
@@ -330,6 +315,13 @@
   .price-original{font-size:12.5px; color:var(--ink-soft); text-decoration:line-through;}
 
   .product-img{width:100%; height:100%; object-fit:cover; display:block; position:relative;}
+
+  /* Card thumbnails only — show the whole product with breathing room
+     instead of the cover-crop used in Quick View/the gallery. Scoped
+     to .card-media so it doesn't affect .qv-slide/.qv-gallery images. */
+  .card-media .product-img{
+    width:100%; height:100%; object-fit:contain; display:block;
+  }
 
   /* ---------- COLLECTION SPREAD LAYOUT ----------
      Applies to the Shop grid (.collection-grid, shared with the
@@ -613,13 +605,31 @@
       "media info";
     box-shadow:var(--shadow-lift); transform:scale(0.94) translateY(20px);
     transition:transform 0.45s cubic-bezier(.22,.61,.36,1);
+    position:relative;
   }
   .qv-modal.open .qv-box{transform:scale(1) translateY(0);}
   /* Name sits above the gallery/info split (its own full-width grid
      row) rather than beside the image, on desktop as well as mobile. */
-  .qv-name{grid-area:name; padding:30px 40px 6px 34px;}
+  .qv-name{grid-area:name; padding:30px 64px 6px 34px;}
   .qv-name h3{font-size:28px; margin-bottom:10px;}
-  .qv-media{grid-area:media; position:relative; min-height:340px; background:var(--ivory); overflow:hidden;}
+  .qv-media{grid-area:media; position:relative;}
+  /* The actual "dedicated media area" — on desktop it fills the whole
+     grid column edge-to-edge (unchanged from before); on mobile it
+     becomes a smaller, rounded, inset box instead of a full-bleed
+     banner (see the 760px breakpoint below). */
+  .qv-media-frame{
+      position:relative;
+      height:100%;
+      width:100%;
+      max-width:420px;
+      aspect-ratio:1/1;
+      height:auto;
+      min-height:0;
+      margin:0 auto;
+      padding:28px;
+      background:var(--ivory);
+      overflow:hidden;
+  }
 
   /* ---- Drag carousel engine — Apple Photos-style swipe, used for the
      design switcher below and reused as-is by the fullscreen mobile
@@ -633,14 +643,9 @@
   /* ---- Quick View photo gallery — swipeable, dots, arrows ---- */
   .qv-gallery{position:relative; width:100%; height:100%; min-height:340px; overflow:hidden;}
   .qv-slide-track{display:flex; width:100%; height:100%; transition:transform 0.4s cubic-bezier(.22,.61,.36,1);}
-  .qv-slide{position:relative; flex:0 0 100%; width:100%; height:100%; min-height:340px;}
+  .qv-slide{position:relative; flex:0 0 100%; width:100%; height:100%;}
   .qv-slide .product-img{
-    width:100%; height:100%; object-fit:cover; display:block;
-    /* Source photos have the actual envelope/rakhi/lumba lower in the
-       frame — bias the crop toward the bottom of the image instead of
-       centering, so the product itself stays the focal point instead
-       of empty/background space at the top. */
-    object-position:center bottom;
+    width:100%; height:100%; object-fit:contain; display:block;
   }
   .qv-nav{
     position:absolute; top:50%; transform:translateY(-50%); z-index:4; width:34px; height:34px; border-radius:50%;
@@ -658,8 +663,13 @@
   .qv-dot{width:6px; height:6px; border-radius:50%; background:rgba(51,44,36,0.35); transition:all 0.3s ease; padding:0;}
   .qv-dot.active{width:16px; background:var(--gold);}
 
-  .qv-close{position:absolute; top:18px; right:18px; z-index:5; width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,0.85); display:flex; align-items:center; justify-content:center;}
-  .qv-close svg{width:15px; height:15px; stroke-width:2;}
+  .qv-close{
+    position:absolute; top:18px; right:18px; z-index:10; width:36px; height:36px; border-radius:50%;
+    background:var(--ivory); color:var(--ink); display:flex; align-items:center; justify-content:center;
+    transition:background 0.25s ease, transform 0.2s ease;
+  }
+  .qv-close:hover{background:var(--beige);}
+  .qv-close svg{width:15px; height:15px;}
 
   /* ---- Design-switch side arrows — separate from .qv-nav above,
      which pages through *photos* of the current design (rare, only
@@ -777,12 +787,19 @@
       display:flex; flex-direction:column;
       border-radius:22px; max-height:92vh;
     }
-    .qv-name{padding:20px 22px 8px;}
+    .qv-name{padding:20px 64px 8px 22px;}
     .qv-name h3{font-size:21px; margin-bottom:6px;}
-    /* Noticeably more of the screen for the photo than before (was a
-       flat 220px) — the image is the main content on mobile now. */
-    .qv-media{min-height:42vh; flex-shrink:0;}
-    .qv-gallery, .qv-slide{min-height:42vh;}
+    /* The photo is now a contained, rounded card element inset within
+       the same horizontal rhythm as the rest of the content, rather
+       than a full-bleed banner. */
+    .qv-media{padding:18px 22px 8px; flex-shrink:0;}
+    .qv-media-frame{
+      width:62%; max-width:240px; aspect-ratio:1/1; height:auto; margin:0 auto;
+      min-height:0; padding:16px; border-radius:20px; border:1px solid rgba(51,44,36,0.08);
+      box-shadow:0 6px 18px rgba(51,44,36,0.06);
+    }
+    .qv-gallery, .qv-slide{min-height:0;}
+    .qv-close{top:14px; right:14px;}
     .qv-info{flex:1 1 auto; min-height:0; max-height:none;}
     .qv-info-scroll{padding:20px 22px 20px;}
     .qv-meta{grid-template-columns:1fr; gap:12px;}
@@ -792,10 +809,10 @@
   @media(max-width:480px){
     .qv-modal{padding:8px;}
     .qv-box{border-radius:18px; max-height:95vh;}
-    .qv-name{padding:16px 16px 6px;}
+    .qv-name{padding:16px 54px 6px 16px;}
     .qv-name h3{font-size:18px; margin-bottom:5px; line-height:1.25;}
-    .qv-media{min-height:38vh;}
-    .qv-gallery, .qv-slide{min-height:38vh;}
+    .qv-media{padding:14px 16px 4px;}
+    .qv-media-frame{width:58%; max-width:190px; padding:12px;}
     .qv-nav{width:30px; height:30px;}
     .qv-nav svg{width:13px; height:13px;}
     .qv-prev{left:10px;}
