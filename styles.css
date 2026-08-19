@@ -320,11 +320,13 @@
 
   .product-img{width:100%; height:100%; object-fit:cover; display:block; position:relative;}
 
-  /* Card thumbnails only — show the whole product with breathing room
-     instead of the cover-crop used in Quick View/the gallery. Scoped
-     to .card-media so it doesn't affect .qv-slide/.qv-gallery images. */
+  /* Card thumbnails only — object-fit:cover fills the box dynamically
+     based on each image's real dimensions, cropped as needed, instead
+     of the old fixed transform:scale(1.33) guess. Scoped to
+     .card-media so it doesn't affect .qv-slide/.qv-gallery images
+     (those still use object-fit:contain, uncropped). */
   .card-media .product-img{
-    width:100%; height:100%; object-fit:contain; display:block; transform:scale(1.33); transform-origin:center center;
+    width:100%; height:100%; object-fit:cover; display:block;
   }
 
   /* ---------- COLLECTION SPREAD LAYOUT ----------
@@ -547,11 +549,6 @@
       max-height:36vh;
     }
 
-    .card-media .product-img{
-      transform:scale(1.33);
-      transform-origin:center center;
-    }
-
     .stitch-frame{
       inset:8px;
       border-radius:9px;
@@ -717,7 +714,7 @@
   .qv-modal.open .qv-box{transform:scale(1) translateY(0);}
   /* Name sits above the gallery/info split (its own full-width grid
      row) rather than beside the image, on desktop as well as mobile. */
-  .qv-name{grid-area:name; padding:30px 64px 6px 34px;}
+  .qv-name{grid-area:name; padding:30px 64px 6px 64px;}
   .qv-name h3{font-size:28px; margin-bottom:10px;}
   .qv-media{grid-area:media; position:relative;}
   /* The actual "dedicated media area" — on desktop it fills the whole
@@ -775,6 +772,27 @@
   }
   .qv-close:hover{background:var(--beige);}
   .qv-close svg{width:15px; height:15px;}
+
+  /* Mirrors .qv-close on the opposite corner — always visible in Quick
+     View, on desktop and mobile alike. Opens the native share sheet
+     with the currently-shown design's photo attached, so it can be
+     sent straight to WhatsApp, Messages, Mail, etc. */
+  .qv-share{
+    position:absolute; top:18px; left:18px; z-index:10; width:36px; height:36px; border-radius:50%;
+    background:var(--ivory); color:var(--ink); display:flex; align-items:center; justify-content:center;
+    transition:background 0.25s ease, transform 0.2s ease;
+  }
+  .qv-share:hover{background:var(--beige);}
+  .qv-share svg{width:15px; height:15px;}
+  /* Fallback feedback for browsers without Web Share support, where we
+     silently copy a link instead — a small label confirms it worked. */
+  .qv-share::after{
+    content:attr(data-feedback); position:absolute; top:44px; left:0; white-space:nowrap;
+    background:rgba(20,17,13,0.92); color:#fff; font-size:11px; padding:6px 10px; border-radius:8px;
+    opacity:0; transform:translateY(-4px); pointer-events:none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .qv-share.share-feedback::after{ opacity:1; transform:translateY(0); }
 
   /* ---- Design-switch side arrows — separate from .qv-nav above,
      which pages through *photos* of the current design (rare, only
@@ -854,25 +872,6 @@
   }
   .img-viewer-close svg{width:16px; height:16px;}
 
-  /* Mirrors .img-viewer-close on the opposite corner. Uses the native
-     Web Share sheet so a photo can go straight to WhatsApp, Messages,
-     Mail, etc. — whatever the person already has installed. */
-  .img-viewer-share{
-    position:fixed; top:16px; left:16px; z-index:2001; width:38px; height:38px; border-radius:50%;
-    background:rgba(255,255,255,0.18); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-    display:flex; align-items:center; justify-content:center; color:#fff;
-  }
-  .img-viewer-share svg{width:16px; height:16px;}
-  /* Fallback feedback for browsers without Web Share support, where we
-     silently copy a link instead — a small label confirms it worked. */
-  .img-viewer-share::after{
-    content:attr(data-feedback); position:absolute; top:46px; left:0; white-space:nowrap;
-    background:rgba(20,17,13,0.92); color:#fff; font-size:11px; padding:6px 10px; border-radius:8px;
-    opacity:0; transform:translateY(-4px); pointer-events:none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
-  }
-  .img-viewer-share.share-feedback::after{ opacity:1; transform:translateY(0); }
-
   /* Small, subtle prev/next arrows over the fullscreen image — same
      restrained styling language as .qv-design-side-nav, adapted for
      the dark backdrop. */
@@ -911,19 +910,22 @@
       display:flex; flex-direction:column;
       border-radius:22px; max-height:92vh;
     }
-    .qv-name{padding:20px 64px 8px 22px;}
+    .qv-name{padding:20px 64px 8px 64px;}
     .qv-name h3{font-size:21px; margin-bottom:6px;}
     /* The photo is now a contained, rounded card element inset within
        the same horizontal rhythm as the rest of the content, rather
-       than a full-bleed banner. */
+       than a full-bleed banner. Sized dynamically off the viewport
+       (up to 40% of its height) instead of a fixed pixel cap, so it
+       scales with the actual screen instead of one guessed number. */
     .qv-media{padding:18px 22px 8px; flex-shrink:0;}
     .qv-media-frame{
-      width:62%; max-width:240px; aspect-ratio:1/1; height:auto; margin:0 auto;
+      height:40vh; max-height:40vh; width:auto; max-width:100%; aspect-ratio:1/1; margin:0 auto;
       min-height:0; padding:16px; border-radius:20px; border:1px solid rgba(51,44,36,0.08);
       box-shadow:0 6px 18px rgba(51,44,36,0.06);
     }
     .qv-gallery, .qv-slide{min-height:0;}
     .qv-close{top:14px; right:14px;}
+    .qv-share{top:14px; left:14px;}
     .qv-info{flex:1 1 auto; min-height:0; max-height:none;}
     .qv-info-scroll{padding:20px 22px 20px;}
     .qv-meta{grid-template-columns:1fr; gap:12px;}
@@ -933,10 +935,10 @@
   @media(max-width:480px){
     .qv-modal{padding:8px;}
     .qv-box{border-radius:18px; max-height:95vh;}
-    .qv-name{padding:16px 54px 6px 16px;}
+    .qv-name{padding:16px 54px 6px 54px;}
     .qv-name h3{font-size:18px; margin-bottom:5px; line-height:1.25;}
     .qv-media{padding:14px 16px 4px;}
-    .qv-media-frame{width:58%; max-width:190px; padding:12px;}
+    .qv-media-frame{padding:12px;}
     .qv-nav{width:30px; height:30px;}
     .qv-nav svg{width:13px; height:13px;}
     .qv-prev{left:10px;}
@@ -946,6 +948,8 @@
     .qv-dot.active{width:13px;}
     .qv-close{top:10px; right:10px; width:34px; height:34px;}
     .qv-close svg{width:14px; height:14px;}
+    .qv-share{top:10px; left:10px; width:34px; height:34px;}
+    .qv-share svg{width:14px; height:14px;}
     .qv-info-scroll{padding:14px 16px 16px;}
     .qv-design-tag{font-size:10px; margin-bottom:6px;}
     .qv-price-group{gap:8px; margin-bottom:10px;}
@@ -992,7 +996,7 @@
   select:focus-visible,
   .chip:focus-visible,
   .design-thumb:focus-visible,
-  .img-viewer-share:focus-visible,
+  .qv-share:focus-visible,
   .qv-design-side-nav:focus-visible {
     outline: 2px solid var(--gold);
     outline-offset: 2px;
@@ -1019,7 +1023,7 @@
   .qv-dot:active,
   .design-thumb:active,
   .whatsapp-btn:active,
-  .img-viewer-share:active,
+  .qv-share:active,
   .card-media:active {
     transform: scale(0.93);
     transition-duration: 0.1s;
@@ -1077,5 +1081,5 @@
     .badge { backdrop-filter: none; background: var(--white); }
     .qv-dots { background: var(--white); backdrop-filter: none; }
     .qv-nav { background: var(--white); backdrop-filter: none; }
-    .img-viewer-nav, .img-viewer-share, .img-viewer-close { background: rgba(20,17,13,0.85); backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .img-viewer-nav, .img-viewer-close { background: rgba(20,17,13,0.85); backdrop-filter: none; -webkit-backdrop-filter: none; }
   }

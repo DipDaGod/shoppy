@@ -693,7 +693,7 @@ function closeImgViewer(){
 // Web Share but not file attachments; (3) copying a link to the
 // clipboard, for the rare browser with neither.
 async function shareCurrentDesign(){
-  const shareBtn = document.getElementById('imgViewerShare');
+  const shareBtn = document.getElementById('qvShareBtn');
   if(!qvProduct) return;
   const designs = productDesigns(qvProduct);
   const i = imgViewerCarousel ? imgViewerCarousel.index : qvActiveDesignIndex;
@@ -748,6 +748,9 @@ function openQuickView(id){
 
   box.innerHTML = `
     <button class="qv-close" id="qvCloseBtn"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2"><line x1="4" y1="4" x2="20" y2="20"/><line x1="20" y1="4" x2="4" y2="20"/></svg></button>
+    <button class="qv-share" id="qvShareBtn" type="button" aria-label="Share this design">
+      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/></svg>
+    </button>
     <div class="qv-name">
       <span class="eyebrow">${p.category}</span>
       <h3>${p.name}</h3>
@@ -847,6 +850,7 @@ function openQuickView(id){
   });
 
   document.getElementById('qvCloseBtn').onclick = closeQuickView;
+  document.getElementById('qvShareBtn').onclick = shareCurrentDesign;
 }
 function closeQuickView(){
   document.getElementById('qvModal').classList.remove('open');
@@ -906,7 +910,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     openImgViewer(qvActiveDesignIndex);
   });
   document.getElementById('imgViewerClose').onclick = closeImgViewer;
-  document.getElementById('imgViewerShare').onclick = shareCurrentDesign;
 
   // In-page navigation (nav links, hero button, footer links) scrolls
   // smoothly without ever writing a "#section" fragment into the URL bar.
