@@ -1,4 +1,4 @@
-  :root{
+:root{
     --cream:#faf6ef;
     --ivory:#f4ede1;
     --beige:#e9dcc6;
@@ -306,9 +306,9 @@
     background:var(--ink); color:var(--white); border:none;
   }
 
-  .card-body{padding:22px 22px 24px;}
-  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px;}
-  .card-top h3{font-size:19px; color:var(--ink);}
+  .card-body{padding:17px 22px 24px;}
+  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:4px;}
+  .card-top h3{font-size:19px; line-height:1.2; color:var(--ink);}
   .stars{display:flex; gap:2px; margin-bottom:10px;}
   .stars svg{width:13px; height:13px; fill:var(--gold);}
   .card-desc{font-size:13.5px; color:var(--ink-soft); margin-bottom:14px; line-height:1.55;}
@@ -571,16 +571,16 @@
     }
 
     .card-body{
-      padding:12px 12px 14px;
+      padding:9px 12px 14px;
     }
 
     .card-top{
-      margin-bottom:3px;
+      margin-bottom:2px;
     }
 
     .card-top h3{
       font-size:13.5px;
-      line-height:1.3;
+      line-height:1.2;
     }
 
     .stars{
@@ -738,7 +738,7 @@
      viewer. Three slides (prev/current/next) sit side by side in a row
      that's translated in real time; see createDragCarousel in script.js. ---- */
   .dc-viewport{position:relative; width:100%; height:100%; overflow:hidden; touch-action:none;}
-  .dc-track{display:flex; height:100%; will-change:transform;}
+  .dc-track{display:flex; height:100%; will-change:transform, filter;}
   .dc-slide{position:relative; flex:0 0 auto; height:100%; overflow:hidden;}
   .dc-slide img, .dc-slide .product-img{-webkit-user-drag:none; user-select:none;}
 
@@ -1072,6 +1072,7 @@
     .product-card:hover { transform: none; }
     .card-slide-track { transition: opacity 0.3s ease; }
     .swatch { transition: none; }
+    .dc-track { transition: none !important; filter: none !important; }
   }
 
   /* ---------- reduced transparency ---------- */

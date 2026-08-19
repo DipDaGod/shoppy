@@ -355,8 +355,7 @@ let imgViewerCarousel = null;  // the drag carousel driving the fullscreen mobil
    Quick View design switcher and the fullscreen mobile viewer.
    ============================================================ */
 function createDragCarousel({ container, count, startIndex = 0, renderSlide, onSettle, onDragEnd, threshold = 0.18 }){
-  const mod = (n, m) => ((n % m) + m) % m;
-  let index = mod(startIndex, count);
+  let index = Math.max(0, Math.min(count - 1, startIndex));
 
   container.innerHTML = '';
   container.classList.add('dc-viewport');
@@ -378,14 +377,15 @@ function createDragCarousel({ container, count, startIndex = 0, renderSlide, onS
   let width = container.clientWidth || 1;
   let animating = false;
   let dragging = false;
-  let pendingIndex = null;
   let startX = 0, deltaX = 0, pointerId = null;
 
   function makeSlide(i){
     const el = document.createElement('div');
     el.className = 'dc-slide';
     el.style.width = width + 'px';
-    el.innerHTML = renderSlide(i);
+    // i is null at either end (no wraparound) — an empty slot rather
+    // than looping back to the design at the opposite end of the list.
+    if(i != null) el.innerHTML = renderSlide(i);
     return el;
   }
 
@@ -396,24 +396,29 @@ function createDragCarousel({ container, count, startIndex = 0, renderSlide, onS
 
   function build(){
     track.innerHTML = '';
-    track.appendChild(makeSlide(mod(index - 1, count)));
+    track.appendChild(makeSlide(index > 0 ? index - 1 : null));
     track.appendChild(makeSlide(index));
-    track.appendChild(makeSlide(mod(index + 1, count)));
+    track.appendChild(makeSlide(index < count - 1 ? index + 1 : null));
     layout();
     setTransition(false);
     track.style.transform = `translate3d(-${width}px,0,0)`;
     void track.offsetWidth; // force reflow so the next transition actually animates
   }
 
-  function setTransition(on){
-    track.style.transition = on ? `transform 0.4s ${EASE}` : 'none';
+  function setTransition(on, duration = 0.4, withBlur = false){
+    if(!on){ track.style.transition = 'none'; return; }
+    track.style.transition = withBlur
+      ? `transform ${duration}s ${EASE}, filter ${duration}s ${EASE}`
+      : `transform ${duration}s ${EASE}`;
   }
 
   build();
 
-  function onTransitionEnd(){
+  let activeTransitionHandler = null;
+
+  function settleTo(newIndex){
     animating = false;
-    if(pendingIndex != null){ index = pendingIndex; pendingIndex = null; }
+    index = newIndex;
     build();
     onSettle && onSettle(index);
   }
@@ -421,38 +426,70 @@ function createDragCarousel({ container, count, startIndex = 0, renderSlide, onS
   function finishNow(){
     // A new gesture/nav started mid-transition — jump straight to the end
     // state instead of letting the new slide slide "over" the old one.
-    if(!animating) return;
-    track.removeEventListener('transitionend', onTransitionEnd);
-    onTransitionEnd();
+    if(!animating || !activeTransitionHandler) return;
+    track.style.filter = 'none';
+    track.removeEventListener('transitionend', activeTransitionHandler);
+    activeTransitionHandler();
   }
 
   function animateTo(px, newIndex){
     animating = true;
-    pendingIndex = newIndex; // null = snap back, no index change
     setTransition(true);
     track.style.transform = `translate3d(${-px}px,0,0)`;
-    track.addEventListener('transitionend', onTransitionEnd, { once:true });
+    activeTransitionHandler = () => settleTo(newIndex != null ? newIndex : index);
+    track.addEventListener('transitionend', activeTransitionHandler, { once:true });
   }
 
-  const settleNext = ()=> animateTo(width * 2, mod(index + 1, count));
-  const settlePrev = ()=> animateTo(0, mod(index - 1, count));
+  // A jump of more than one design builds a temporary strip holding
+  // every design from the current one to the target, side by side, and
+  // slides across all of it in a single uninterrupted transition — a
+  // smooth continuous glide past each intermediate design rather than
+  // separate hops (which rebuild the DOM each time and flicker).
+  function glideTo(newIndex){
+    const direction = newIndex > index ? 1 : -1;
+    const steps = Math.abs(newIndex - index);
+    const startIndex = index;
+
+    track.innerHTML = '';
+    for(let i = 0; i <= steps; i++){
+      track.appendChild(makeSlide(startIndex + direction * i));
+    }
+    layout();
+    setTransition(false);
+    track.style.transform = 'translate3d(0,0,0)';
+    void track.offsetWidth; // force reflow so the glide itself animates
+
+    // Duration scales gently with distance so a longer glide still
+    // feels fast, not just a slower version of a short one; a soft
+    // blur mid-flight sells the speed and clears as it lands.
+    const duration = Math.min(0.85, 0.3 + steps * 0.055);
+    const blurPeak = Math.min(10, 1.5 + steps * 0.9);
+
+    animating = true;
+    if(blurPeak > 0) track.style.filter = `blur(${blurPeak}px)`;
+    setTransition(true, duration, blurPeak > 0);
+    track.style.transform = `translate3d(-${width * steps}px,0,0)`;
+    if(blurPeak > 0) track.style.filter = 'blur(0px)';
+
+    activeTransitionHandler = () => settleTo(newIndex);
+    track.addEventListener('transitionend', activeTransitionHandler, { once:true });
+  }
+
+  const settleNext = ()=> { if(index < count - 1) animateTo(width * 2, index + 1); else snapBack(); };
+  const settlePrev = ()=> { if(index > 0) animateTo(0, index - 1); else snapBack(); };
   const snapBack   = ()=> animateTo(width, null);
 
   function goTo(newIndex){
-    newIndex = mod(newIndex, count);
+    newIndex = Math.max(0, Math.min(count - 1, newIndex)); // clamp — no wraparound
+    if(newIndex === index && !animating) return;
     if(animating) finishNow();
     if(newIndex === index) return;
-    const forward = mod(newIndex - index, count) <= mod(index - newIndex, count);
-    const direction = forward ? 1 : -1;
-    const adjacent = mod(index + direction, count);
-    if(adjacent !== newIndex){
-      // Long jump (e.g. a thumbnail several designs away) — patch the
-      // incoming slot with the real target before sliding to it.
-      const slot = direction > 0 ? track.children[2] : track.children[0];
-      slot.innerHTML = renderSlide(newIndex);
+    const steps = Math.abs(newIndex - index);
+    if(steps === 1){
+      animateTo(newIndex > index ? width * 2 : 0, newIndex);
+    } else {
+      glideTo(newIndex);
     }
-    if(direction > 0) animateTo(width * 2, newIndex);
-    else animateTo(0, newIndex);
   }
 
   function onPointerDown(e){
@@ -468,7 +505,13 @@ function createDragCarousel({ container, count, startIndex = 0, renderSlide, onS
   function onPointerMove(e){
     if(!dragging || e.pointerId !== pointerId) return;
     deltaX = e.clientX - startX;
-    track.style.transform = `translate3d(${-(width - deltaX)}px,0,0)`;
+    // Rubber-band resistance at the ends — dragging past the first or
+    // last design (where there's no slide to reveal) moves at a
+    // fraction of the finger's travel instead of sliding freely.
+    const draggingPastStart = index === 0 && deltaX > 0;
+    const draggingPastEnd = index === count - 1 && deltaX < 0;
+    const dx = (draggingPastStart || draggingPastEnd) ? deltaX * 0.35 : deltaX;
+    track.style.transform = `translate3d(${-(width - dx)}px,0,0)`;
   }
   function endDrag(e){
     if(!dragging || (pointerId != null && e.pointerId !== pointerId)) return;
