@@ -17,6 +17,10 @@
     --serif: 'Cormorant Garamond', serif;
     --display: 'Marcellus', serif;
     --sans: 'Inter', sans-serif;
+    /* The site's one signature motion curve — used everywhere something
+       glides in (cards, panels, carousels) so easing stays consistent
+       instead of each rule re-typing its own cubic-bezier. */
+    --ease: cubic-bezier(.22,.61,.36,1);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
@@ -77,7 +81,7 @@
   .navbar{
     position:fixed; top:0; left:0; right:0; z-index:1000;
     padding:22px 0;
-    transition: all 0.45s cubic-bezier(.22,.61,.36,1);
+    transition: all 0.45s var(--ease);
   }
   .navbar.scrolled{
     background:rgba(255,255,255,0.75);
@@ -115,7 +119,7 @@
       background:rgba(255,255,255,0.98); backdrop-filter:blur(16px);
       box-shadow:0 16px 30px rgba(51,44,36,0.1);
       max-height:0; overflow:hidden; opacity:0; padding:0 32px;
-      transition:max-height 0.4s cubic-bezier(.22,.61,.36,1), opacity 0.3s ease, padding 0.4s ease;
+      transition:max-height 0.4s var(--ease), opacity 0.3s ease, padding 0.4s ease;
     }
     .nav-links.open{max-height:360px; opacity:1; padding:18px 32px 26px;}
     .nav-links li{width:100%;}
@@ -142,14 +146,14 @@
   .hero-text .eyebrow{margin-bottom:18px; display:block;}
   .hero-text h1{
     font-size:clamp(40px,5.2vw,68px); line-height:1.05; color:var(--ink); margin-bottom:22px;
-    opacity:0; transform:translateY(24px); animation: heroUp 0.9s 0.15s cubic-bezier(.22,.61,.36,1) forwards;
+    opacity:0; transform:translateY(24px); animation: heroUp 0.9s 0.15s var(--ease) forwards;
   }
   .hero-text h1 em{font-style:italic; color:var(--gold);}
   .hero-text p{
     font-size:17px; color:var(--ink-soft); max-width:420px; margin-bottom:36px;
-    opacity:0; transform:translateY(20px); animation: heroUp 0.9s 0.3s cubic-bezier(.22,.61,.36,1) forwards;
+    opacity:0; transform:translateY(20px); animation: heroUp 0.9s 0.3s var(--ease) forwards;
   }
-  .hero-btns{display:flex; gap:16px; opacity:0; transform:translateY(20px); animation: heroUp 0.9s 0.45s cubic-bezier(.22,.61,.36,1) forwards;}
+  .hero-btns{display:flex; gap:16px; opacity:0; transform:translateY(20px); animation: heroUp 0.9s 0.45s var(--ease) forwards;}
   @keyframes heroUp{to{opacity:1; transform:translateY(0);}}
 
   .btn-primary{
@@ -245,7 +249,7 @@
   }
 
   /* ---------- fade up on scroll ---------- */
-  .reveal{opacity:0; transform:translateY(36px); transition:opacity 0.8s ease, transform 0.8s cubic-bezier(.22,.61,.36,1);}
+  .reveal{opacity:0; transform:translateY(36px); transition:opacity 0.8s ease, transform 0.8s var(--ease);}
   .reveal.in{opacity:1; transform:translateY(0);}
 
   /* ---------- SECTION HEADERS ---------- */
@@ -263,7 +267,7 @@
   .product-card{
     position:relative; background:var(--white); border-radius:20px; overflow:hidden;
     box-shadow:var(--shadow-soft); border:1px solid transparent;
-    transition: transform 0.5s cubic-bezier(.22,.61,.36,1), box-shadow 0.5s ease, border-color 0.5s ease;
+    transition: transform 0.5s var(--ease), box-shadow 0.5s ease, border-color 0.5s ease;
   }
   .product-card:hover{
     transform:translateY(-10px);
@@ -281,9 +285,9 @@
     transition:opacity 0.5s ease; z-index:2; pointer-events:none;
   }
   .product-card:hover .card-media::after{opacity:1;}
-  .card-slide-track {display: flex; width: 100%; height: 100%; transition: transform 1.4s cubic-bezier(.22,.61,.36,1)}
+  .card-slide-track {display: flex; width: 100%; height: 100%; transition: transform 1.4s var(--ease)}
   .card-slide{position:relative; flex:0 0 100%; width:100%; height:100%;}
-  .swatch{width:100%; height:100%; position:relative; transition:transform 0.6s cubic-bezier(.22,.61,.36,1);}
+  .swatch{width:100%; height:100%; position:relative; transition:transform 0.6s var(--ease);}
   .product-card:hover .swatch{transform:none;}
   .swatch::before{content:''; position:absolute; inset:0; background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 6px);}
   .stitch-frame{
@@ -422,7 +426,7 @@
     display:flex; align-items:center; gap:9px;
     background:var(--white); border-radius:100px; border:1px solid rgba(51,44,36,0.18);
     width:0; padding:10px 0; opacity:0; overflow:hidden;
-    transition: width 0.45s cubic-bezier(.22,.61,.36,1), padding 0.45s cubic-bezier(.22,.61,.36,1),
+    transition: width 0.45s var(--ease), padding 0.45s var(--ease),
                 opacity 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   }
   .shop-search-wrap.open .shop-search-box{width:230px; padding:10px 14px; opacity:1;}
@@ -707,7 +711,7 @@
       "name  name"
       "media info";
     box-shadow:var(--shadow-lift); transform:scale(0.94) translateY(20px);
-    transition:transform 0.45s cubic-bezier(.22,.61,.36,1);
+    transition:transform 0.45s var(--ease);
     position:relative;
   }
   .qv-modal.open .qv-box{transform:scale(1) translateY(0);}
@@ -743,7 +747,7 @@
 
   /* ---- Quick View photo gallery — swipeable, dots, arrows ---- */
   .qv-gallery{position:relative; width:100%; height:100%; min-height:340px; overflow:hidden;}
-  .qv-slide-track{display:flex; width:100%; height:100%; transition:transform 0.4s cubic-bezier(.22,.61,.36,1);}
+  .qv-slide-track{display:flex; width:100%; height:100%; transition:transform 0.4s var(--ease);}
   .qv-slide{position:relative; flex:0 0 100%; width:100%; height:100%;}
   .qv-slide .product-img{
     width:100%; height:100%; object-fit:contain; display:block;
@@ -1016,4 +1020,40 @@
   .cs-option:focus-visible{
     outline: 2px solid var(--gold);
     outline-offset: -2px;
+  }
+
+  /* ============================================================
+     REDUCED MOTION — the site otherwise leans on parallax tilt,
+     autoplaying carousels, and floating/drifting decoration, none
+     of which are essential to using it. This swaps every non-
+     essential animation for a short opacity cross-fade (or removes
+     it outright) and leaves comprehension-relevant transitions
+     (hover states, focus rings) intact.
+     ============================================================ */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      scroll-behavior: auto !important;
+    }
+    .hero-text h1, .hero-text p, .hero-btns { opacity: 1; transform: none; }
+    .art-frame-main { animation: none; }
+    .float-shape { animation: none; opacity: 0.3; }
+    .scroll-cue .line { animation: none; transform: scaleY(1); }
+    .tilt-wrap { transition: none; transform: none !important; }
+    .reveal { transition: opacity 0.3s ease; transform: none; }
+    .reveal.in { opacity: 1; }
+    .product-card { transition: box-shadow 0.3s ease, border-color 0.3s ease; }
+    .product-card:hover { transform: none; }
+    .card-slide-track { transition: opacity 0.3s ease; }
+    .swatch { transition: none; }
+  }
+
+  /* ---------- reduced transparency ---------- */
+  @media (prefers-reduced-transparency: reduce) {
+    .navbar.scrolled { background: var(--cream); backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .nav-links { background: var(--cream); backdrop-filter: none; }
+    .badge { backdrop-filter: none; background: var(--white); }
+    .qv-dots { background: var(--white); backdrop-filter: none; }
+    .qv-nav, .img-viewer-nav { background: var(--white); backdrop-filter: none; -webkit-backdrop-filter: none; }
   }

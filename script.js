@@ -68,6 +68,15 @@ let currentFilter = "All";
 let currentSort = "newest";
 let searchTerm = "";
 
+// Mirrors the --ease CSS variable — the site's one signature motion
+// curve, kept in one place instead of retyped at every call site.
+const EASE = 'cubic-bezier(.22,.61,.36,1)';
+
+// Respect the OS-level "reduce motion" setting for anything JS-driven
+// and non-essential (autoplaying carousels, the cursor-tilt parallax).
+// CSS handles its own animations via the matching @media query.
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 /* ============ RENDER HELPERS ============ */
 function iconFor(cat){
   const icons = {
@@ -228,7 +237,7 @@ function initCardCarousels(){
   document.querySelectorAll('.card-slide-track').forEach(track=>{
     const slides = Array.from(track.children);
     const slideCount = slides.length;
-    if(slideCount <= 1) return;
+    if(slideCount <= 1 || prefersReducedMotion) return;
     // Start at a random image
     let index = Math.floor(Math.random() * slideCount);
     // Clone the first slide for a seamless loop
@@ -239,7 +248,7 @@ function initCardCarousels(){
     let timer = null;
     const advance = ()=>{
       index++;
-      track.style.transition = 'transform 1.8s cubic-bezier(.22,.61,.36,1)';
+      track.style.transition = `transform 1.8s ${EASE}`;
       track.style.transform = `translateX(-${index * 100}%)`;
       // Seamless reset after reaching the clone
       if(index === slideCount){
@@ -249,7 +258,7 @@ function initCardCarousels(){
           track.style.transform = 'translateX(0)';
           requestAnimationFrame(()=>{
             track.style.transition =
-              'transform 1.8s cubic-bezier(.22,.61,.36,1)';
+              `transform 1.8s ${EASE}`;
           });
         }, 1800);
       }
@@ -397,7 +406,7 @@ function createDragCarousel({ container, count, startIndex = 0, renderSlide, onS
   }
 
   function setTransition(on){
-    track.style.transition = on ? 'transform 0.4s cubic-bezier(.22,.61,.36,1)' : 'none';
+    track.style.transition = on ? `transform 0.4s ${EASE}` : 'none';
   }
 
   build();
@@ -779,7 +788,7 @@ function openQuickView(id){
       // On the mobile stacked layout the image sits above the scrolling
       // info panel — jump back up so the newly-selected design is visible
       // instead of leaving the shopper looking at a photo that didn't change.
-      if(window.matchMedia('(max-width:760px)').matches){
+      if(window.matchMedia(MOBILE_IMG_VIEWER_QUERY).matches){
         document.getElementById('qvInfoScroll')?.scrollTo({ top:0, behavior:'smooth' });
       }
     };
@@ -894,7 +903,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   // hero envelope tilts toward the cursor
   const heroSection = document.querySelector('.hero');
   const tiltWrap = document.getElementById('tiltWrap');
-  if(heroSection && tiltWrap && window.matchMedia('(hover: hover)').matches){
+  if(heroSection && tiltWrap && !prefersReducedMotion && window.matchMedia('(hover: hover)').matches){
     heroSection.addEventListener('mousemove', (e)=>{
       const rect = heroSection.getBoundingClientRect();
       const x = (e.clientX - rect.left) / rect.width - 0.5;
