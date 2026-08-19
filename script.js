@@ -686,6 +686,58 @@ function closeImgViewer(){
   if(!qvModal.classList.contains('open')) document.body.style.overflow = '';
 }
 
+// Shares whichever design is currently showing in the fullscreen viewer.
+// Tries, in order: (1) the native share sheet with the actual photo
+// attached, so it drops straight into WhatsApp/Messages/Mail as an image;
+// (2) the share sheet with just a title/link, for browsers that support
+// Web Share but not file attachments; (3) copying a link to the
+// clipboard, for the rare browser with neither.
+async function shareCurrentDesign(){
+  const shareBtn = document.getElementById('imgViewerShare');
+  if(!qvProduct) return;
+  const designs = productDesigns(qvProduct);
+  const i = imgViewerCarousel ? imgViewerCarousel.index : qvActiveDesignIndex;
+  const design = designs[i] || designs[0];
+  const src = designSlides(design)[0];
+  const effectivePrice = (design.price != null) ? design.price : qvProduct.price;
+  const shareTitle = designs.length > 1 ? `${qvProduct.name} — ${design.name}` : qvProduct.name;
+  const shareText = `${shareTitle} · ₹${effectivePrice.toLocaleString('en-IN')} · ${STORE_NAME}`;
+  const shareUrl = window.location.href;
+
+  try{
+    if(src && navigator.canShare){
+      const res = await fetch(new URL(src, shareUrl).href);
+      const blob = await res.blob();
+      const filename = src.split('/').pop() || 'design.jpg';
+      const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
+      if(navigator.canShare({ files: [file] })){
+        await navigator.share({ files: [file], title: shareTitle, text: shareText });
+        return;
+      }
+    }
+    if(navigator.share){
+      await navigator.share({ title: shareTitle, text: shareText, url: shareUrl });
+      return;
+    }
+    throw new Error('Web Share API unavailable');
+  }catch(err){
+    if(err && err.name === 'AbortError') return; // person cancelled the share sheet — not an error
+    try{
+      await navigator.clipboard.writeText(shareUrl);
+      flashShareFeedback(shareBtn, 'Link copied');
+    }catch(copyErr){
+      flashShareFeedback(shareBtn, "Couldn't share");
+    }
+  }
+}
+
+function flashShareFeedback(btn, label){
+  if(!btn) return;
+  btn.dataset.feedback = label;
+  btn.classList.add('share-feedback');
+  setTimeout(()=>{ btn.classList.remove('share-feedback'); }, 1600);
+}
+
 function openQuickView(id){
   const p = SITE_DATA.products.find(x=>x.id===id);
   qvProduct = p;
@@ -854,6 +906,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     openImgViewer(qvActiveDesignIndex);
   });
   document.getElementById('imgViewerClose').onclick = closeImgViewer;
+  document.getElementById('imgViewerShare').onclick = shareCurrentDesign;
 
   // In-page navigation (nav links, hero button, footer links) scrolls
   // smoothly without ever writing a "#section" fragment into the URL bar.

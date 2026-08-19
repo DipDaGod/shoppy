@@ -854,6 +854,25 @@
   }
   .img-viewer-close svg{width:16px; height:16px;}
 
+  /* Mirrors .img-viewer-close on the opposite corner. Uses the native
+     Web Share sheet so a photo can go straight to WhatsApp, Messages,
+     Mail, etc. — whatever the person already has installed. */
+  .img-viewer-share{
+    position:fixed; top:16px; left:16px; z-index:2001; width:38px; height:38px; border-radius:50%;
+    background:rgba(255,255,255,0.18); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center; color:#fff;
+  }
+  .img-viewer-share svg{width:16px; height:16px;}
+  /* Fallback feedback for browsers without Web Share support, where we
+     silently copy a link instead — a small label confirms it worked. */
+  .img-viewer-share::after{
+    content:attr(data-feedback); position:absolute; top:46px; left:0; white-space:nowrap;
+    background:rgba(20,17,13,0.92); color:#fff; font-size:11px; padding:6px 10px; border-radius:8px;
+    opacity:0; transform:translateY(-4px); pointer-events:none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .img-viewer-share.share-feedback::after{ opacity:1; transform:translateY(0); }
+
   /* Small, subtle prev/next arrows over the fullscreen image — same
      restrained styling language as .qv-design-side-nav, adapted for
      the dark backdrop. */
@@ -973,6 +992,7 @@
   select:focus-visible,
   .chip:focus-visible,
   .design-thumb:focus-visible,
+  .img-viewer-share:focus-visible,
   .qv-design-side-nav:focus-visible {
     outline: 2px solid var(--gold);
     outline-offset: 2px;
@@ -999,6 +1019,7 @@
   .qv-dot:active,
   .design-thumb:active,
   .whatsapp-btn:active,
+  .img-viewer-share:active,
   .card-media:active {
     transform: scale(0.93);
     transition-duration: 0.1s;
@@ -1055,5 +1076,6 @@
     .nav-links { background: var(--cream); backdrop-filter: none; }
     .badge { backdrop-filter: none; background: var(--white); }
     .qv-dots { background: var(--white); backdrop-filter: none; }
-    .qv-nav, .img-viewer-nav { background: var(--white); backdrop-filter: none; -webkit-backdrop-filter: none; }
+    .qv-nav { background: var(--white); backdrop-filter: none; }
+    .img-viewer-nav, .img-viewer-share, .img-viewer-close { background: rgba(20,17,13,0.85); backdrop-filter: none; -webkit-backdrop-filter: none; }
   }
