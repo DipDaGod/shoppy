@@ -91,6 +91,17 @@ function starSVG(){
   return '<svg viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9L12 17.8 5.8 21l1.2-6.9-5-4.9 6.9-1z"/></svg>';
 }
 
+// Trims to roughly maxChars but always at a word boundary — never cuts
+// a word in half the way a plain slice(0, n) can. CSS line-clamp still
+// does the actual visual truncation to N lines; this just keeps the
+// underlying text from being wildly longer than what's ever shown.
+function truncateWords(text, maxChars){
+  if(text.length <= maxChars) return text;
+  const cut = text.slice(0, maxChars);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim();
+}
+
 // Broken product image links fall back to the built-in swatch illustration.
 // This replaces an inline onerror="" attribute (which a strict CSP blocks) —
 // "error" events don't bubble, so this listener needs the capture flag.
@@ -129,39 +140,41 @@ function cardCarouselSlides(p){
 function cardMediaMarkup(p){
   const slides = cardCarouselSlides(p);
   if(slides.length === 0){
-    return `<div class="card-slide-track"><div class="card-slide"><div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div></div></div>`;
+    return `<div class="catalogue-slide-track"><div class="catalogue-slide"><div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div></div></div>`;
   }
   const slidesHTML = slides.map(src => `
-    <div class="card-slide">
+    <div class="catalogue-slide">
       <img class="product-img" src="${src}" alt="${p.name}">
       <div class="swatch ${p.swatch}" style="display:none;"><div class="sw-icon">${iconFor(p.category)}</div></div>
     </div>`).join('');
-  return `<div class="card-slide-track">${slidesHTML}</div>`;
+  return `<div class="catalogue-slide-track">${slidesHTML}</div>`;
 }
 
 function productCard(p){
   const hasDiscount = p.originalPrice && p.originalPrice > p.price;
   const designCount = productDesigns(p).length;
+  const linkLabel = designCount > 1 ? 'View designs' : 'Explore collection';
   return `
-  <div class="product-card" data-id="${p.id}">
-    <div class="card-media ${p.swatch}" data-quickview="${p.id}" role="button" tabindex="0" aria-label="View ${p.name}">
+  <div class="catalogue-item" data-id="${p.id}" data-quickview="${p.id}" role="button" tabindex="0" aria-label="View ${p.name}">
+    <div class="catalogue-media">
       ${cardMediaMarkup(p)}
-      <div class="stitch-frame"></div>
       <div class="badges">
         <span class="badge handmade">Handmade</span>
         ${p.limited ? '<span class="badge limited">Limited Edition</span>' : ''}
       </div>
       ${designCount > 1 ? `<span class="badge designs-badge">${designCount} Designs</span>` : ''}
     </div>
-    <div class="card-body">
-      <div class="card-top"><h3>${p.name}</h3></div>
+    <div class="catalogue-info">
+      <span class="catalogue-eyebrow">${p.category}</span>
+      <h3 class="catalogue-name">${p.name}</h3>
       <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
-      <p class="card-desc">${p.desc.slice(0,72)}...</p>
-      <div class="card-bottom">
+      <p class="catalogue-desc">${truncateWords(p.desc, 220)}</p>
+      <div class="catalogue-footer">
         <div class="price-group">
           <span class="price">₹${p.price.toLocaleString('en-IN')}</span>
           ${hasDiscount ? `<span class="price-original">₹${p.originalPrice.toLocaleString('en-IN')}</span>` : ''}
         </div>
+        <span class="catalogue-link">${linkLabel} →</span>
       </div>
     </div>
   </div>`;
@@ -234,7 +247,7 @@ function clearCardCarousels(){
 }
 function initCardCarousels(){
   clearCardCarousels();
-  document.querySelectorAll('.card-slide-track').forEach(track=>{
+  document.querySelectorAll('.catalogue-slide-track').forEach(track=>{
     const slides = Array.from(track.children);
     const slideCount = slides.length;
     if(slideCount <= 1 || prefersReducedMotion) return;
@@ -273,7 +286,7 @@ function initCardCarousels(){
       timer = null;
     };
     start();
-    const card = track.closest('.product-card');
+    const card = track.closest('.catalogue-item');
     card.addEventListener('mouseenter', stop);
     card.addEventListener('mouseleave', start);
   });
@@ -911,9 +924,9 @@ function closeQuickView(){
 function attachGlobalCardDelegation(){
   document.body.addEventListener('click', (e)=>{
     const qvBtn = e.target.closest('[data-quickview]');
-    if(qvBtn){ e.stopPropagation(); openQuickView(+qvBtn.dataset.quickview); return; }
+    if(qvBtn){ e.preventDefault(); e.stopPropagation(); openQuickView(+qvBtn.dataset.quickview); return; }
   });
-  // The whole card image is now the trigger (div[role="button"], not a
+  // The whole product item is now the trigger (div[role="button"], not a
   // real <button>), so Enter/Space need to be wired up by hand for
   // keyboard users.
   document.body.addEventListener('keydown', (e)=>{

@@ -119,7 +119,7 @@ const PRODUCTS = [
     id: 3,
     name: "Golden Heritage",
     category: "Lumba",
-    price: 800, originalPrice: 1100,
+    price: 1200, originalPrice: 1500,
     coverImage: "images/lumba-1.jpeg",
     swatch: "sw-6",
     rating: 5, popularity: 91, limited: true,
