@@ -75,7 +75,7 @@ const PRODUCTS = [
     id: 1,
     name: "Tanjore Soan",
     category: "Soan",
-    price: 200, originalPrice: 350,
+    price: 150, originalPrice: 350,
     coverImage: "",
     swatch: "sw-1",
     rating: 5, popularity: 95, limited: false,
@@ -119,7 +119,7 @@ const PRODUCTS = [
     id: 3,
     name: "Golden Heritage",
     category: "Lumba",
-    price: 1200, originalPrice: 1500,
+    price: 1200, originalPrice: 1300,
     coverImage: "images/lumba-1.jpeg",
     swatch: "sw-6",
     rating: 5, popularity: 91, limited: true,
@@ -128,9 +128,9 @@ const PRODUCTS = [
     dimensions: "8x8 cm",
     delivery: "5-7 working days",
     designs: [
-      { name: "Peacock Heritage", image: "images/lumba-1.jpeg", images: [] },
-      { name: "Royal Kalash", image: "images/lumba-2.png", images: [] },
-      { name: "Swarna Abhushan", image: "images/lumba-3.png", images: [] }
+      { name: "Peacock Heritage", image: "images/lumba-1.jpeg", images: [], price:800, originalPrice: 950 },
+      { name: "Royal Kalash", image: "images/lumba-2.png", images: [], price:700, originalPrice: 900 },
+      { name: "Swarna Abhushan", image: "images/lumba-3.png", images: [], price:1100 }
     ]
   }
 ];

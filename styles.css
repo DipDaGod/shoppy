@@ -882,13 +882,18 @@
   .whatsapp-btn:hover{background:var(--gold); transform:translateY(-1px);}
 
   @media(max-width:760px){
-    .qv-modal{padding:16px;}
+    .qv-modal{padding:28px 16px;}
     /* Full vertical stack — name, then image, then the scrollable
        info block — instead of the desktop grid-area split. DOM order
-       (name, media, info) already matches the wanted reading order. */
+       (name, media, info) already matches the wanted reading order.
+       max-height leaves real headroom (not just the modal's own
+       padding) so there's a visible gap above and below on phones,
+       and uses dvh (falls back to vh in older browsers) so mobile
+       browser chrome — the address bar showing/hiding — can't push
+       the box taller than what's actually visible. */
     .qv-box{
       display:flex; flex-direction:column;
-      border-radius:22px; max-height:92vh;
+      border-radius:22px; max-height:82vh; max-height:82dvh;
     }
     .qv-name{padding:20px 64px 8px 64px;}
     .qv-name h3{font-size:21px; margin-bottom:6px;}
@@ -899,7 +904,7 @@
        scales with the actual screen instead of one guessed number. */
     .qv-media{padding:18px 22px 8px; flex-shrink:0;}
     .qv-media-frame{
-      height:40vh; max-height:40vh; width:auto; max-width:100%; aspect-ratio:1/1; margin:0 auto;
+      height:40vh; height:40dvh; max-height:40vh; max-height:40dvh; width:auto; max-width:100%; aspect-ratio:1/1; margin:0 auto;
       min-height:0; padding:16px; border-radius:20px; border:1px solid rgba(51,44,36,0.08);
       box-shadow:0 6px 18px rgba(51,44,36,0.06);
     }
@@ -907,14 +912,22 @@
     .qv-close{top:14px; right:14px;}
     .qv-share{top:14px; left:14px;}
     .qv-info{flex:1 1 auto; min-height:0; max-height:none;}
-    .qv-info-scroll{padding:20px 22px 20px;}
-    .qv-meta{grid-template-columns:1fr; gap:12px;}
+    /* Price first thing visible, no scrolling needed — desktop keeps
+       the original DOM order (description, then design picker, then
+       price); this only reflows the stacking on the mobile layout. */
+    .qv-info-scroll{padding:20px 22px 20px; display:flex; flex-direction:column;}
+    .qv-price-group{order:-1; margin-bottom:14px;}
+    .qv-desc{order:0;}
+    .qv-design-picker{order:1;}
+    .qv-info-scroll > .stars{order:2;}
+    .qv-meta{grid-template-columns:1fr; gap:12px; order:3;}
+    .qv-note{order:4;}
     .qv-cta-bar{padding:12px 22px 20px;}
     .whatsapp-btn{padding:16px 18px; font-size:14.5px;}
   }
   @media(max-width:480px){
-    .qv-modal{padding:8px;}
-    .qv-box{border-radius:18px; max-height:95vh;}
+    .qv-modal{padding:22px 10px;}
+    .qv-box{border-radius:18px; max-height:80vh; max-height:80dvh;}
     .qv-name{padding:16px 54px 6px 54px;}
     .qv-name h3{font-size:18px; margin-bottom:5px; line-height:1.25;}
     .qv-media{padding:14px 16px 4px;}
