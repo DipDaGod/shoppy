@@ -1,4 +1,4 @@
-:root{
+  :root{
     --cream:#faf6ef;
     --ivory:#f4ede1;
     --beige:#e9dcc6;
@@ -260,133 +260,134 @@
 
   section.pad{padding:110px 0;}
 
-  /* ---------- PRODUCT CARD ---------- */
-  .products-grid{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:32px;
-  }
-  .product-card{
-    position:relative; background:var(--white); border-radius:20px; overflow:hidden;
-    box-shadow:var(--shadow-soft); border:1px solid transparent;
-    transition: transform 0.5s var(--ease), box-shadow 0.5s ease, border-color 0.5s ease;
-  }
-  .product-card:hover{
-    transform:translateY(-10px);
-    box-shadow:var(--shadow-lift);
-    border-color: rgba(184,151,95,0.45);
-  }
-  .card-media{
-    position:relative; aspect-ratio:1/1; overflow:hidden;
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer;
-  }
-  .card-media:focus-visible{outline:2px solid var(--gold); outline-offset:-3px;}
-  .card-media::after{
-    content:''; position:absolute; inset:0; opacity:0; background:radial-gradient(circle at 50% 40%, rgba(184,151,95,0.25), transparent 65%);
-    transition:opacity 0.5s ease; z-index:2; pointer-events:none;
-  }
-  .product-card:hover .card-media::after{opacity:1;}
-  .card-slide-track {display: flex; width: 100%; height: 100%; transition: transform 1.4s var(--ease)}
-  .card-slide{position:relative; flex:0 0 100%; width:100%; height:100%;}
-  .swatch{width:100%; height:100%; position:relative; transition:transform 0.6s var(--ease);}
-  .product-card:hover .swatch{transform:none;}
-  .swatch::before{content:''; position:absolute; inset:0; background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 6px);}
-  .stitch-frame{
-    position:absolute; inset:14px; border-radius:12px; border:1px dashed rgba(255,255,255,0.5); pointer-events:none;
+  /* ============================================================
+     EDITORIAL CATALOGUE — full replacement of the old card grid.
+     No cards, no shadows, no floating panels: each product is a flat
+     horizontal image/info pair, two per row on desktop. Direction
+     alternates every row (both items in a row face the same way),
+     driven purely by :nth-child so it re-flows correctly for
+     whatever subset filtering/search/sort leaves in the DOM.
+     ============================================================ */
+  .catalogue-grid{
+    display:grid; grid-template-columns:repeat(2,1fr);
+    column-gap:56px; row-gap:56px;
   }
 
-  .badges{position:absolute; top:14px; left:14px; display:flex; flex-direction:column; gap:6px; z-index:3;}
+  .catalogue-item{
+    display:grid; grid-template-columns:3fr 2fr;
+    align-items:center; gap:22px;
+    cursor:pointer;
+  }
+  .catalogue-item:focus-visible{
+    outline:2px solid var(--gold); outline-offset:8px; border-radius:4px;
+  }
+
+  .catalogue-media{
+    position:relative; overflow:hidden;
+    width:100%; aspect-ratio:1/1.4142; /* A4 portrait — a box the image is fit within, never stretched to */
+    border-radius:10px;
+  }
+
+  .catalogue-slide-track{display:flex; width:100%; height:100%; transition:transform 1.4s var(--ease);}
+  .catalogue-slide{position:relative; flex:0 0 100%; width:100%; height:100%;}
+  .swatch{width:100%; height:100%; position:relative;}
+  .swatch::before{content:''; position:absolute; inset:0; background-image: repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 6px);}
+
+  /* The image itself: contained (never cropped/stretched/distorted),
+     centered within the A4 box above. A slightly wider real photo
+     letterboxes rather than losing any of the image. */
+  .catalogue-media .product-img{
+    width:100%; height:100%; object-fit:contain; display:block;
+  }
+
+  .badges{position:absolute; top:10px; left:10px; display:flex; flex-direction:column; gap:5px; z-index:3;}
   .badge{
-    font-size:10px; letter-spacing:0.05em; text-transform:uppercase; padding:5px 10px; border-radius:100px; font-weight:600;
+    font-size:9px; letter-spacing:0.05em; text-transform:uppercase; padding:4px 9px; border-radius:100px; font-weight:600;
     backdrop-filter:blur(6px);
   }
   .badge.handmade{background:rgba(255,255,255,0.85); color:var(--gold); border:1px solid var(--gold-light);}
   .badge.limited{background:rgba(51,44,36,0.85); color:var(--white);}
   .badge.designs-badge{
-    position:absolute; top:14px; right:14px; z-index:3;
+    position:absolute; top:10px; right:10px; z-index:3;
     background:var(--ink); color:var(--white); border:none;
   }
 
-  .card-body{padding:17px 22px 24px;}
-  .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:4px;}
-  .card-top h3{font-size:19px; line-height:1.2; color:var(--ink);}
-  .stars{display:flex; gap:2px; margin-bottom:10px;}
-  .stars svg{width:13px; height:13px; fill:var(--gold);}
-  .card-desc{font-size:13.5px; color:var(--ink-soft); margin-bottom:14px; line-height:1.55;}
-  .card-bottom{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;}
-  .price-group{display:flex; align-items:baseline; gap:7px;}
-  .price{font-family:var(--display); font-size:20px; color:var(--ink); transition:color 0.3s ease;}
-  .product-card:hover .price{color:var(--gold);}
-  .price-original{font-size:12.5px; color:var(--ink-soft); text-decoration:line-through;}
-
-  .product-img{width:100%; height:100%; object-fit:cover; display:block; position:relative;}
-
-  /* Card thumbnails only — object-fit:cover fills the box dynamically
-     based on each image's real dimensions, cropped as needed, instead
-     of the old fixed transform:scale(1.33) guess. Scoped to
-     .card-media so it doesn't affect .qv-slide/.qv-gallery images
-     (those still use object-fit:contain, uncropped). */
-  .card-media .product-img{
-    width:100%; height:100%; object-fit:cover; display:block;
+  .catalogue-info{display:flex; flex-direction:column;}
+  .catalogue-eyebrow{font-size:10.5px; letter-spacing:0.18em; text-transform:uppercase; color:var(--gold); margin-bottom:10px; font-weight:600;}
+  .catalogue-name{font-size:27px; line-height:1.2; color:var(--ink); margin-bottom:10px; text-decoration:none;}
+  .stars{display:flex; gap:2px; margin-bottom:12px; opacity:0.82;}
+  .stars svg{width:11px; height:11px; fill:var(--gold);}
+  /* 3-4 lines max, however long the source text is — clamped by
+     layout (never a raw character count), so it never lands mid-word. */
+  .catalogue-desc{
+    font-size:14.5px; color:var(--ink-soft); line-height:1.65; margin-bottom:18px; max-width:44ch;
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:4; overflow:hidden;
+  }
+  .catalogue-footer{
+    display:flex; flex-direction:column; align-items:flex-start; gap:10px;
+    margin-top:auto; padding-top:16px; border-top:1px solid rgba(51,44,36,0.1);
+  }
+  .price-group{display:flex; align-items:baseline; gap:8px;}
+  .price{font-family:var(--display); font-size:23px; font-weight:600; color:var(--ink);}
+  .price-original{font-size:12px; color:var(--ink-soft); text-decoration:line-through; opacity:0.8;}
+  .catalogue-link{
+    font-size:12.5px; letter-spacing:0.02em; color:var(--gold); text-decoration:none;
   }
 
-  /* ---------- COLLECTION SPREAD LAYOUT ----------
-     Applies to the Shop grid (.collection-grid, shared with the
-     .products-grid base rules for card visuals/filters/sort/search,
-     all of which are untouched). Cards, images, text, and colors are
-     the same .product-card markup/styles as before; only the
-     container layout and the hover choreography differ here. With
-     the current 3-product catalog this is a single tidy row; if the
-     catalog grows past a row's worth, extra cards wrap to a second
-     row and the side-push effect only reads cleanly within each row. */
-  .products-grid.collection-grid{
-    display:flex; flex-wrap:wrap; justify-content:center; gap:24px;
-  }
-  .collection-grid .product-card{
-    flex:0 1 340px; max-width:360px; min-width:240px;
+  /* Premium hover — gated to pointer:fine so touch devices never get
+     a stuck hover state and just keep the plain, clean layout. Kept
+     deliberately quiet: a hair of zoom, a soft lift, a touch of
+     brightness, a quiet color/weight shift on the title. No
+     underline, no scale you'd consciously notice, no heavy shadow. */
+  @media (hover:hover) and (pointer:fine){
+    .catalogue-media{
+      transition:transform 300ms var(--ease), box-shadow 300ms var(--ease);
+    }
+    .catalogue-media .product-img,
+    .catalogue-media .swatch{
+      transition:transform 300ms var(--ease), filter 300ms var(--ease);
+    }
+    .catalogue-name{transition:color 250ms var(--ease), font-weight 250ms var(--ease);}
+    .catalogue-link{transition:color 250ms var(--ease);}
+
+    .catalogue-item:hover .catalogue-media,
+    .catalogue-item:focus-visible .catalogue-media{
+      transform:translateY(-3px);
+      box-shadow:0 14px 30px rgba(51,44,36,0.1);
+    }
+    .catalogue-item:hover .catalogue-media .product-img,
+    .catalogue-item:hover .catalogue-media .swatch,
+    .catalogue-item:focus-visible .catalogue-media .product-img,
+    .catalogue-item:focus-visible .catalogue-media .swatch{
+      transform:scale(1.02);
+      filter:brightness(1.03);
+    }
+    .catalogue-item:hover .catalogue-name,
+    .catalogue-item:focus-visible .catalogue-name{
+      color:var(--gold); font-weight:600;
+    }
+    .catalogue-item:hover .catalogue-link,
+    .catalogue-item:focus-visible .catalogue-link{
+      color:var(--ink);
+    }
   }
 
-  /* Interactive "spreading open" hover — only for pointers that can
-     actually hover (mouse/trackpad) on a wide-enough viewport. Touch
-     devices (phones and most tablets) simply get the calm static row;
-     tapping a card still opens Quick View as normal. */
-  @media (hover:hover) and (pointer:fine) and (min-width:641px){
-    .collection-grid .product-card{
-      transition:
-        transform 650ms cubic-bezier(.2,.8,.2,1),
-        box-shadow 650ms ease,
-        filter 650ms ease,
-        border-color 0.5s ease;
-    }
-    .collection-grid .product-card:hover{
-      transform: translateY(-16px) scale(1.06);
-      z-index: 5;
-      box-shadow: var(--shadow-lift);
-    }
-    /* Cards after the hovered one slide right; cards before it slide
-       left — the "spreading open" effect. Scale/saturate stay subtle
-       (no blur, no heavy fade) so the row still reads as one piece. */
-    .collection-grid .product-card:hover ~ .product-card{
-      transform: translateX(28px) scale(0.97);
-      filter: saturate(0.85);
-    }
-    .collection-grid .product-card:has(~ .product-card:hover){
-      transform: translateX(-28px) scale(0.97);
-      filter: saturate(0.85);
-    }
+  /* Row alternation — pattern repeats every 4 items (2 rows): items
+     1-2 read image-left, items 3-4 read image-right, then repeats.
+     Both items sharing a row always match. */
+  .catalogue-item:nth-child(4n+3),
+  .catalogue-item:nth-child(4n){
+    grid-template-columns:2fr 3fr;
   }
-  /* Tablet-width version of the same effect — same choreography, just
-     a gentler push so three cards don't crowd a narrower viewport. */
-  @media (hover:hover) and (pointer:fine) and (min-width:641px) and (max-width:920px){
-    .collection-grid .product-card:hover{
-      transform: translateY(-10px) scale(1.045);
-    }
-    .collection-grid .product-card:hover ~ .product-card{
-      transform: translateX(14px) scale(0.97);
-    }
-    .collection-grid .product-card:has(~ .product-card:hover){
-      transform: translateX(-14px) scale(0.97);
-    }
+  .catalogue-item:nth-child(4n+3) .catalogue-media,
+  .catalogue-item:nth-child(4n) .catalogue-media{
+    order:2;
   }
+  .catalogue-item:nth-child(4n+3) .catalogue-info,
+  .catalogue-item:nth-child(4n) .catalogue-info{
+    order:1;
+  }
+
   /* swatch color variants */
   .sw-1{background:linear-gradient(135deg,#efe6d3,#5c7a68);}
   .sw-2{background:linear-gradient(135deg,#d8a355,#e08a4b);}
@@ -503,12 +504,11 @@
   .shop-empty .clear-filters-btn:hover{background:var(--ink); color:var(--white); border-color:var(--ink);}
 
   /* ============================================================
-     MOBILE — shop section tightened + intentional 2-column grid.
+     MOBILE — shop section tightened + single-column catalogue.
      Scoped entirely to this breakpoint; desktop layout above is
-     untouched. Goal: less dead air between controls, chips that
-     scroll instead of wrapping into ragged rows, and cards sized
-     and typeset for a half-width column instead of a squeezed
-     full-width desktop card.
+     untouched. Each product stays a horizontal image/info pair
+     (not stacked) — just one per row, and always the same
+     direction (image on the left) rather than alternating.
      ============================================================ */
   @media(max-width:640px){
     .container{padding:0 18px;}
@@ -516,75 +516,53 @@
     .section-head{margin:0 auto 30px;}
     .section-head p{font-size:14px;}
 
-    /* ---- product grid ---- */
-    .products-grid{
-      grid-template-columns:repeat(2,1fr);
-      gap:12px;
+    /* ---- catalogue grid ---- */
+    .catalogue-grid{
+      grid-template-columns:1fr;
+      row-gap:24px;
       width:100%;
       min-width:0;
-      overflow:hidden;
     }
 
-    .products-grid.collection-grid{
-      display:flex;
-      flex-direction:column;
-      flex-wrap:nowrap;
-      gap:16px;
+    .catalogue-item,
+    .catalogue-item:nth-child(4n+3),
+    .catalogue-item:nth-child(4n){
+      grid-template-columns:44fr 56fr;
+      gap:12px;
     }
-
-    .collection-grid .product-card{
-      max-width:100%;
-      flex:none;
+    .catalogue-item .catalogue-media,
+    .catalogue-item:nth-child(4n+3) .catalogue-media,
+    .catalogue-item:nth-child(4n) .catalogue-media{
+      order:0;
     }
-
-    .product-card{
-      border-radius:14px;
-      min-width:0;
-      max-width:100%;
-      overflow:hidden;
-    }
-
-    .card-media{
-      aspect-ratio:4/3.3;
-      max-height:36vh;
-    }
-
-    .stitch-frame{
-      inset:8px;
-      border-radius:9px;
+    .catalogue-item .catalogue-info,
+    .catalogue-item:nth-child(4n+3) .catalogue-info,
+    .catalogue-item:nth-child(4n) .catalogue-info{
+      order:0;
     }
 
     .badges{
-      top:8px;
-      left:8px;
       gap:4px;
     }
 
     .badge{
-      font-size:8.5px;
-      padding:4px 8px;
+      font-size:8px;
+      padding:4px 7px;
     }
 
-    .badge.designs-badge{
-      top:8px;
-      right:8px;
+    .catalogue-eyebrow{
+      font-size:9.5px;
+      margin-bottom:5px;
     }
 
-    .card-body{
-      padding:9px 12px 14px;
-    }
-
-    .card-top{
-      margin-bottom:2px;
-    }
-
-    .card-top h3{
-      font-size:13.5px;
-      line-height:1.2;
+    .catalogue-name{
+      font-size:16px;
+      line-height:1.25;
+      margin-bottom:6px;
     }
 
     .stars{
-      margin-bottom:6px;
+      margin-bottom:8px;
     }
 
     .stars svg{
@@ -592,12 +570,12 @@
       height:10px;
     }
 
-    .card-desc{
+    .catalogue-desc{
       display:none;
     }
 
     .price{
-      font-size:15.5px;
+      font-size:16px;
     }
 
     .price-original{
@@ -666,10 +644,12 @@
 
   /* Very narrow phones (≤380px) — shrink the image ratio a touch further
      so two columns never squeeze the name/price into overflow. */
+  /* Very narrow phones (≤380px) — a touch more room for text; the A4
+     image ratio itself is never adjusted, only typography and split. */
   @media(max-width:380px){
-    .card-media{aspect-ratio:4/3.6; max-height:32vh;}
-    .card-top h3{font-size:12.5px;}
-    .price{font-size:14px;}
+    .catalogue-item{grid-template-columns:42fr 58fr;}
+    .catalogue-name{font-size:14px;}
+    .price{font-size:14.5px;}
   }
 
 
@@ -902,13 +882,21 @@
   .whatsapp-btn:hover{background:var(--gold); transform:translateY(-1px);}
 
   @media(max-width:760px){
-    .qv-modal{padding:16px;}
+    /* Bottom-sheet on mobile: anchored to the bottom edge (no bottom
+       gap) instead of floating centered, so it reads as expanding up
+       from the bottom of the screen. Top corners stay rounded; bottom
+       corners go square since that edge now meets the screen edge. */
+    .qv-modal{padding:28px 16px 0; align-items:flex-end;}
     /* Full vertical stack — name, then image, then the scrollable
        info block — instead of the desktop grid-area split. DOM order
-       (name, media, info) already matches the wanted reading order. */
+       (name, media, info) already matches the wanted reading order.
+       max-height leaves real headroom at the top (not just the modal's
+       own padding), and uses dvh (falls back to vh in older browsers)
+       so mobile browser chrome — the address bar showing/hiding —
+       can't push the box taller than what's actually visible. */
     .qv-box{
       display:flex; flex-direction:column;
-      border-radius:22px; max-height:92vh;
+      border-radius:22px 22px 0 0; max-height:92vh; max-height:92dvh;
     }
     .qv-name{padding:20px 64px 8px 64px;}
     .qv-name h3{font-size:21px; margin-bottom:6px;}
@@ -919,7 +907,7 @@
        scales with the actual screen instead of one guessed number. */
     .qv-media{padding:18px 22px 8px; flex-shrink:0;}
     .qv-media-frame{
-      height:40vh; max-height:40vh; width:auto; max-width:100%; aspect-ratio:1/1; margin:0 auto;
+      height:40vh; height:40dvh; max-height:40vh; max-height:40dvh; width:auto; max-width:100%; aspect-ratio:1/1; margin:0 auto;
       min-height:0; padding:16px; border-radius:20px; border:1px solid rgba(51,44,36,0.08);
       box-shadow:0 6px 18px rgba(51,44,36,0.06);
     }
@@ -927,14 +915,22 @@
     .qv-close{top:14px; right:14px;}
     .qv-share{top:14px; left:14px;}
     .qv-info{flex:1 1 auto; min-height:0; max-height:none;}
-    .qv-info-scroll{padding:20px 22px 20px;}
-    .qv-meta{grid-template-columns:1fr; gap:12px;}
-    .qv-cta-bar{padding:12px 22px 20px;}
-    .whatsapp-btn{padding:16px 18px; font-size:14.5px;}
+    /* Price first thing visible, no scrolling needed — desktop keeps
+       the original DOM order (description, then design picker, then
+       price); this only reflows the stacking on the mobile layout. */
+    .qv-info-scroll{padding:20px 22px 20px; display:flex; flex-direction:column;}
+    .qv-price-group{order:-1; margin-bottom:14px;}
+    .qv-desc{order:0;}
+    .qv-design-picker{order:1;}
+    .qv-info-scroll > .stars{order:2;}
+    .qv-meta{grid-template-columns:1fr; gap:12px; order:3;}
+    .qv-note{order:4;}
+    .qv-cta-bar{padding:12px 22px calc(20px + env(safe-area-inset-bottom, 0px));}
+    .whatsapp-btn{padding:12px 18px; font-size:14px;}
   }
   @media(max-width:480px){
-    .qv-modal{padding:8px;}
-    .qv-box{border-radius:18px; max-height:95vh;}
+    .qv-modal{padding:22px 10px 0;}
+    .qv-box{border-radius:18px 18px 0 0; max-height:94vh; max-height:94dvh;}
     .qv-name{padding:16px 54px 6px 54px;}
     .qv-name h3{font-size:18px; margin-bottom:5px; line-height:1.25;}
     .qv-media{padding:14px 16px 4px;}
@@ -960,10 +956,10 @@
     .qv-design-picker{margin-bottom:14px;}
     .design-thumb{flex-basis:50px; width:50px; height:50px; border-radius:10px;}
     .qv-note{font-size:11px; padding-top:12px;}
-    .qv-cta-bar{padding:10px 16px 16px;}
+    .qv-cta-bar{padding:10px 16px calc(16px + env(safe-area-inset-bottom, 0px));}
     /* Full-width, larger tap target — this is the primary action on
        a phone screen, sized well above the ~44px touch-target minimum. */
-    .whatsapp-btn{padding:15px 16px; font-size:14px; border-radius:14px;}
+    .whatsapp-btn{padding:11px 16px; font-size:13.5px; border-radius:14px;}
   }
 
   /* ---------- Loader ---------- */
@@ -1023,8 +1019,7 @@
   .qv-dot:active,
   .design-thumb:active,
   .whatsapp-btn:active,
-  .qv-share:active,
-  .card-media:active {
+  .qv-share:active {
     transform: scale(0.93);
     transition-duration: 0.1s;
   }
@@ -1068,9 +1063,9 @@
     .tilt-wrap { transition: none; transform: none !important; }
     .reveal { transition: opacity 0.3s ease; transform: none; }
     .reveal.in { opacity: 1; }
-    .product-card { transition: box-shadow 0.3s ease, border-color 0.3s ease; }
-    .product-card:hover { transform: none; }
-    .card-slide-track { transition: opacity 0.3s ease; }
+    .catalogue-item:hover .catalogue-media .product-img,
+    .catalogue-item:hover .catalogue-media .swatch { transform: none; }
+    .catalogue-slide-track { transition: opacity 0.3s ease; }
     .swatch { transition: none; }
     .dc-track { transition: none !important; filter: none !important; }
   }
