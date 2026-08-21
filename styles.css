@@ -954,13 +954,12 @@ section.pad {
 }
 
 /* ---------- SHOP CONTROLS ---------- */
+/* Hidden for now (category chips, search, and sort) — the markup and
+   all the JS behind them (renderChips, search debounce, sort dropdown)
+   are untouched and fully working, just not shown. Delete this one
+   rule to bring the whole row back. */
 .shop-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 44px;
+  display: none;
 }
 .filter-chips {
   display: flex;
