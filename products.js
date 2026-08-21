@@ -30,8 +30,6 @@
    price         the product's base price (number, no currency
                  symbol) — shown on the card and used unless a
                  design overrides it with its own `price`
-   originalPrice same as price if not on sale, higher if it is —
-                 the difference shows as a struck-through price
    coverImage    optional — the photo used as the shop card
                  thumbnail, e.g. "images/swarna-dhaaga-1.jpg".
                  Leave "" to just use the first design's image
@@ -75,7 +73,7 @@ const PRODUCTS = [
     id: 1,
     name: "Tanjore Soan",
     category: "Soan",
-    price: 200, originalPrice: 350,
+    price: 200,
     coverImage: "",
     swatch: "sw-1",
     rating: 5, popularity: 95, limited: false,
@@ -94,7 +92,7 @@ const PRODUCTS = [
     id: 2,
     name: "Swarn Dhaga",
     category: "Rakhi",
-    price: 100, originalPrice: 200,
+    price: 100,
     coverImage: "",
     swatch: "sw-3",
     rating: 5, popularity: 94, limited: false,
@@ -119,7 +117,7 @@ const PRODUCTS = [
     id: 3,
     name: "Golden Heritage",
     category: "Lumba",
-    price: 800, originalPrice: 1100,
+    price: 800,
     coverImage: "images/lumba-1.jpeg",
     swatch: "sw-6",
     rating: 5, popularity: 91, limited: true,
@@ -128,9 +126,9 @@ const PRODUCTS = [
     dimensions: "8x8 cm",
     delivery: "5-7 working days",
     designs: [
-      { name: "Peacock Heritage", image: "images/lumba-1.jpeg", images: [] },
-      { name: "Royal Kalash", image: "images/lumba-2.png", images: [] },
-      { name: "Swarna Abhushan", image: "images/lumba-3.png", images: [] }
+      { name: "Peacock Heritage", image: "images/lumba-1.jpeg", images: [], price: 1100 },
+      { name: "Royal Kalash", image: "images/lumba-2.png", images: [], price: 900 },
+      { name: "Swarna Abhushan", image: "images/lumba-3.png", images: [], price: 950 }
     ]
   }
 ];

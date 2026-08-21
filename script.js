@@ -176,7 +176,6 @@ function cardMediaMarkup(p) {
 }
 
 function productCard(p) {
-  const hasDiscount = p.originalPrice && p.originalPrice > p.price;
   const designCount = productDesigns(p).length;
   const linkLabel = designCount > 1 ? 'View designs' : 'Explore collection';
   return `
@@ -197,9 +196,59 @@ function productCard(p) {
       <div class="catalogue-footer">
         <div class="price-group">
           <span class="price">₹${p.price.toLocaleString('en-IN')}</span>
-          ${hasDiscount ? `<span class="price-original">₹${p.originalPrice.toLocaleString('en-IN')}</span>` : ''}
         </div>
         <span class="catalogue-link">${linkLabel} <span class="catalogue-link-arrow">→</span></span>
+      </div>
+    </div>
+  </div>`;
+}
+
+// A single design's own photos only (not one-per-design across the
+// whole product) — the auto-cycling preview on a design card pages
+// through that one design's angle shots, if it has more than one.
+function designCardMediaMarkup(p, design) {
+  const slides = designSlides(design);
+  if (slides.length === 0) {
+    return `<div class="catalogue-slide-track"><div class="catalogue-slide"><div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div></div></div>`;
+  }
+  const slidesHTML = slides
+    .map(
+      (src) => `
+    <div class="catalogue-slide">
+      <img class="product-img" src="${src}" alt="${design.name}">
+    </div>`,
+    )
+    .join('');
+  return `<div class="catalogue-slide-track">${slidesHTML}</div>`;
+}
+
+// One card per design (not per product) — { product, design, designIndex }
+// as produced by getFilteredDesigns(). Materials/dimensions/rating/desc
+// aren't tracked per-design in the data model, so those still come from
+// the parent product; price uses the same design-overrides-product
+// fallback Quick View already relies on.
+function designCard(entry) {
+  const { product: p, design: d, designIndex } = entry;
+  const effectivePrice = d.price != null ? d.price : p.price;
+  return `
+  <div class="catalogue-item" data-id="${p.id}" data-quickview="${p.id}" data-design-index="${designIndex}" role="button" tabindex="0" aria-label="View ${p.name} — ${d.name}">
+    <div class="catalogue-media">
+      ${designCardMediaMarkup(p, d)}
+      <div class="badges">
+        <span class="badge handmade">Handmade</span>
+        ${p.limited ? '<span class="badge limited">Limited Edition</span>' : ''}
+      </div>
+    </div>
+    <div class="catalogue-info">
+      <span class="catalogue-eyebrow">${p.name}</span>
+      <h3 class="catalogue-name">${d.name}</h3>
+      <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
+      <p class="catalogue-desc">${truncateWords(p.desc, 220)}</p>
+      <div class="catalogue-footer">
+        <div class="price-group">
+          <span class="price">₹${effectivePrice.toLocaleString('en-IN')}</span>
+        </div>
+        <span class="catalogue-link">Quick view <span class="catalogue-link-arrow">→</span></span>
       </div>
     </div>
   </div>`;
@@ -212,16 +261,37 @@ function renderFeatured() {
     .join('');
 }
 
-function getFilteredProducts() {
-  let list = SITE_DATA.products.slice();
-  if (currentFilter !== 'All') list = list.filter((p) => p.category === currentFilter);
-  if (searchTerm.trim())
-    list = list.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
-  if (currentSort === 'price-asc') list.sort((a, b) => a.price - b.price);
-  else if (currentSort === 'price-desc') list.sort((a, b) => b.price - a.price);
-  else if (currentSort === 'popular') list.sort((a, b) => b.popularity - a.popularity);
-  else list.sort((a, b) => b.id - a.id);
-  return list;
+// The shop grid now browses at the DESIGN level, not the product level:
+// "categories" are gone from the chip row in favor of product names, and
+// picking one flattens that product's designs into individual cards
+// (picking "All" flattens every design from every product). Each entry
+// carries both the parent product and which design/index it is, since
+// a design has no id of its own — Quick View is opened with that exact
+// product + design index.
+function getFilteredDesigns() {
+  let entries = [];
+  SITE_DATA.products.forEach((p) => {
+    if (currentFilter !== 'All' && p.name !== currentFilter) return;
+    productDesigns(p).forEach((d, i) => entries.push({ product: p, design: d, designIndex: i }));
+  });
+  if (searchTerm.trim()) {
+    const q = searchTerm.toLowerCase();
+    entries = entries.filter(
+      (e) => e.product.name.toLowerCase().includes(q) || e.design.name.toLowerCase().includes(q),
+    );
+  }
+  const effectivePrice = (e) => (e.design.price != null ? e.design.price : e.product.price);
+  if (currentSort === 'price-asc') entries.sort((a, b) => effectivePrice(a) - effectivePrice(b));
+  else if (currentSort === 'price-desc')
+    entries.sort((a, b) => effectivePrice(b) - effectivePrice(a));
+  else if (currentSort === 'popular')
+    entries.sort((a, b) => b.product.popularity - a.product.popularity);
+  else entries.sort((a, b) => b.product.id - a.product.id);
+  return entries;
+}
+
+function totalDesignCount() {
+  return SITE_DATA.products.reduce((sum, p) => sum + productDesigns(p).length, 0);
 }
 
 function hasActiveFilters() {
@@ -323,13 +393,13 @@ function initCardCarousels() {
 
 function renderShop() {
   const grid = document.getElementById('shopGrid');
-  const list = getFilteredProducts();
-  renderShopStatus(SITE_DATA.products.length, list.length);
+  const list = getFilteredDesigns();
+  renderShopStatus(totalDesignCount(), list.length);
   grid.style.opacity = 0;
   clearCardCarousels();
   setTimeout(() => {
     grid.innerHTML = list.length
-      ? list.map(productCard).join('')
+      ? list.map(designCard).join('')
       : `
       <div class="shop-empty">
         <p>No pieces match that search — try another name or filter.</p>
@@ -341,11 +411,15 @@ function renderShop() {
   }, 180);
 }
 
+// Chips are product names now, not categories — picking one filters the
+// design grid down to just that product's designs; "All" shows every
+// design from every product.
 function renderChips() {
-  document.getElementById('filterChips').innerHTML = SITE_DATA.categories
+  const options = ['All', ...SITE_DATA.products.map((p) => p.name)];
+  document.getElementById('filterChips').innerHTML = options
     .map(
-      (c) =>
-        `<button class="chip ${c === currentFilter ? 'active' : ''}" data-chip="${c}" aria-pressed="${c === currentFilter}">${c}</button>`,
+      (name) =>
+        `<button class="chip ${name === currentFilter ? 'active' : ''}" data-chip="${name}" aria-pressed="${name === currentFilter}">${name}</button>`,
     )
     .join('');
 }
@@ -759,17 +833,7 @@ function applyDesignMetaUI() {
   const designs = productDesigns(p);
   const design = designs[qvActiveDesignIndex];
   const effectivePrice = design.price != null ? design.price : p.price;
-  const hasDiscount = p.originalPrice && p.originalPrice > effectivePrice;
   document.getElementById('qvPrice').textContent = `₹${effectivePrice.toLocaleString('en-IN')}`;
-  const originalEl = document.getElementById('qvOriginal');
-  if (originalEl) {
-    if (hasDiscount) {
-      originalEl.textContent = `₹${p.originalPrice.toLocaleString('en-IN')}`;
-      originalEl.style.display = '';
-    } else {
-      originalEl.style.display = 'none';
-    }
-  }
   const nameEl = document.getElementById('qvDesignName');
   if (nameEl) nameEl.textContent = design.name;
   document.querySelectorAll('#designThumbs .design-thumb').forEach((t, i) => {
@@ -913,15 +977,15 @@ function flashShareFeedback(btn, label) {
   }, 1600);
 }
 
-function openQuickView(id) {
+function openQuickView(id, designIndex = 0) {
   const p = SITE_DATA.products.find((x) => x.id === id);
   qvProduct = p;
-  qvActiveDesignIndex = 0;
+  const designs = productDesigns(p);
+  qvActiveDesignIndex = Math.max(0, Math.min(designs.length - 1, designIndex));
   if (qvDesignCarousel) {
     qvDesignCarousel.destroy();
     qvDesignCarousel = null;
   }
-  const designs = productDesigns(p);
   const box = document.getElementById('qvBox');
 
   box.innerHTML = `
@@ -956,13 +1020,13 @@ function openQuickView(id) {
           designs.length > 1
             ? `
         <div class="qv-design-picker">
-          <div class="qv-design-tag">Design — <span id="qvDesignName">${designs[0].name}</span></div>
+          <div class="qv-design-tag">Design — <span id="qvDesignName">${designs[qvActiveDesignIndex].name}</span></div>
           <span class="qv-designs-label">Choose a design — ${designs.length} available</span>
           <div class="design-thumbs" id="designThumbs" role="tablist" aria-label="Available designs">
             ${designs
               .map(
                 (d, i) => `
-              <button class="design-thumb ${i === 0 ? 'active' : ''}" data-design="${i}" type="button" role="tab" aria-selected="${i === 0}" aria-label="${d.name}">
+              <button class="design-thumb ${i === qvActiveDesignIndex ? 'active' : ''}" data-design="${i}" type="button" role="tab" aria-selected="${i === qvActiveDesignIndex}" aria-label="${d.name}">
                 ${designSlides(d)[0] ? `<img src="${designSlides(d)[0]}" alt="${d.name}" draggable="false">` : `<div class="swatch ${p.swatch}"><div class="sw-icon">${iconFor(p.category)}</div></div>`}
               </button>`,
               )
@@ -973,7 +1037,6 @@ function openQuickView(id) {
         }
         <div class="qv-price-group">
           <div class="qv-price" id="qvPrice"></div>
-          <div class="qv-original" id="qvOriginal" style="display:none;"></div>
         </div>
         <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
         <div class="qv-meta">
@@ -1007,7 +1070,7 @@ function openQuickView(id) {
     qvDesignCarousel = createDragCarousel({
       container: qvGalleryEl,
       count: designs.length,
-      startIndex: 0,
+      startIndex: qvActiveDesignIndex,
       renderSlide: (i) => designSlideMarkup(p, i),
       onSettle: (i) => {
         qvActiveDesignIndex = i;
@@ -1026,7 +1089,7 @@ function openQuickView(id) {
     document.getElementById('qvDesignPrev').onclick = () => qvDesignCarousel.prev();
     document.getElementById('qvDesignNext').onclick = () => qvDesignCarousel.next();
   } else {
-    qvGalleryEl.innerHTML = designSlideMarkup(p, 0);
+    qvGalleryEl.innerHTML = designSlideMarkup(p, qvActiveDesignIndex);
   }
   applyDesignMetaUI();
   wirePhotoSubGallery(qvDesignCarousel ? qvDesignCarousel.getCurrentSlideEl() : qvGalleryEl);
@@ -1074,7 +1137,7 @@ function attachGlobalCardDelegation() {
     if (qvBtn) {
       e.preventDefault();
       e.stopPropagation();
-      openQuickView(+qvBtn.dataset.quickview);
+      openQuickView(+qvBtn.dataset.quickview, +(qvBtn.dataset.designIndex || 0));
       return;
     }
   });
@@ -1086,7 +1149,7 @@ function attachGlobalCardDelegation() {
     const qvTarget = e.target.closest('[data-quickview]');
     if (qvTarget) {
       e.preventDefault();
-      openQuickView(+qvTarget.dataset.quickview);
+      openQuickView(+qvTarget.dataset.quickview, +(qvTarget.dataset.designIndex || 0));
     }
   });
 }
