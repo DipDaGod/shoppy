@@ -194,9 +194,6 @@ function productCard(p) {
       <div class="stars">${Array(p.rating).fill(starSVG()).join('')}</div>
       <p class="catalogue-desc">${truncateWords(p.desc, 220)}</p>
       <div class="catalogue-footer">
-        <div class="price-group">
-          <span class="price">₹${p.price.toLocaleString('en-IN')}</span>
-        </div>
         <span class="catalogue-link">${linkLabel} <span class="catalogue-link-arrow">→</span></span>
       </div>
     </div>

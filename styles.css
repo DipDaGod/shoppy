@@ -192,7 +192,6 @@ h4 {
   align-items: center;
   gap: 22px;
 }
-
 .hamburger {
   display: none;
   flex-direction: column;

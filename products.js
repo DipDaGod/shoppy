@@ -73,7 +73,6 @@ const PRODUCTS = [
     id: 1,
     name: "Tanjore Soan",
     category: "Soan",
-    price: 200,
     coverImage: "",
     swatch: "sw-1",
     rating: 5, popularity: 95, limited: false,
@@ -82,17 +81,16 @@ const PRODUCTS = [
     dimensions: "5x5 cm",
     delivery: "3–5 working days",
     designs: [
-      { name: "Swastika", image: "images/soan-1.jpeg", images: [] },
-      { name: "Om", image: "images/soan-2.jpeg", images: [] },
-      { name: "Swastika Gold", image: "images/soan-3.jpeg", images: [] },
-      { name: "Sun", image: "images/soan-4.jpeg", images: [] }
+      { name: "Swastika", image: "images/soan-1.jpeg", images: [], price:200 },
+      { name: "Om", image: "images/soan-2.jpeg", images: [], price:200 },
+      { name: "Swastika Gold", image: "images/soan-3.jpeg", images: [], price:200 },
+      { name: "Sun", image: "images/soan-4.jpeg", images: [], price:200 }
     ]
   },
   {
     id: 2,
     name: "Swarn Dhaga",
     category: "Rakhi",
-    price: 100,
     coverImage: "",
     swatch: "sw-3",
     rating: 5, popularity: 94, limited: false,
@@ -101,23 +99,22 @@ const PRODUCTS = [
     dimensions: "Approx. 12 × 12 cm",
     delivery: "5–8 working days",
     designs: [
-      { name: "Design 1", image: "images/rakhi-1.jpeg", images: [] },
-      { name: "Design 2", image: "images/rakhi-2.jpeg", images: [] },
-      { name: "Design 3", image: "images/rakhi-3.jpeg", images: [] },
-      { name: "Design 4", image: "images/rakhi-4.jpeg", images: [] },
-      { name: "Design 5", image: "images/rakhi-5.jpeg", images: [] },
-      { name: "Design 6", image: "images/rakhi-6.jpeg", images: [] },
-      { name: "Design 7", image: "images/rakhi-7.jpeg", images: [] },
-      { name: "Design 8", image: "images/rakhi-8.jpeg", images: [] },
-      { name: "Design 9", image: "images/rakhi-9.jpeg", images: [] },
-      { name: "Design 10", image: "images/rakhi-10.jpeg", images: [] }
+      { name: "Design 1", image: "images/rakhi-1.jpeg", images: [], price:100 },
+      { name: "Design 2", image: "images/rakhi-2.jpeg", images: [], price:100 },
+      { name: "Design 3", image: "images/rakhi-3.jpeg", images: [], price:100 },
+      { name: "Design 4", image: "images/rakhi-4.jpeg", images: [], price:100 },
+      { name: "Design 5", image: "images/rakhi-5.jpeg", images: [], price:100 },
+      { name: "Design 6", image: "images/rakhi-6.jpeg", images: [], price:100 },
+      { name: "Design 7", image: "images/rakhi-7.jpeg", images: [], price:100 },
+      { name: "Design 8", image: "images/rakhi-8.jpeg", images: [], price:100 },
+      { name: "Design 9", image: "images/rakhi-9.jpeg", images: [], price:100 },
+      { name: "Design 10", image: "images/rakhi-10.jpeg", images: [], price:100 }
     ]
   },
   {
     id: 3,
     name: "Golden Heritage",
     category: "Lumba",
-    price: 800,
     coverImage: "images/lumba-1.jpeg",
     swatch: "sw-6",
     rating: 5, popularity: 91, limited: true,
