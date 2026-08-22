@@ -192,6 +192,7 @@ h4 {
   align-items: center;
   gap: 22px;
 }
+
 .hamburger {
   display: none;
   flex-direction: column;
@@ -825,17 +826,6 @@ section.pad {
   padding-top: 16px;
   border-top: 1px solid rgba(51, 44, 36, 0.1);
 }
-.price-group {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-}
-.price {
-  font-family: var(--display);
-  font-size: 23px;
-  font-weight: 600;
-  color: var(--ink);
-}
 .catalogue-link {
   font-size: 12.5px;
   letter-spacing: 0.02em;
@@ -1325,10 +1315,6 @@ section.pad {
     display: none;
   }
 
-  .price {
-    font-size: 16px;
-  }
-
   /* ---- controls ---- */
   .shop-controls {
     flex-direction: column;
@@ -1393,9 +1379,6 @@ section.pad {
   }
   .catalogue-name {
     font-size: 14px;
-  }
-  .price {
-    font-size: 14.5px;
   }
 }
 

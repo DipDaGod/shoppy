@@ -75,16 +75,17 @@ const PRODUCTS = [
     category: "Soan",
     coverImage: "",
     swatch: "sw-1",
+    price:150,
     rating: 5, popularity: 95, limited: false,
     desc: "A handcrafted Tanjore Soan, hand-painted with traditional motifs and finished with intricate gold detailing for a rich, festive look.",
     materials: "Hand-painted Tanjore artwork, gold-tone detailing, handmade base",
     dimensions: "5x5 cm",
     delivery: "3–5 working days",
     designs: [
-      { name: "Swastika", image: "images/soan-1.jpeg", images: [], price:200 },
-      { name: "Om", image: "images/soan-2.jpeg", images: [], price:200 },
-      { name: "Swastika Gold", image: "images/soan-3.jpeg", images: [], price:200 },
-      { name: "Sun", image: "images/soan-4.jpeg", images: [], price:200 }
+      { name: "Swastika", image: "images/soan-1.jpeg", images: [] },
+      { name: "Om", image: "images/soan-2.jpeg", images: [] },
+      { name: "Swastika Gold", image: "images/soan-3.jpeg", images: [] },
+      { name: "Sun", image: "images/soan-4.jpeg", images: [] }
     ]
   },
   {
@@ -93,22 +94,23 @@ const PRODUCTS = [
     category: "Rakhi",
     coverImage: "",
     swatch: "sw-3",
+    price:150,
     rating: 5, popularity: 94, limited: false,
     desc: "A handcrafted Tanjore rakhi featuring hand-painted traditional motifs, intricate gold detailing, colourful threads, and decorative beads. Each design is individually handmade for a rich and festive finish.",
     materials: "Hand-painted Tanjore artwork, gold-tone detailing, decorative beads, traditional threads, handmade base",
     dimensions: "Approx. 12 × 12 cm",
     delivery: "5–8 working days",
     designs: [
-      { name: "Design 1", image: "images/rakhi-1.jpeg", images: [], price:100 },
-      { name: "Design 2", image: "images/rakhi-2.jpeg", images: [], price:100 },
-      { name: "Design 3", image: "images/rakhi-3.jpeg", images: [], price:100 },
-      { name: "Design 4", image: "images/rakhi-4.jpeg", images: [], price:100 },
-      { name: "Design 5", image: "images/rakhi-5.jpeg", images: [], price:100 },
-      { name: "Design 6", image: "images/rakhi-6.jpeg", images: [], price:100 },
-      { name: "Design 7", image: "images/rakhi-7.jpeg", images: [], price:100 },
-      { name: "Design 8", image: "images/rakhi-8.jpeg", images: [], price:100 },
-      { name: "Design 9", image: "images/rakhi-9.jpeg", images: [], price:100 },
-      { name: "Design 10", image: "images/rakhi-10.jpeg", images: [], price:100 }
+      { name: "Design 1", image: "images/rakhi-1.jpeg", images: [] },
+      { name: "Design 2", image: "images/rakhi-2.jpeg", images: [] },
+      { name: "Design 3", image: "images/rakhi-3.jpeg", images: [] },
+      { name: "Design 4", image: "images/rakhi-4.jpeg", images: [] },
+      { name: "Design 5", image: "images/rakhi-5.jpeg", images: [] },
+      { name: "Design 6", image: "images/rakhi-6.jpeg", images: [] },
+      { name: "Design 7", image: "images/rakhi-7.jpeg", images: [] },
+      { name: "Design 8", image: "images/rakhi-8.jpeg", images: [] },
+      { name: "Design 9", image: "images/rakhi-9.jpeg", images: [] },
+      { name: "Design 10", image: "images/rakhi-10.jpeg", images: [] }
     ]
   },
   {
@@ -123,9 +125,9 @@ const PRODUCTS = [
     dimensions: "8x8 cm",
     delivery: "5-7 working days",
     designs: [
-      { name: "Peacock Heritage", image: "images/lumba-1.jpeg", images: [], price: 1100 },
-      { name: "Royal Kalash", image: "images/lumba-2.png", images: [], price: 900 },
-      { name: "Swarna Abhushan", image: "images/lumba-3.png", images: [], price: 950 }
+      { name: "Peacock Heritage", image: "images/lumba-1.jpeg", images: [], price: 950 },
+      { name: "Royal Kalash", image: "images/lumba-2.png", images: [], price: 850 },
+      { name: "Swarna Abhushan", image: "images/lumba-3.png", images: [], price: 1100 }
     ]
   }
 ];
